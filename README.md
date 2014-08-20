@@ -27,7 +27,7 @@ Now the entire toolchain is already available upon the vendor autoloader inclusi
 ```
 <?php
 // Load vendors
-include 'vendors/autoload.php';
+include 'vendor/autoload.php';
 
 Route::on('/',function(){
 	echo "Hello from Core!";
