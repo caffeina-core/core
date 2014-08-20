@@ -1,0 +1,23 @@
+{
+    "name": "caffeina-core/core",
+    "type": "library",
+    "description": "Caffeina - Core PHP SDK",
+    "keywords": ["framework","core","sdk"],
+    "homepage": "http://labs.caffeina.co/tech/core",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Stefano Azzolini",
+            "email": "stefano.azzolini@caffeinalab.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "predis/predis": "*"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "files": [ "classes/Loader.php" ]
+    }
+}
