@@ -11,7 +11,7 @@ Add package to your **composer.json**:
 ```
 {
   "require": {
-    "caffeina-core/core": "*"
+    "caffeina-core/core": "dev-master"
   }
 }
 ```
