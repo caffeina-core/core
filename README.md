@@ -2,7 +2,6 @@
 <img src="https://github.com/caffeina-core/core/blob/master/Icon.png?raw=true" alt="Core" width="200"/>
 </p>
 
----
 
 # Core
 
