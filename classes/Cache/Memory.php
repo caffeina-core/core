@@ -53,6 +53,6 @@ class Memory implements \CacheInterface {
     }
     
     public function dec($key,$value=1){
-    	return isset($this->memory[$key]) ? $this->memory[$key][0] -= $value : $this->memory[$key][0] = -$value;
+        $this->inc($key,-abs($value));
     }
 }
