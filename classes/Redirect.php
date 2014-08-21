@@ -15,6 +15,7 @@ class Redirect {
     use Module;
 
     public static function to($url){
+        Response::clean();
         Response::header('Location',$url);
         Response::send();
         exit;
