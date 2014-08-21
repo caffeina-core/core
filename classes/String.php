@@ -18,7 +18,7 @@ class String {
 	 * Uses a Twig-like syntax.
 	 *
 	 * @example
-	 *		echo String::render('Your IP is : {{ server.REMOTE_HOST }}',array('server' => $_SERVER);
+	 *		echo String::render('Your IP is : {{ server.REMOTE_HOST }}',array('server' => $_SERVER));
 	 *
 	 * @author Stefano Azzolini <stefano.azzolini@caffeinalab.com>
 	 * @access public
