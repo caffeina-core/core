@@ -1,4 +1,4 @@
-![Core](core-logo.png)
+<img src="https://github.com/caffeina-core/core/blob/master/core-logo.png?raw=true" height="200">
 
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/caffeina-core/core/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/caffeina-core/core/?branch=master)
