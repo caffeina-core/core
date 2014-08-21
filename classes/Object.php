@@ -14,7 +14,7 @@
 class Object extends ArrayObject {
 
     public function __construct($input=[],$deep=true){
-        if (is_array($data = (is_string($input)?json_decode($input,1):(array)$input))){
+        if (is_array($data = (is_string($input)?json_decode($input,true):(array)$input))){
             if ($deep) foreach ($data as $key => &$value) {
                 if (is_array($value) || is_a($value,'stdClass')){
                     $value = new self($value);
