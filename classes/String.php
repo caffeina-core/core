@@ -33,7 +33,7 @@ class String {
 		for ($e=explode('{{',$t),$r=$e[$i=0];
 			isset($e[++$i]) && $ss=explode('}}',$e[$i]);
 			$r.=(strpos($q=trim($ss[0]),'.')!==false?
-			static::_rh($q,$v):(isset($v[$q])?$v[$q]:''))
+			self::_rh($q,$v):(isset($v[$q])?$v[$q]:''))
 			.end($ss));return $r;
 	}
 
