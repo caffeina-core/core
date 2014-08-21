@@ -61,7 +61,7 @@ class Message extends Dictionary {
 
   /**
    * Return a read-only accessor to messages variables for in-view use.
-   * @return SessionReadOnly
+   * @return MessageReadOnly
    */
   public static function readOnly(){
     return new MessageReadOnly();
