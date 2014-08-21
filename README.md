@@ -4,9 +4,9 @@
 
 ---
 
-#Core
+# Core
 
----
+
 ### Installation
 
 Add package to your **composer.json**:
