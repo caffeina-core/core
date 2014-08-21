@@ -69,7 +69,7 @@ class Route {
                 :
                 $URL == rtrim($this->pattern,'/')
         ){
-            foreach ($args as $key => $value) {
+            if($args) foreach ($args as $key => $value) {
                 if(false===is_string($key)) unset($args[$key]);
             }
             return $args;
