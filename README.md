@@ -48,3 +48,8 @@ Response::send();
 ### Documentation
 
 See the [wiki](https://github.com/caffeina-core/core/wiki).
+
+
+-----
+
+<p align="center"><a href="http://caffeina.co" target="_blank" title="Caffeina - Ideas Never Sleep"><img src="https://github.com/CaffeinaLab/BrandResources/blob/master/caffeina-handmade.png?raw=true" align="center" height="65"></a></p>
