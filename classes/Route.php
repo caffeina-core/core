@@ -103,12 +103,16 @@ class Route {
         // Start capturing output
         Response::start();
 
-        $this->response = call_user_func_array($callback->bindTo($this), $args);
+        $this->response = '';
+        $view_results = call_user_func_array($callback->bindTo($this), $args);
 
         // Render View if returned, else echo string or encode json response
-        if(null !== $this->response) {
-          if (is_a($this->response,'View') || is_string($this->response)) echo $this->response;
-            else Response::json($this->response);
+        if(null !== $view_results) {
+          if (is_a($view_results,'View') || is_string($view_results)) {
+              echo $this->response = $view_results;
+          } else {
+              Response::json($view_results);
+          }
         }
 
         Response::end();
