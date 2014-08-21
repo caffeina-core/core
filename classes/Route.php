@@ -109,7 +109,7 @@ class Route {
         // Render View if returned, else echo string or encode json response
         if(null !== $view_results) {
           if (is_a($view_results,'View') || is_string($view_results)) {
-              echo $this->response = $view_results;
+              echo $this->response = (string)$view_results;
           } else {
               Response::json($view_results);
           }
