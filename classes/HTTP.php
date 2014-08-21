@@ -58,7 +58,7 @@ class HTTP {
           $headers['Content-Type']    = 'application/json';
           $opt[CURLOPT_POSTFIELDS]    = json_encode($data);     
         } else {
-          $opt[CURLOPT_POSTFIELDS]    = $data;
+          $opt[CURLOPT_POSTFIELDS]    = http_build_query($data);
         }
       }
     }
