@@ -1,9 +1,7 @@
 <p align="center">
-<img src="https://github.com/caffeina-core/core/blob/master/Icon.png?raw=true" alt="Core" width="200"/>
+<img src="https://github.com/caffeina-core/core/blob/master/core-logo.png?raw=true" alt="Core" height="200"/>
 </p>
 
-
-# Core
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/caffeina-core/core/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/caffeina-core/core/?branch=master)
 [![Build Status](https://scrutinizer-ci.com/g/caffeina-core/core/badges/build.png?b=master)](https://scrutinizer-ci.com/g/caffeina-core/core/build-status/master)
