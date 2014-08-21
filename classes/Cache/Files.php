@@ -75,6 +75,6 @@ class Files implements \CacheInterface {
     }
 
     public function dec($key,$value=1){
-        $this->add($key,-abs($value));
+        $this->inc($key,-abs($value));
     }
 }
