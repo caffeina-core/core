@@ -41,3 +41,7 @@ Route::dispatch();
 // Send response to the browser
 Response::send();
 ```
+
+### Documentation
+
+See the [wiki](https://github.com/caffeina-core/core/wiki).
