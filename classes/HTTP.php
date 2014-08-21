@@ -111,7 +111,6 @@ class HTTP {
   public static function info($url,array $options=[]){
     $ch = curl_init($url);
     curl_setopt_array($ch, array_merge([
-      CURLOPT_CUSTOMREQUEST   => $method,
       CURLOPT_SSL_VERIFYHOST  => false,
       CURLOPT_CONNECTTIMEOUT  => 10,
       CURLOPT_RETURNTRANSFER  => true,
