@@ -351,7 +351,6 @@ class Route {
             if(empty(static::$prefix)) static::$prefix=[''];
         } 
 
-        return $this;
     }
 
     /**
