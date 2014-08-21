@@ -45,7 +45,7 @@ class Redis implements \CacheInterface {
         'exceptions'          => $this->options['exceptions'],
         'connection_timeout'  => $this->options['timeout'],
       ]);
-    } catch ( Exception $e ) {
+    } catch ( \Exception $e ) {
       die($e);
     }
   }

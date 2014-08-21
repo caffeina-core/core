@@ -17,10 +17,10 @@ class HTTP {
   protected static $headers = [];
 
   protected static function request($method,$url,$data=null,array $headers=[], $data_as_json=false, $username = null, $password = null){
-    $method = strtoupper($method);
+    $http_method = strtoupper($method);
     $ch = curl_init($url);
     $opt = [
-      CURLOPT_CUSTOMREQUEST   => $method,
+      CURLOPT_CUSTOMREQUEST   => $http_method,
       CURLOPT_SSL_VERIFYHOST  => false,
       CURLOPT_CONNECTTIMEOUT  => 10,
       CURLOPT_RETURNTRANSFER  => true,
@@ -38,7 +38,7 @@ class HTTP {
 
     $headers = array_merge($headers,static::$headers);
 
-    if($method=='GET'){
+    if($http_method=='GET'){
       if($data && is_array($data)){
         $tmp = [];
         $queried_url = $url;
@@ -48,10 +48,10 @@ class HTTP {
         $opt[CURLOPT_URL] = $queried_url;
       } 
     } else {
-      if($method=='POST') {
+      if($http_method=='POST') {
         $opt[CURLOPT_POST]            = true;
       } else {
-        $opt[CURLOPT_CUSTOMREQUEST]   = $method;
+        $opt[CURLOPT_CUSTOMREQUEST]   = $http_method;
       }
       if(null!==$data){
         if($data_as_json){
@@ -124,7 +124,7 @@ class HTTP {
       CURLOPT_NOBODY          => true,
     ],$options));
 
-    $header = curl_exec($ch);
+    curl_exec($ch);
     $info = curl_getinfo($ch);
     curl_close($ch);
     return $info;

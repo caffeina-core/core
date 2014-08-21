@@ -66,18 +66,15 @@ class Files implements \CacheInterface {
     }
 
     public function flush(){
-        exec('rm -f ' . $this->options->cache_dir . '*');
+        exec('rm -f ' . $this->options->cache_dir . '*.cache.php');
     }
 
     public function inc($key,$value=1){
-        $cache_file_name = $this->options->cache_dir.$key.'.cache.php';
         if(null === ($current = $this->get($key))) $current = $value; else $current += $value;
         $this->set($key,$current);
     }
 
     public function dec($key,$value=1){
-        $cache_file_name = $this->options->cache_dir.$key.'.cache.php';
-        if(null === ($current = $this->get($key))) $current = $value; else $current -= $value;
-        $this->set($key,$current);
+        $this->inc($key,-abs($value));
     }
 }
