@@ -1,14 +1,17 @@
-# Core
-Caffeina PHP SDK
+<p align="center">
+<img src="https://github.com/caffeina-core/core/blob/master/Icon.png?raw=true" alt="Core" width="200"/>
+</p>
 
 ---
 
-### Installation
+#Core
 
+---
+### Installation
 
 Add package to your **composer.json**:
 
-```
+```json
 {
   "require": {
     "caffeina-core/core": "dev-master"
@@ -16,15 +19,15 @@ Add package to your **composer.json**:
 }
 ```
 
-Run composer:
+Run [composer](https://getcomposer.org/download/):
 
-```
-php composer.phar install -o
+```bash
+$ php composer.phar install -o
 ```
 
 Now the entire toolchain is already available upon the vendor autoloader inclusion.
 
-```
+```php
 <?php
 // Load vendors
 include 'vendor/autoload.php';
@@ -39,7 +42,3 @@ Route::dispatch();
 // Send response to the browser
 Response::send();
 ```
-
-### Documentation
-
-See the [wiki](https://github.com/caffeina-core/core/wiki).
