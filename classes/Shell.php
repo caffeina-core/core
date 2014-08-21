@@ -69,8 +69,9 @@ class Shell {
     }
     
     public function __toString(){
+        $output = [];
         exec($this->command,$output,$error_code);
-        return implode(PHP_EOL,$output);
+        return empty($output)?'':implode(PHP_EOL,$output);
     }
 
     /**
