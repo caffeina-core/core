@@ -100,7 +100,6 @@ class SQL {
     array_walk($k,function(&$e){ $e = "`$e`=:$e";});
     $data_x = []; array_walk($data,function($e,$key)use(&$data_x){$data_x[':'.$key]=$e;});
     $q = "UPDATE `$table` SET ".implode(',',$k)." WHERE `$pk`=:$pk";
-    var_dump($q);
     static::exec($q,$data_x);
     return static::connection()->lastInsertId();
   }  
