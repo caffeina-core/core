@@ -22,7 +22,7 @@ class Session {
 	 */
 	static public function start(){
 		if (isset($_SESSION)) return;
-		session_cache_limiter(false);
+		session_cache_limiter('must-revalidate');
 		@session_start();
 	}
 
