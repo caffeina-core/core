@@ -42,7 +42,7 @@ class Route {
         $this->URLPattern = rtrim(implode('',static::$prefix),'/') . '/' . trim($URLPattern,'/')?:'/';
         $this->URLPattern = $this->URLPattern != '/' ? rtrim($this->URLPattern,'/') : $this->URLPattern;
         $this->dynamic = $this->checkIfDynamic($this->URLPattern);
-        $this->pattern = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern) : $this->URLPattern;
+        $this->pattern = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern,$this->rules) : $this->URLPattern;
         $this->callback = $callback;
 
         // We will use hash-checks, for O(1) complexity vs O(n)
@@ -232,7 +232,7 @@ class Route {
         foreach((array)$rules as $varname => $rule){
             $this->rules[$varname] = $rule;
         }
-        $this->pattern = $this->compilePatternAsRegex($this->URLPattern);
+        $this->pattern = $this->compilePatternAsRegex($this->URLPattern,$this->rules);
         return $this;
     }
 
@@ -270,8 +270,7 @@ class Route {
      * @param  string $pattern The URL schema.
      * @return string The compiled PREG RegEx.
      */
-    protected static function compilePatternAsRegex($pattern){
-        $rules = isset($this) ? $this->rules : [];
+    protected static function compilePatternAsRegex($pattern,$rules=[]){
         return '#^'.preg_replace_callback('#:([a-zA-Z]\w*)#S',function($g) use (&$rules){
             return '(?<' . $g[1] . '>' . (isset($rules[$g[1]])?$rules[$g[1]]:'[^/]+') .')';
         },str_replace(['.',')'],['\.',')?'],$pattern)).'$#';
