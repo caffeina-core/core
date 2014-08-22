@@ -125,7 +125,7 @@ class Request {
     $uri = ($uri == $self) ? '/' : $uri;
 
     // Add a filter here, for URL rewriting
-    $uri = Filter::with('route.requestURI',$uri);
+    $uri = Filter::with('core.request.URI',$uri);
 
     $uri = rtrim($uri,'/');
 
@@ -147,7 +147,7 @@ class Request {
     $self = $_SERVER['PHP_SELF'] ?: $_SERVER['SCRIPT_NAME'];
     $uri = dirname($self);
     // Add a filter here, for URL rewriting
-    $uri = Filter::with('route.requestURI',$uri);
+    $uri = Filter::with('core.request.URI',$uri);
 
     $uri = rtrim($uri,'/');
     return $uri ?: '/';
