@@ -99,15 +99,6 @@ class Request {
   }
 
   /**
-   * Returns the base request URL, complete with host and protocol.
-   *
-   * @return string
-   */
-  public static function baseURL(){
-    return 'http' . (empty($_SERVER['HTTPS'])?'':'s') . '://' . $_SERVER['HOSTNAME'] . static::baseURI();
-  }
-
-  /**
    * Returns the current request URI.
    *
    * @param  boolean $relative If true, trim the URI relative to the application index.php script. 
@@ -134,22 +125,6 @@ class Request {
       $uri = str_replace($base,'',$uri);
     }
 
-    return $uri ?: '/';
-  }
-
-  /**
-   * Returns the base request URI.
-   *
-   * @return string
-   */
-  public static function baseURI(){
-    // On some web server configurations PHP_SELF is not populated.
-    $self = $_SERVER['PHP_SELF'] ?: $_SERVER['SCRIPT_NAME'];
-    $uri = dirname($self);
-    // Add a filter here, for URL rewriting
-    $uri = Filter::with('core.request.URI',$uri);
-
-    $uri = rtrim($uri,'/');
     return $uri ?: '/';
   }
 
