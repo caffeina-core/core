@@ -18,7 +18,6 @@ class Response {
     const TEXT          = 'text/plain';
     const CSS           = 'text/css';
     const XML           = 'text/xml';
-    const XSL           = 'text/xsl';
     const SVG           = 'image/svg+xml';
     const JS            = 'application/javascript';
     const BIN           = 'application/octet-stream';
@@ -122,15 +121,6 @@ class Response {
     }
 
     /**
-     * Append an XSL string to the buffer.
-     * @param  mixed $payload Data to append to the response buffer
-     */
-    public static function xls(){
-        static::type(static::XSL);
-        static::$payload[] = implode('',func_get_args());
-    }
-
-    /**
      * Append a SVG string to the buffer.
      * @param  mixed $payload Data to append to the response buffer
      */
@@ -166,12 +156,12 @@ class Response {
 
     public static function error($code=500,$message='Application Error'){
         static::status($code,$message);
-        Event::trigger('response.error',$code,$message);
+        Event::trigger('core.response.error',$code,$message);
     }
 
     public static function body($setBody=null){
       if($setBody) static::$payload = [$setBody];
-      return Filter::with('response.body',is_array(static::$payload)?implode('',static::$payload):static::$payload);
+      return Filter::with('core.response.body',is_array(static::$payload)?implode('',static::$payload):static::$payload);
     }
 
     public static function headers($setHeaders=null){
@@ -207,7 +197,7 @@ class Response {
     }
 
     public static function send(){
-        Event::trigger('response.send');
+        Event::trigger('core.response.send');
         if(false === headers_sent()) foreach (static::$headers as $name => $value_code) {
             if (is_array($value_code)) {
                 list($value,$code) = count($value_code) >1 ? $value_code : [current($value_code),200];
