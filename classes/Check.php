@@ -18,7 +18,7 @@ class Check {
   public static function valid($rules,$data){
     static::$errors = [];
 
-    Event::triggerOnce('core.check');
+    Event::triggerOnce('core.check.init');
 
     foreach ($rules as $field_name => $rule) {
 
@@ -71,7 +71,7 @@ class Check {
 
 }
 
-Event::on('core.check',function(){
+Event::on('core.check.init',function(){
 
   Check::method([
 
