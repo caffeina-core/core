@@ -116,7 +116,7 @@ class Request {
    */
   public static function URI($relative=true){
     // On some web server configurations PHP_SELF is not populated.
-    $self = $_SERVER['PHP_SELF'] ?: $_SERVER['SCRIPT_NAME'];
+    $self = $_SERVER['SCRIPT_NAME'] ?: $_SERVER['PHP_SELF'];
     // Search REQUEST_URI in $_SERVER
     $serv_uri = empty($_SERVER['PATH_INFO'])
       ? ( empty($_SERVER['ORIG_PATH_INFO']) ? $_SERVER['REQUEST_URI'] : $_SERVER['ORIG_PATH_INFO'] )
