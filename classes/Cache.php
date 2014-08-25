@@ -144,4 +144,4 @@ interface CacheInterface  {
     public static function valid();
 }
 
-Cache::using('files','memory');
+Cache::using(['files','memory']);
