@@ -13,8 +13,10 @@
 
 class Cache {
    protected static $driver = null;
+   protected static $enabled = true;
 
     public static function get($key,$default='',$expire=0){
+      if (static::$enabled){
         $hash = static::hash($key);
         if(static::$driver->exists($hash) && $results = static::$driver->get($hash)){
             return $results;
@@ -24,6 +26,9 @@ class Cache {
             }
             return $data;
         }
+      } else {
+        return is_callable($default) ? call_user_func($default) : $default;
+      }
     }
 
     /**
@@ -66,6 +71,20 @@ class Cache {
        return false;
     }
 
+    /**
+     * Returns/Set master switch on cache.
+     *
+     * @method enabled
+     *
+     * @param  boolean  $enabled Enable/Disable the cache status.
+     *
+     * @return boolean  Cache on/off status
+     */
+    public static function enabled($enabled=null){
+        return $enabled ? static::$enabled : static::$enabled = $enabled;
+    }
+
+
     public static function set($key,$value,$expire=0){
         return static::$driver->set(static::hash($key),$value,$expire);
     }
@@ -75,7 +94,7 @@ class Cache {
     }
 
     public static function exists($key){
-        return static::$driver->exists(static::hash($key));
+        return static::$enabled && static::$driver->exists(static::hash($key));
     }
 
     public static function flush(){
@@ -125,4 +144,4 @@ interface CacheInterface  {
     public static function valid();
 }
 
-Cache::using('memory');
+Cache::using('files','memory');
