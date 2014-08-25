@@ -11,14 +11,13 @@
  * @copyright Caffeina srl - 2014 - http://caffeina.co
  */
 
-
  class Password {
 
- 	/**
- 	 * Create a secure password hash.
- 	 * @param string $password 
- 	 * @return string
- 	 */
+ 	  /**
+ 	   * Create a secure password hash.
+ 	   * @param string $password 
+ 	   * @return string
+ 	   */
     public static function make($password){
     	// Pre PHP 5.5 support
         if (!defined('PASSWORD_DEFAULT')) {
@@ -43,3 +42,4 @@
         }
     }
 }
+
