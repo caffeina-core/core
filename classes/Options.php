@@ -23,7 +23,7 @@ class Options extends Dictionary {
 		ob_start();
 		$results = include($filepath);
 		ob_end_clean();
-		static::load($results,$prefix_path);
+		if($results) static::loadArray($results,$prefix_path);
 	}
 
 	/**
@@ -32,7 +32,8 @@ class Options extends Dictionary {
 	 * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
 	 */
 	public static function loadINI($filepath,$prefix_path=null){
-		static::load(parse_ini_file($filepath,true),$prefix_path);
+		$results = parse_ini_file($filepath,true);
+		if($results) static::loadArray($results,$prefix_path);
 	}
 
 	/**
@@ -41,7 +42,9 @@ class Options extends Dictionary {
 	 * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
 	 */
 	public static function loadJSON($filepath,$prefix_path=null){
-		static::load(json_decode($filepath,true),$prefix_path);
+		$data = file_get_contents($filepath);
+		$results = $data?json_decode($data,true):[];
+		if($results) static::loadArray($results,$prefix_path);
 	}
 
 	/**
