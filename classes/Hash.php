@@ -27,11 +27,9 @@ class Hash {
         switch($method){
             case self::SLOW:
                 return hash('sha1',$_payload);
-                break;
             case self::FAST:
             default:
                 return hash('md5',$_payload);
-                break;
         }
     }
 
