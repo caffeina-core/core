@@ -49,7 +49,7 @@ class Options extends Dictionary {
 	 * @param  array $array The array to load
 	 * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
 	 */
-	public static function load(array $array,$prefix_path=null){
+	public static function loadArray(array $array,$prefix_path=null){
 		if (is_array($array)) {
 			if ($prefix_path){
 				static::set($prefix_path,$array);
