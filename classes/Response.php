@@ -142,7 +142,7 @@ class Response {
      * Append a raw string to the buffer.
      * @param  mixed $payload Data to append to the response buffer
      */
-    public static function raw(){
+    public static function add(){
         static::$payload[] = implode('',func_get_args());
     }
 
