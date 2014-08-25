@@ -13,14 +13,14 @@
 class Response {
     use Module;
 
-    const JSON          = 'application/json';
-    const HTML          = 'text/html';
-    const TEXT          = 'text/plain';
-    const CSS           = 'text/css';
-    const XML           = 'text/xml';
-    const SVG           = 'image/svg+xml';
-    const JS            = 'application/javascript';
-    const BIN           = 'application/octet-stream';
+    const TYPE_JSON          = 'application/json';
+    const TYPE_HTML          = 'text/html';
+    const TYPE_TEXT          = 'text/plain';
+    const TYPE_CSS           = 'text/css';
+    const TYPE_XML           = 'text/xml';
+    const TYPE_SVG           = 'image/svg+xml';
+    const TYPE_JS            = 'application/javascript';
+    const TYPE_BIN           = 'application/octet-stream';
 
     protected static $payload     = [];
     protected static $status      = 200;
@@ -98,7 +98,7 @@ class Response {
      * @param  mixed $payload Data to append to the response buffer
      */
     public static function json($payload){
-        static::type(static::JSON);
+        static::type(static::TYPE_JSON);
         static::$payload[] = json_encode($payload,JSON_NUMERIC_CHECK);
     }
 
@@ -107,7 +107,7 @@ class Response {
      * @param  mixed $payload Text to append to the response buffer
      */
     public static function text(){
-        static::type(static::TEXT);
+        static::type(static::TYPE_TEXT);
         static::$payload[] = implode('',func_get_args());
     }
 
@@ -116,7 +116,7 @@ class Response {
      * @param  mixed $payload Data to append to the response buffer
      */
     public static function xml(){
-        static::type(static::XML);
+        static::type(static::TYPE_XML);
         static::$payload[] = implode('',func_get_args());
     }
 
@@ -125,7 +125,7 @@ class Response {
      * @param  mixed $payload Data to append to the response buffer
      */
     public static function svg(){
-        static::type(static::SVG);
+        static::type(static::TYPE_SVG);
         static::$payload[] = implode('',func_get_args());
     }
 
@@ -134,7 +134,7 @@ class Response {
      * @param  mixed $payload Data to append to the response buffer
      */
     public static function html(){
-        static::type(static::HTML);
+        static::type(static::TYPE_HTML);
         static::$payload[] = implode('',func_get_args());
     }
 
