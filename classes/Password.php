@@ -11,15 +11,16 @@
  * @copyright Caffeina srl - 2014 - http://caffeina.co
  */
 
+
  class Password {
 
- 	  /**
- 	   * Create a secure password hash.
- 	   * @param string $password 
- 	   * @return string
- 	   */
+    /**
+     * Create a secure password hash.
+     * @param string $password 
+     * @return string
+     */
     public static function make($password){
-    	// Pre PHP 5.5 support
+        // Pre PHP 5.5 support
         if (!defined('PASSWORD_DEFAULT')) {
             return '$5h$'.hash('sha1',$password);
         } else {
@@ -34,7 +35,7 @@
      * @return bool           Returns `true` if hash match password 
      */
     public static function verify($password,$hash){
-    	// Pre PHP 5.5 support
+        // Pre PHP 5.5 support
         if (!defined('PASSWORD_DEFAULT') || substr($hash,0,4)=='$5h$') {
             return '$5h$'.hash('sha1',$password) == $hash;
         } else {
@@ -42,4 +43,3 @@
         }
     }
 }
-
