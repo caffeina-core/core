@@ -13,24 +13,15 @@
 
 
 class Hash {
-    const FAST = 0;
-    const SLOW = 1;
     
     /**
      * Create ah hash for payload
      * @param  mixed $payload The payload string/object/array
-     * @param  integer $method  The hashing method : FAST/SLOW
+     * @param  integer $method  The hashing method, default is "md5"
      * @return string          The hash string
      */
-    public static function make($payload,$method=self::FAST){
-        $_payload = serialize($payload);
-        switch($method){
-            case self::SLOW:
-                return hash('sha1',$_payload);
-            case self::FAST:
-            default:
-                return hash('md5',$_payload);
-        }
+    public static function make($payload,$method='md5'){
+        return hash($method,serialize($payload));
     }
 
     /**
@@ -43,6 +34,39 @@ class Hash {
     public static function verify($payload,$hash,$method=self::FAST){
         return static::make($payload,$method) == $hash;
     }
-    
-}
 
+    /**
+     * List registered hashing algorithms
+     *
+     * @method methods
+     *
+     * @return array   Array containing the list of supported hashing algorithms.
+     */
+    public static function methods(){
+        return hash_algos();
+    }
+
+
+    /**
+     * Check if an alghoritm is registered in current PHP
+     *
+     * @method can
+     *
+     * @param  string $algo The hashing algorithm name
+     *
+     * @return bool
+     */
+    public static function can($algo){
+        return in_array($algo,hash_algos());
+    }
+    
+    /**
+     * Static magic for creating hashes with a specified algorithm.
+     * 
+     * See [hash-algos](http://php.net/manual/it/function.hash-algos.php) for a list of algorithms
+     */
+    public static function __callStatic($method,$params){
+        return self::make(current($params),$method);
+    }
+
+}
