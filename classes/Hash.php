@@ -28,10 +28,10 @@ class Hash {
      * Verify if given payload matches hash
      * @param  mixed $payload  The payload string/object/array
      * @param  string $hash    The hash string
-     * @param  integer $method The hashing method : FAST/SLOW
+     * @param  integer $method The hashing method
      * @return bool            Returns `true` if payload matches hash
      */
-    public static function verify($payload,$hash,$method=self::FAST){
+    public static function verify($payload,$hash,$method='md5'){
         return static::make($payload,$method) == $hash;
     }
 
