@@ -20,10 +20,23 @@ class Session {
 	 * @static
 	 * @return void
 	 */
-	static public function start(){
+	static public function start($name=null){
 		if (isset($_SESSION)) return;
+		static::name($name);
 		session_cache_limiter('must-revalidate');
 		@session_start();
+	}
+
+	/**
+	 * Get/Set Session name
+	 *
+	 * @access public
+	 * @static
+	 * @param string $key The session name
+	 * @return string The session value
+	 */
+	static public function name($name=null){
+		return $name ? session_name($name) : session_name();
 	}
 
 	/**
@@ -129,6 +142,10 @@ class SessionReadOnly {
 	}
 	public function __get($key){
 		return Session::get($key);
+	}
+
+	public function name(){
+		return Session::name();
 	}
 
 	/**
