@@ -49,8 +49,8 @@ class SQL {
   public static function exec($query,$params=[]){
     $query = Filter::with('core.sql.query',$query);
     $statement = static::prepare($query);
-    Event::trigger('core.sql.query',$query,$params);
-    static::$last_exec_success = $statement->execute($params);
+    Event::trigger('core.sql.query',$query,$params,!!$statement);
+    static::$last_exec_success = $statement && $statement->execute($params);
     return $statement;
   }
 
