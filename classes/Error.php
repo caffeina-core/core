@@ -1,7 +1,5 @@
 <?php
 
-// WIP
-
 /**
  * Error
  *
@@ -14,48 +12,57 @@
  */
 
 class Error {
+    const MODE_SIMPLE = 0;
+    const MODE_HTML = 1;
+
+    static $mode = self::MODE_SIMPLE;
 
     public static function capture(){
-
-      set_error_handler(function($errno, $errstr, $errfile, $errline ) {
-          throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-      });
-
       set_error_handler(__CLASS__.'::traceError');
+      set_exception_handler(__CLASS__.'::traceException');
+    }
+
+    public static function mode($mode=null)
+      return $mode ? static::$mode=$mode : static::$mode;
     }
 
     public static function traceError($errno,$errstr,$errfile=null,$errline=null){
       // This error code is not included in error_reporting
       if (!(error_reporting() & $errno)) return;
-      switch ($errno) {
+      switch ( $errno ) {
         case E_USER_ERROR:
-            echo "<b>My ERROR</b> [$errno] $errstr<br />\n";
-            echo "  Fatal error on line $errline in file $errfile";
-            echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
-            echo "Aborting...<br />\n";
-            exit(1);
-            break;
-
+            $type = 'Fatal';
+        break;
         case E_USER_WARNING:
-            echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
-            break;
-
+        case E_WARNING:
+            $type = 'Warning';
+        break;
         case E_USER_NOTICE:
-            echo "<b>My NOTICE</b> [$errno] $errstr<br />\n";
-            break;
-
+        case E_NOTICE:
+        case E_STRICT:
+            $type = 'Notice';
+        break;
         default:
-            echo "Unknown error type: [$errno] $errstr<br />\n";
-            break;
+            $type = 'Error';
+        break;
       }
-
-      /* Don't execute PHP internal error handler */
+      $e = new \ErrorException($type.': '.$errstr, 0, $errno, $errfile, $errline);
+      $chk_specific = array_filter((array)Event::trigger('core.error.'.strtolower($type),$e));
+      $chk_general  = array_filter((array)Event::trigger('core.error',$e));
+      if (! ($chk_specific || $chk_general) ) static::traceException($e);
       return true;
     }
 
     public static function traceException($e){
-      
-      /* Don't execute PHP internal error handler */
+      switch(static::$mode){
+          case self::MODE_HTML :
+              echo '<pre class="app error"><code>',$e->getMessage(),'</code></pre>',PHP_EOL;
+              break;
+          default:
+              echo $e->getMessage(),PHP_EOL;
+              break;
+      }
+      echo $e->getMessage()."\n";
       return true;
     }
 
@@ -67,8 +74,31 @@ class Error {
       Event::on('core.error.warning',$listener);
     }
 
-    public static function on(callable $listener){
-      Event::on('core.error.warning',$listener);
+    public static function onNotice(callable $listener){
+      Event::on('core.error.notice',$listener);
+    }
+
+    public static function onAny(callable $listener){
+      Event::on('core.error',$listener);
     }
 
 }
+
+/*
+
+// TEST
+Error::capture();
+
+Error::onAny(function($e){
+    echo ">",$e->getLine()," : ";
+});
+
+Error::onWarning(function($e){
+    echo "WARNING: ",$e->getMessage(),"\n";
+    // Disable generic error handling.
+    return true;
+});
+
+trigger_error("This event WILL fire", E_USER_NOTICE);
+$a/0;
+*/
