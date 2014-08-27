@@ -17,6 +17,7 @@ class SQL {
   protected static $connection = [];
   protected static $pdo        = null;
   protected static $queries    = [];
+  protected static $last_exec_success = true;
   
   public static function connect($dsn,$username=null,$password=null,$options=[]){
     static::$connection = [
@@ -24,7 +25,6 @@ class SQL {
       'username'   => $username,
       'password'   => $password,
       'options'    => array_merge([
-        PDO::MYSQL_ATTR_INIT_COMMAND   => "SET NAMES 'UTF8'",
         PDO::ATTR_ERRMODE              => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE   => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES     => true,
@@ -50,7 +50,7 @@ class SQL {
     $query = Filter::with('core.sql.query',$query);
     $statement = static::prepare($query);
     Event::trigger('core.sql.query',$query,$params);
-    $statement->execute($params);
+    static::$last_exec_success = $statement->execute($params);
     return $statement;
   }
 
@@ -93,7 +93,7 @@ class SQL {
     $data_x = []; array_walk($data,function($e,$key)use(&$data_x){$data_x[':'.$key]=$e;});
     $q = "INSERT into `$table` (`".implode('`,`',$k)."`) VALUES (".implode(',',$pk).")";
     static::exec($q,$data_x);
-    return static::connection()->lastInsertId();
+    return static::$last_exec_success ? static::connection()->lastInsertId() : false;
   }  
 
   public static function update($table,$data=[],$pk='id'){
@@ -103,7 +103,7 @@ class SQL {
     $data_x = []; array_walk($data,function($e,$key)use(&$data_x){$data_x[':'.$key]=$e;});
     $q = "UPDATE `$table` SET ".implode(',',$k)." WHERE `$pk`=:$pk";
     static::exec($q,$data_x);
-    return static::connection()->lastInsertId();
+    return static::$last_exec_success;
   }  
 
   
