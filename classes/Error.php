@@ -22,7 +22,7 @@ class Error {
       set_exception_handler(__CLASS__.'::traceException');
     }
 
-    public static function mode($mode=null)
+    public static function mode($mode=null){
       return $mode ? static::$mode=$mode : static::$mode;
     }
 
@@ -83,22 +83,3 @@ class Error {
     }
 
 }
-
-/*
-
-// TEST
-Error::capture();
-
-Error::onAny(function($e){
-    echo ">",$e->getLine()," : ";
-});
-
-Error::onWarning(function($e){
-    echo "WARNING: ",$e->getMessage(),"\n";
-    // Disable generic error handling.
-    return true;
-});
-
-trigger_error("This event WILL fire", E_USER_NOTICE);
-$a/0;
-*/
