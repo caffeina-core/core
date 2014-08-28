@@ -12,11 +12,12 @@
  */
 
 class Error {
-    const MODE_SIMPLE = 0;
-    const MODE_HTML = 1;
-    const MODE_SILENT = 2;
+    const SIMPLE = 0;
+    const HTML = 1;
+    const SILENT = 2;
+    const JSON = 3;
 
-    static $mode = self::MODE_SIMPLE;
+    static $mode = self::SIMPLE;
 
     public static function capture(){
       set_error_handler(__CLASS__.'::traceError');
@@ -56,12 +57,16 @@ class Error {
 
     public static function traceException($e){
       switch(self::$mode){
-          case self::MODE_HTML :
+          case self::HTML :
               echo '<pre class="app error"><code>',$e->getMessage(),'</code></pre>',PHP_EOL;
               break;
-          case self::MODE_SILENT :
+          case self::JSON :
+              echo json_encode(['error' => $e->getMessage()]);
+              break;
+          case self::SILENT :
               // Don't echo anything.
               break;
+          case self::SIMPLE :
           default:
               echo $e->getMessage(),PHP_EOL;
               break;
