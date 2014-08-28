@@ -23,7 +23,7 @@ class Error {
     }
 
     public static function mode($mode=null){
-      return $mode ? static::$mode=$mode : static::$mode;
+      return $mode ? self::$mode=$mode : self::$mode;
     }
 
     public static function traceError($errno,$errstr,$errfile=null,$errline=null){
@@ -54,7 +54,7 @@ class Error {
     }
 
     public static function traceException($e){
-      switch(static::$mode){
+      switch(self::$mode){
           case self::MODE_HTML :
               echo '<pre class="app error"><code>',$e->getMessage(),'</code></pre>',PHP_EOL;
               break;
