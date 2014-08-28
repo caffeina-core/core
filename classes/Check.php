@@ -76,39 +76,43 @@ Event::on('core.check.init',function(){
   Check::method([
 
     'required' => function($value){
-      return empty($value)?'Questo dato è necessario.':true;
+      return (is_numeric($value) && $value==0) || empty($value)?'This value cant\' be empty.':true;
     },
 
     'alphanumeric' => function($value){
-       return preg_match('/^\w+$/',$value)?true:'I valore deve essere alfanumerico.';
+       return preg_match('/^\w+$/',$value)?true:'Value must be alphanumeric.';
     },
 
     'numeric' => function($value){
-       return preg_match('/^\d+$/',$value)?true:'I valore deve essere numerico.';
+       return preg_match('/^\d+$/',$value)?true:'Value must be numeric.';
     },
 
     'email' => function($value){
-       return filter_var($value,FILTER_VALIDATE_EMAIL)?true:'È necessaria una email valida.';
+       return filter_var($value,FILTER_VALIDATE_EMAIL)?true:'This is not a valid email.';
     },
 
     'url' => function($value){
-       return filter_var($value,FILTER_VALIDATE_URL)?true:'È necessaria una URL valida.';
+       return filter_var($value,FILTER_VALIDATE_URL)?true:'This is not a valid URL.';
     },
 
     'max' => function($value,$max){
-       return $value<=$max?true:'Il valore può essere al massimo '.$max.'.';
+       return $value<=$max?true:'Value must be less than '.$max.'.';
     },
 
     'min' => function($value,$min){
-       return $value>=$min?true:'Il valore può essere come minimo '.$min.'.';
+       return $value>=$min?true:'Value must be greater than '.$min.'.';
     },
-
+    
+    'range' => function($value,$min,$max){
+       return (($value>=$min)&&($value<=$max)) ? true : "This value must be in [$min,$max] range.";
+    },
+    
     'words' => function($value,$max){
-       return str_word_count($value)<=$max?true:'Ci possono essere al massimo '.$max.' parole.';
+       return str_word_count($value)<=$max?true:'Too many words, max count is '.$max.'.';
     },
 
     'length' => function($value,$max){
-       return strlen($value)<=$max?true:'Ci possono essere al massimo '.$max.' caratteri.';
+       return strlen($value)<=$max?true:'Too many characters, max count is '.$max.'.';
     },
 
   ]);
