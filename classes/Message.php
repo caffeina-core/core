@@ -48,7 +48,9 @@ class Message extends Dictionary {
   public static function & all($key=null){
     static::init();
     if($key){
-      $all = static::get($key,[]);
+      $all = parent::get($key,[]);
+      parent::delete($key);
+      Session::set('_messages',parent::all());
     } else {
       $all = parent::all();
       static::clear();
