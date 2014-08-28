@@ -14,6 +14,7 @@
 class Error {
     const MODE_SIMPLE = 0;
     const MODE_HTML = 1;
+    const MODE_SILENT = 2;
 
     static $mode = self::MODE_SIMPLE;
 
@@ -58,11 +59,13 @@ class Error {
           case self::MODE_HTML :
               echo '<pre class="app error"><code>',$e->getMessage(),'</code></pre>',PHP_EOL;
               break;
+          case self::MODE_SILENT :
+              // Don't echo anything.
+              break;
           default:
               echo $e->getMessage(),PHP_EOL;
               break;
       }
-      echo $e->getMessage()."\n";
       return true;
     }
 
