@@ -45,10 +45,14 @@ class Message extends Dictionary {
     return Session::set('_messages',parent::all());
   }
 
-  public static function & all(){
+  public static function & all($key=null){
     static::init();
-    $all = parent::all();
-    static::clear();
+    if($key){
+      $all = static::get($key,[]);
+    } else {
+      $all = parent::all();
+      static::clear();
+    }
     return $all;
   }
 
