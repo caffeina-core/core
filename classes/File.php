@@ -44,26 +44,12 @@ class File {
     /**
      * Run a recursive glob from a starting folder filtering by a pattern. 
      * @param  string $folder  The starting folder to search
-     * @param  [type] $pattern The glob-like syntax pattern (* wildcard, ? single char)
+     * @param  [type] $pattern The glob syntax pattern (* wildcard, ? single char)
      * @return [type]          [description]
      */
-    public static function search($folder,$pattern,$recursive=true){
-      $folder = rtrim($folder,'/').'/';
-      if($recursive){
-        $dir = new RecursiveDirectoryIterator($folder);
-        $ite = new RecursiveIteratorIterator($dir);
-        $prfx = '';
-      } else {
-        $ite = new DirectoryIterator($folder);
-        $prfx = $folder;
-      }
-      $pattern_t = '/^.+'.str_replace(['/','.','*','?'],['\/','\.','.+','.'],$pattern).'$/';
-      $files = new RegexIterator($ite, $pattern_t, RegexIterator::USE_KEY);
-      $fileList = array();
-      foreach($files as $file) {
-          $fileList[] = $prfx.$file[0];
-      }
-      return $fileList;
-    }
+     public static function search($folder,$pattern,$recursive=true){
+       exec('ls -1 '.rtrim($folder,'/').($recursive?'/**/':'/').$pattern,$res);
+       return $res?:[];
+     }
     
 }
