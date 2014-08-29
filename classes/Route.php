@@ -369,6 +369,6 @@ class Route {
             }
         }
         Response::error(404,'404 Resource not found.');
-        Response::text(implode('',(array)Event::trigger(404)));
+        Event::trigger(404);
     }
 }
