@@ -28,21 +28,11 @@ class String {
 	 * @return string
 	 */
 	 public static function render($t,$v=null){
-	   function _rh(&$f,&$v) {
-	     static $m;$m?:$m=array();
-	     if(isset($m[$f])) return $m[$f];
-	     for($t=strtok($f,'.'),$q=isset($v[$t])?$v:'';
-	       isset($q[$t])&&$t!==false;
-	       $q=isset($q[$t])?$q[$t]:'',$t=strtok('.')
-	      ); return $m[$f]=($t?'':$q);
-	   }
-	   $t = is_array($t)?'':$t; if(empty($v)) return $t;
-	   for ($e=explode('{{',$t),$r=$e[$i=0];
-	     isset($e[++$i]) && $ss=explode('}}',$e[$i]);
-	     $r.=(strpos($q=trim($ss[0]),'.')!==false?
-	     _rh($q,$v):(isset($v[$q])?$v[$q]:''))
-	     .end($ss));return $r;
+	   for($r=$ox=$x=false;false!==($x=$y=strpos($t,'{{',$x));
+	     $r.=substr($t,$ox,$x-$ox),
+	     $c=substr($t,$x+=2,$l=($y=strpos($t,'}}',$x))-$x),
+	     $ox=$x+=$l+2,$r.=Object::fetch($c,$v)
+	   ); return $r===false?$t:$r.substr($t,$ox);
 	 }
-
 
 } /* End of class */
