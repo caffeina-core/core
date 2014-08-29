@@ -98,7 +98,7 @@ class Route {
         $callback = (is_array($this->callback) && isset($this->callback[$method]))  ?
                         $this->callback[$method] : $this->callback;
 
-        Event::trigger('route.before',$this);
+        Event::trigger('core.route.before',$this);
 
         // Start capturing output
         Response::start();
@@ -125,7 +125,7 @@ class Route {
           }
         }
 
-        Event::trigger('route.after',$this);
+        Event::trigger('core.route.after',$this);
 
         return [$this->response];
     }
