@@ -46,5 +46,13 @@ class Object extends ArrayObject {
     public function __toString(){
         return json_encode($this,JSON_NUMERIC_CHECK);
     }
+    
+    public static function fetch(&$f,&$v) {
+      static $m;$m?:$m=[];
+      if(isset($m[$f])) return $m[$f];
+      $t = strtok($f,'.');$q=$v;
+      while(($q=isset($q[$t])?$q[$t]:'')&&($t=strtok('.')));
+      return $m[$f]=($t?'':$q);
+    }
  
 }
