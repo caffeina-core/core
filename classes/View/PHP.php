@@ -15,6 +15,7 @@ namespace View;
 
 class PHP {
     protected $templatePath = __DIR__;
+    const EXTENSION = 'php';
 
     public function __construct($path=null){
         if ($path) $this->templatePath = rtrim($path,'/') . '/';
