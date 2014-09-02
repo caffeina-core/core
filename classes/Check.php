@@ -14,12 +14,15 @@
 class Check {
   protected static $methods = [];
   protected static $errors = [];
+  static $data = [];
 
   public static function valid($rules,$data){
     static::$errors = [];
 
     Event::triggerOnce('core.check.init');
-
+    
+    self::$data = $data;
+    
     foreach ($rules as $field_name => $rule) {
 
       $current = isset($data[$field_name])?$data[$field_name]:null;
@@ -46,7 +49,9 @@ class Check {
                 call_user_func_array(static::$methods[$meth_name],$meth_opts) : true;
       }
     }
-
+    
+    self::$data = [];
+    
     // Clean non-errors
     static::$errors = array_filter(static::$errors,function($v){
       return $v!==true;
@@ -113,6 +118,11 @@ Event::on('core.check.init',function(){
 
     'length' => function($value,$max){
        return strlen($value)<=$max?true:'Too many characters, max count is '.$max.'.';
+    },
+
+    'same_as' => function($value,$fieldname){
+       $x = isset(Check::$data[$fieldname])?Check::$data[$fieldname]:'';
+       return $value==$x?true:'Filed must be equal to '.$fieldname.'.';
     },
 
   ]);
