@@ -14,7 +14,7 @@
 class Check {
   protected static $methods = [];
   protected static $errors = [];
-  static $data = [];
+  public static $data = [];
 
   public static function valid($rules,$data){
     static::$errors = [];
