@@ -9,6 +9,8 @@
 [![License](https://poser.pugx.org/caffeina-core/core/license.svg)](https://packagist.org/packages/caffeina-core/core)
 
 
+> Core is NOT a framework, Core is a toolkit.
+
 
 ## Installation
 
