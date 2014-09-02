@@ -122,7 +122,7 @@ Event::on('core.check.init',function(){
 
     'same_as' => function($value,$fieldname){
        $x = isset(Check::$data[$fieldname])?Check::$data[$fieldname]:'';
-       return $value==$x?true:'Filed must be equal to '.$fieldname.'.';
+       return $value==$x?true:'Field must be equal to '.$fieldname.'.';
     },
 
   ]);
