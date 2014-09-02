@@ -106,36 +106,9 @@ abstract class Dictionary implements JsonSerializable {
      * @param  boolean $merge_back If `true` merge the dictionary over the $array, if `false` (default) the reverse.
      */
     public static function merge(array $array,$merge_back=false){
-        static $array_merge_recursive_distinct = null;
-        if ($array_merge_recursive_distinct == null)
-        $array_merge_recursive_distinct = function() use (&$array_merge_recursive_distinct){
-          $arrays = func_get_args();
-          $base = array_shift($arrays);
-          if(!is_array($base)) $base = empty($base) ? array() : array($base);
-          foreach($arrays as $append) {
-            if(!is_array($append)) $append = array($append);
-            foreach($append as $key => $value) {
-              if(!array_key_exists($key, $base) and !is_numeric($key)) {
-                $base[$key] = $append[$key];
-                continue;
-              }
-              if(is_array($value) or is_array($base[$key])) {
-                $base[$key] = $array_merge_recursive_distinct($base[$key], $append[$key]);
-              } else if(is_numeric($key)) {
-                if(!in_array($value, $base)) $base[] = $value;
-              } else {
-                $base[$key] = $value;
-              }
-            }
-          }
-          return $base;
-        };
-
-        $fields = $merge_back ? 
-            $array_merge_recursive_distinct($array,static::$fields)
-            :
-            $array_merge_recursive_distinct(static::$fields,$array);
-        static::$fields = $fields;
+        static::$fields = $merge_back
+            ? array_replace_recursive($array, static::$fields)
+            : array_replace_recursive(static::$fields, $array);
     }
 
     /**
