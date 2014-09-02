@@ -19,7 +19,8 @@ class Error {
 
     static $mode = self::SIMPLE;
 
-    public static function capture(){
+    public static function capture($tracing_level=null){
+      if($tracing_level!==null) error_reporting($tracing_level);
       set_error_handler(__CLASS__.'::traceError');
       set_exception_handler(__CLASS__.'::traceException');
     }

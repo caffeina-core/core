@@ -17,6 +17,7 @@ class Route {
     protected static $routes;
     protected static $base    = '';
     protected static $prefix  = [];
+    protected static $group   = null;
 
     protected $URLPattern     = '';
     protected $pattern        = '';
@@ -41,7 +42,7 @@ class Route {
     public function __construct($URLPattern,callable $callback = null,$method='get'){
         $this->URLPattern = rtrim(implode('',static::$prefix),'/') . '/' . trim($URLPattern,'/')?:'/';
         $this->URLPattern = $this->URLPattern != '/' ? rtrim($this->URLPattern,'/') : $this->URLPattern;
-        $this->dynamic = $this->checkIfDynamic($this->URLPattern);
+        $this->dynamic = $this->isDynamic($this->URLPattern);
         $this->pattern = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern,$this->rules) : $this->URLPattern;
         $this->callback = $callback;
 
@@ -298,7 +299,7 @@ class Route {
      * @param  string  $pattern The URL schema.
      * @return boolean
      */
-    protected function checkIfDynamic($pattern){
+    protected static function isDynamic($pattern){
         return 
             (strpos($pattern,':')!==false) ||
             (strpos($pattern,'(')!==false) ||
@@ -307,13 +308,14 @@ class Route {
             (strpos($pattern,'*')!==false) ||
             (strpos($pattern,'+')!==false);
     }
-
+    
     /**
      * Add a route to the internal route repository.
      * @param Route $r
      * @return Route
      */
     public static function add(Route $r){
+        if(static::$group) static::$group->add($r);
         return static::$routes[implode('',static::$prefix)][] = $r;
     }
 
@@ -328,7 +330,7 @@ class Route {
 
         $prefix_complete = rtrim(implode('',static::$prefix),'/') . $prefix;
 
-        if(static::checkIfDynamic($prefix)){
+        if(static::isDynamic($prefix)){
         
             // Dynamic group, capture vars
             $vars = static::extractVariablesFromURL(static::compilePatternAsRegex($prefix_complete),null,true);
@@ -337,17 +339,25 @@ class Route {
             if (false === $vars) return; 
          
             static::$prefix[] = $prefix;
+            static::$group = new RouteGroup();
             if($callback) call_user_func_array($callback,$vars);
+            $group = static::$group;
+            static::$group = null;
             array_pop(static::$prefix);
             if(empty(static::$prefix)) static::$prefix=[''];
+            return $group;
         
         } else if (0 === strpos(Request::URI(), $prefix_complete)){
          
             // Static group
             static::$prefix[] = $prefix;
+            static::$group = new RouteGroup();
             if($callback) call_user_func($callback);
+            $group = static::$group;
+            static::$group = null;
             array_pop(static::$prefix);
             if(empty(static::$prefix)) static::$prefix=[''];
+            return $group;
         } 
 
     }
@@ -372,3 +382,32 @@ class Route {
         Event::trigger(404);
     }
 }
+
+class RouteGroup {
+  protected $routes;
+
+  public function __construct(){ $this->routes = new SplObjectStorage; }
+  
+  public function has(Route $r){ return $this->routes->contains($r); }
+  public function add(Route $r){ $this->routes->attach($r); return $this; }
+  public function remove(Route $r){ 
+    $this->routes->contains($r) and $this->routes->detach($r);
+    return $this;
+  }
+
+  public function before(callable $callbacks){
+    foreach($this->routes as $route){
+      $route->before($callbacks);
+    }
+    return $this;
+  }
+
+  public function after(callable $callbacks){
+    foreach($this->routes as $route){
+      $route->after($callbacks);
+    }
+    return $this;
+  }  
+  
+}
+
