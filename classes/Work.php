@@ -59,7 +59,7 @@ class TaskCoroutine {
     protected $passValue = null;
     protected $beforeFirstYield = true;
 
-    public function __construct($id, Generator $coroutine) {
+    public function __construct($id, \Generator $coroutine) {
         $this->id = $id;
         $this->coroutine = $coroutine;
     }
