@@ -66,9 +66,11 @@ class Native implements \EmailInterface {
     
     
     foreach ($this->attachments as $file) {
+      $name = basename($file);
       $headers[] = "--$uid";
-      $headers[] = "Content-type: application/octet-stream; name=\"".basename($file)."\"";
-      $headers[] = "Content-Transfer-Encoding: 7bit";
+      $headers[] = "Content-type: application/octet-stream; name=\"".$name."\"";
+      $headers[] = "Content-Transfer-Encoding: base64";
+      $headers[] = "Content-Disposition: attachment; filename=\"".$name."\"";
       $headers[] = '';
       $headers[] = chunk_split(base64_encode(file_get_contents($file)));
       $headers[] = '';
