@@ -13,8 +13,7 @@
         }
     ],
     "require": {
-        "php": ">=5.4",
-        "predis/predis": "*"
+        "php": ">=5.4"
     },
     "minimum-stability": "dev",
     "autoload": {
