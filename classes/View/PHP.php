@@ -15,12 +15,23 @@ namespace View;
 
 class PHP {
     protected $templatePath = __DIR__;
+    protected static $globals = [];
     const EXTENSION = 'php';
 
     public function __construct($path=null){
         if ($path) $this->templatePath = rtrim($path,'/') . '/';
     }
     
+    public static function addGlobal($key,$val){
+      self::$globals[$key] = $val;
+    }
+
+    public static function addGlobals(array $defs){
+      foreach ((array)$defs as $key=>$val) {
+          self::$globals[$key] = $val;
+      }
+    }
+
     public function render($template,$data=[]){
         $template_path = $this->templatePath . trim($template,'/') . '.php';
         $sandbox = function() use ($template_path){
@@ -30,7 +41,10 @@ class PHP {
             ob_end_clean();
             return $__buffer__;
         };
-        $sandbox = $sandbox->bindTo(new PHPContext($data,$this->templatePath));
+        $sandbox = $sandbox->bindTo(new PHPContext(
+            array_merge(self::$globals,$data),
+            $this->templatePath
+        ));
         return $sandbox();
     }
 }
