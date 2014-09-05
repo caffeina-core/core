@@ -112,12 +112,3 @@ interface EmailInterface  {
 }
 
 Email::using('native');
-
-/*
-Email::send([
-    'to' => 'Pippo <pippo@best.com>', // Can be an array of recipients
-    'from' => 'Bamba <bamba@best.com>',
-    'subject' => 'I see you!',
-    'message' => '<b>Hello</b>, friend.',
-]);
-*/
