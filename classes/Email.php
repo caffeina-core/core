@@ -43,47 +43,51 @@ class Email {
 
   public static function send(array $options){
     static $mail = null;
-    if( null === $mail ) {
-      $mail = static::instance();
-    }
-    if(isset($options['to'])){
-      foreach((array)$options['to'] as $value){
-        $part = static::get_email_parts($value);
-        empty($part->name) ?
-          $mail->addAddress($part->email)
-        :
-          $mail->addAddress($part->email,$part->name);
+    if(null === $mail) $mail = static::instance();
+    
+    $options = array_merge($options,[
+      'to'          => '',
+      'from'        => '',
+      'replyTo'     => '',
+      'subject'     => '',
+      'message'     => '',
+      'attachments' => [],
+    ]);
 
-      }
-    }
-    if(isset($options['from'])){
-      $part = static::get_email_parts($options['from']);
+    // To
+    foreach((array)$options['to'] as $value){
+      $part = static::get_email_parts($value);
       empty($part->name) ?
-        $mail->from($part->email)
+        $mail->addAddress($part->email)
       :
-        $mail->from($part->email,$part->name);
+        $mail->addAddress($part->email,$part->name);
     }
 
-    if(isset($options['replyTo'])){
-      $part = static::get_email_parts($options['replyTo']);
-      empty($part->name) ?
-        $mail->replyTo($part->email)
-      :
-        $mail->replyTo($part->email,$part->name);
-    }
+    // From
+    $part = static::get_email_parts($options['from']);
+    
+    empty($part->name) ?
+      $mail->from($part->email)
+    :
+      $mail->from($part->email,$part->name);
 
-    if(isset($options['subject'])){
-      $mail->subject($options['subject']);
-    }
+    // Reply
+    $part = static::get_email_parts($options['replyTo']);
+    
+    empty($part->name) ?
+      $mail->replyTo($part->email)
+    :
+      $mail->replyTo($part->email,$part->name);
 
-    if(isset($options['message'])){
-      $mail->message($options['message']);
-    }
+    // Subjects
+    $mail->subject($options['subject']);
 
-    if(isset($options['attachments'])){
-      foreach((array)$options['attachments'] as $value){
-        $mail->addAttachment($value);
-      }
+    // Message
+    $mail->message($options['message']);
+
+    // Attachments
+    foreach((array)$options['attachments'] as $value){
+      $mail->addAttachment($value);
     }
 
     return $mail->send();
