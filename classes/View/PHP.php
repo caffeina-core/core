@@ -23,7 +23,7 @@ class PHP {
     }
     
     public function exists($path){
-        return is_file($this->templatePath.$path.EXTENSION);
+        return is_file($this->templatePath.$path.'.php');
     }
     
     public static function addGlobal($key,$val){
