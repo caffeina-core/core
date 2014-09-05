@@ -22,6 +22,10 @@ class PHP {
         if ($path) $this->templatePath = rtrim($path,'/') . '/';
     }
     
+    public function exists($path){
+        return is_file($this->templatePath.$path.EXTENSION);
+    }
+    
     public static function addGlobal($key,$val){
       self::$globals[$key] = $val;
     }
