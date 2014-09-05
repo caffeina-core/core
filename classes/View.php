@@ -77,6 +77,15 @@ class View {
     }
 
     /**
+     * Check if a template exists
+     * @return bool
+     */
+    public function exists($templatePath){
+      return static::$handler->exists($templatePath);
+    }
+
+
+    /**
      * Propagate the call to the handler
      */
     public function __call($n,$p){
