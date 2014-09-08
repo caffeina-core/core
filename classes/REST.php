@@ -48,7 +48,7 @@ class REST {
    * @param  array  $maps A map of actions callbacks for different CRUD actions.
    */
   
-  public function expose($element,array $maps=null){
+  public static function expose($element,array $maps=null){
     if(null === $maps && is_array($element)){
 
       $maps = $element;
