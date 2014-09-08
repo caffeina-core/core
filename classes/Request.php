@@ -28,6 +28,18 @@ class Request {
   }
 
   /**
+   * Retrive a value from environment (from the $_ENV array)
+   * Returns all elements if you pass `null` as $key
+   *
+   * @param  string $key The name of the input value
+   *
+   * @return Object The returned value or $default.
+   */
+  public static function env($key=null,$default=null){
+    return $key ? (filter_input(INPUT_ENV,$key) ?: (is_callable($default)?call_user_func($default):$default))  : $_ENV;
+  }
+
+  /**
    * Retrive a value from generic input (from the $_POST array)
    * Returns all elements if you pass `null` as $key
    *
@@ -36,7 +48,7 @@ class Request {
    * @return Object The returned value or $default.
    */
   public static function post($key=null,$default=null){
-    return $key ? (isset($_POST[$key]) ? $_POST[$key] : (is_callable($default)?call_user_func($default):$default))  : $_POST;
+    return $key ? (filter_input(INPUT_POST,$key) ?: (is_callable($default)?call_user_func($default):$default))  : $_POST;
   }
 
   /**
@@ -48,7 +60,7 @@ class Request {
    * @return Object The returned value or $default.
    */
   public static function get($key=null,$default=null){
-    return $key ? (isset($_GET[$key]) ? $_GET[$key] : (is_callable($default)?call_user_func($default):$default))  : $_GET;
+    return $key ? (filter_input(INPUT_GET,$key) ?: (is_callable($default)?call_user_func($default):$default))  : $_GET;
   }
 
   /**
@@ -72,7 +84,7 @@ class Request {
    * @return Object The returned value or $default.
    */
   public static function cookie($key=null,$default=null){
-    return $key ? (isset($_COOKIE[$key]) ? $_COOKIE[$key] : (is_callable($default)?call_user_func($default):$default))  : $_COOKIE;
+    return $key ? (filter_input(INPUT_COOKIE,$key) ?: (is_callable($default)?call_user_func($default):$default))  : $_COOKIE;
   }
 
   /**
@@ -81,8 +93,11 @@ class Request {
    * @return string
    */
   public static function URL(){
-    $host = isset($_SERVER['HOSTNAME'])?$_SERVER['HOSTNAME']:(isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:($_SERVER['HTTP_HOST']));
-    return 'http' . (empty($_SERVER['HTTPS'])?'':'s') . '://' . $host . static::URI(false);
+    $host = filter_input(INPUT_SERVER,'HOSTNAME') ?: (
+          filter_input(INPUT_SERVER,'SERVER_NAME') ?:
+          filter_input(INPUT_SERVER,'HTTP_HOST')
+    );
+    return 'http' . (filter_input(INPUT_SERVER,'HTTPS')?'s':'') . '://' . $host . static::URI(false);
   }
 
   /**
@@ -95,7 +110,7 @@ class Request {
    */
   public static function header($key=null,$default=null){
     $key = 'HTTP_'.strtr(strtoupper($key),'-','_');
-    return $key ? (isset($_SERVER[$key]) ? $_SERVER[$key] : (is_callable($default)?call_user_func($default):$default))  : $_SERVER;
+    return $key ? (filter_input(INPUT_SERVER,$key) ?: (is_callable($default)?call_user_func($default):$default)) : $_SERVER;
   }
 
   /**
@@ -107,11 +122,12 @@ class Request {
    */
   public static function URI($relative=true){
     // On some web server configurations PHP_SELF is not populated.
-    $self = $_SERVER['SCRIPT_NAME'] ?: $_SERVER['PHP_SELF'];
+    $self = filter_input(INPUT_SERVER,'SCRIPT_NAME') ?: filter_input(INPUT_SERVER,'PHP_SELF');
     // Search REQUEST_URI in $_SERVER
-    $serv_uri = empty($_SERVER['PATH_INFO'])
-      ? ( empty($_SERVER['ORIG_PATH_INFO']) ? $_SERVER['REQUEST_URI'] : $_SERVER['ORIG_PATH_INFO'] )
-      : $_SERVER['PATH_INFO'];
+    $serv_uri = filter_input(INPUT_SERVER,'PATH_INFO') ?: (
+          filter_input(INPUT_SERVER,'ORIG_PATH_INFO') ?:
+          filter_input(INPUT_SERVER,'REQUEST_URI')
+    );
     $uri = strtok($serv_uri,'?');
     $uri = ($uri == $self) ? '/' : $uri;
 
@@ -134,7 +150,7 @@ class Request {
    * @return string
    */
   public static function method(){
-   return strtolower($_SERVER['REQUEST_METHOD']);
+   return strtolower(filter_input(INPUT_SERVER,'REQUEST_METHOD')?:'get');
   }
 
   /**
@@ -147,8 +163,8 @@ class Request {
    */
   public static function data($key=null,$default=null){
     if(null===static::$body){
-      $json = (isset($_SERVER['HTTP_CONTENT_TYPE'])&&$_SERVER['HTTP_CONTENT_TYPE']=='application/json') 
-           || (isset($_SERVER['CONTENT_TYPE'])&&$_SERVER['CONTENT_TYPE']=='application/json');
+      $json = (filter_input(INPUT_SERVER,'HTTP_CONTENT_TYPE')=='application/json') 
+           || (filter_input(INPUT_SERVER,'CONTENT_TYPE')=='application/json');
       
       static::$body = $json ? json_decode(file_get_contents("php://input")) : file_get_contents("php://input");
     }
