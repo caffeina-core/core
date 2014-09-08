@@ -27,7 +27,7 @@ class Work {
       $job = $id;
       $id = ++self::$lastID;      
     }
-    $task = new TaskCoroutine($id, $job instanceof Generator ? $job : $job());
+    $task = new TaskCoroutine($id, $job instanceof \Generator ? $job : $job());
     self::$workers[$id] = $task;
     self::$pool->enqueue($task);
     return $task;
