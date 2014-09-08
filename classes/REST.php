@@ -69,3 +69,4 @@ class REST {
     Route::map($collection."/:id",$entity_routes);
   }
 
+}
