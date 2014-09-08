@@ -50,38 +50,22 @@ class REST {
   
   public static function expose($element,array $maps=null){
     if(null === $maps && is_array($element)){
-
       $maps = $element;
-      $collection_routes = [];
-      if(isset($maps['list']))    $collection_routes['get']    = $maps['list'];
-      if(isset($maps['create']))  $collection_routes['post']   = $maps['create'];
-      if(isset($maps['clear']))   $collection_routes['delete'] = $maps['clear'];
-      Route::map('/',$collection_routes);
-
-      $entity_routes = [];
-      if(isset($maps['read']))    $entity_routes['get']    = $maps['read'];
-      if(isset($maps['update']))  $entity_routes['put']    = $maps['update'];
-      if(isset($maps['delete']))  $entity_routes['delete'] = $maps['delete'];
-      Route::map('/:id',$entity_routes);
-
+      $collection = '';
     } else {
-
-      Route::group("/$element",function() use (&$maps){
-
-        $collection_routes = [];
-        if(isset($maps['list']))    $collection_routes['get']    = $maps['list'];
-        if(isset($maps['create']))  $collection_routes['post']   = $maps['create'];
-        if(isset($maps['clear']))   $collection_routes['delete'] = $maps['clear'];
-        Route::map('/',$collection_routes);
-
-        $entity_routes = [];
-        if(isset($maps['read']))    $entity_routes['get']    = $maps['read'];
-        if(isset($maps['update']))  $entity_routes['put']    = $maps['update'];
-        if(isset($maps['delete']))  $entity_routes['delete'] = $maps['delete'];
-        Route::map('/:id',$entity_routes);
-
-      });
+      $collection = '/'.$element;
     }
+
+    $collection_routes = [];
+    if(isset($maps['list']))    $collection_routes['get']    = $maps['list'];
+    if(isset($maps['create']))  $collection_routes['post']   = $maps['create'];
+    if(isset($maps['clear']))   $collection_routes['delete'] = $maps['clear'];
+    Route::map($collection.'/',$collection_routes);
+
+    $entity_routes = [];
+    if(isset($maps['read']))    $entity_routes['get']    = $maps['read'];
+    if(isset($maps['update']))  $entity_routes['put']    = $maps['update'];
+    if(isset($maps['delete']))  $entity_routes['delete'] = $maps['delete'];
+    Route::map($collection."/:id",$entity_routes);
   }
 
-}
