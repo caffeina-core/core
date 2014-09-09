@@ -55,11 +55,11 @@ class Token {
   }
 
   protected static function encode($data){
-    return @strtr(base64_encode(addslashes(gzcompress(json_encode($data),9))), '+/=', '-_,');
+    return @strtr(rtrim(base64_encode(addslashes(json_encode($data))), '+/', '-_'),'=');
   }
 
   protected static function decode($data){
-    return @json_decode(gzuncompress(stripslashes(base64_decode(strtr($data, '-_,', '+/=')))));
+    return @json_decode(stripslashes(base64_decode(strtr($data, '-_', '+/'))));
   }
 
 }
