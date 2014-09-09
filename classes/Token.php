@@ -19,7 +19,6 @@ class Token {
     'secret'          => 'CHANGE_ME_PLEASE',
     'signing_method'  => 'sha256',
     'verify'          => true, // flag to enable/disable signature verification
-    'compress'        => true,
   );
 
   public static function init(array $options){
