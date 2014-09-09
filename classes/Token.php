@@ -53,12 +53,20 @@ class Token {
     return hash_hmac(static::$options['signing_method'],serialize($data),static::$options['secret']);
   }
 
+  /**
+   * @param $data
+   * @return string
+   */
   protected static function encode($data){
-    return @strtr(rtrim(base64_encode(addslashes(json_encode($data))), '+/', '-_'),'=');
+    return rtrim(strtr(base64_encode(addslashes(json_encode($data))), '+/', '-_'),'=');
   }
 
+  /**
+   * @param $data
+   * @return mixed
+   */
   protected static function decode($data){
-    return @json_decode(stripslashes(base64_decode(strtr($data, '-_', '+/'))));
+    return json_decode(stripslashes(base64_decode(strtr($data, '-_', '+/'))));
   }
 
 }
