@@ -45,14 +45,14 @@ class Email {
     static $mail = null;
     if(null === $mail) $mail = static::instance();
     
-    $options = array_merge($options,[
+    $options = array_merge([
       'to'          => '',
       'from'        => '',
       'replyTo'     => '',
       'subject'     => '',
       'message'     => '',
       'attachments' => [],
-    ]);
+    ],$options);
 
     // To
     foreach((array)$options['to'] as $value){
