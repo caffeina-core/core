@@ -80,12 +80,15 @@ class Native implements \EmailInterface {
 
     $success = true;
     foreach ($this->recipients as $to) {
+      $body = implode("\r\n",$headers);
       $success = mail(
            $to,
            $this->subject,
            '',
-           implode("\r\n",$headers)
-      ) && $success;
+           $body
+      );
+      Event::trigger('core.email.send',$to,$this->from,$this->subject,$body,$success);
+      $success = $success && $success;
     }
     return $success;
   }
