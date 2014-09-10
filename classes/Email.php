@@ -42,8 +42,7 @@ class Email {
   }
 
   public static function send(array $options){
-    static $mail = null;
-    if(null === $mail) $mail = static::instance();
+    $mail = static::instance();
     
     $options = array_merge([
       'to'          => '',
