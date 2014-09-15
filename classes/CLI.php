@@ -18,6 +18,17 @@ class CLI {
     protected static $commands     = [];
     protected static $help         = null;
     protected static $error        = null;
+    
+    protected static $shell_colors = [
+	'BLACK'=>"\033[0;30m",'DARKGRAY'=>"\033[1;30m",'BLUE'=>"\033[0;34m",'LIGHTBLUE'=>"\033[1;34m",
+	'GREEN'=>"\033[0;32m",'LIGHTGREEN'=>"\033[1;32m",'CYAN'=>"\033[0;36m",'LIGHTCYAN'=>"\033[1;36m",
+	'RED'=>"\033[0;31m",'LIGHTRED'=>"\033[1;31m",'PURPLE'=>"\033[0;35m",'LIGHTPURPLE'=>"\033[1;35m",
+	'BROWN'=>"\033[0;33m",'YELLOW'=>"\033[1;33m",'LIGHTGRAY'=>"\033[0;37m",'WHITE'=>"\033[1;37m",
+	'NORMAL'=>"\033[0;37m",'B'=>"\033[1m",'ERROR'=>"\033[1;31m",'INFO'=>"\033[0;36m",
+	'I'=>"\033[0;30;104m",'IB'=>"\033[1;30;104m",'U'=>"\033[4m",'D'=>"\033[2m",
+	];
+	protected static $color_stack = ['NORMAL'];
+    
 
     /**
      * Bind a callback to a command route
@@ -141,7 +152,34 @@ class CLI {
       }
     }
 
+	public static function write($message){
+		preg_match('~<[^>]+>~',$message)?
+		preg_replace_callback('~^(.*)<([^>]+)>(.+)</\2>(.*)$~USm',function($m){
+			static::write($m[1]);
+			$color=strtoupper(trim($m[2]));
+			isset(static::$shell_colors[$color])?print(static::$shell_colors[$color]):'';
+			static::$color_stack[] = $color;
+			static::write($m[3]);
+			array_pop(static::$color_stack);
+			$back_color = array_pop(static::$color_stack)?:static::$color_stack[]='NORMAL';
+			isset(static::$shell_colors[$back_color])?print(static::$shell_colors[$back_color]):'';
+			static::write($m[4]);
+		},$message):print($message);
+	}
+	
+	public static function writeln($message){
+	    if($message) static::write($message);
+	    echo PHP_EOL;
+	}
+	
+	public static function color($color){
+	    echo isset(static::$shell_colors[$color]) ? static::$shell_colors[$color] : '';
+	}
+
 }
+
+
+
 
 // Standard Help Message
 CLI::help(function(){
