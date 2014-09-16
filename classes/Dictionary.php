@@ -1,18 +1,9 @@
 <?php
 
 /**
- * Dictionary class
+ * Object
  *
- * The dictionary trait allow to handle a repository of key-values data
- * Values are accessibles via a dot notation key path.
- * Must be used by class hierarchy.
- * 
- * Example:
- * <code>
- *  class MyConfig extends Dictionary {}
- *  MyConfig::set('user',[ 'name' => 'Frank', 'surname' => 'Castle' ]);
- *  echo "Hello, my name is ",MyConfig::get('user.name'),' ',MyConfig::get('user.surname');
- * </code>
+ * Access properties with associative array or object notation seamlessly.
  * 
  * @package core
  * @author stefano.azzolini@caffeinalab.com
@@ -20,145 +11,87 @@
  * @copyright Caffeina srl - 2014 - http://caffeina.co
  */
 
-abstract class Dictionary implements JsonSerializable {
-    use Module;
-
-    protected static $fields = [];
+class Object extends ArrayObject {
 
     /**
-     * Returns the map as an associative array
-     * @return array reference
+     * An Object can wrap a StdClass, an array or an object from a JSON encoded string.
+     * 
+     * This class is useful for wrapping API responses and access their properties in
+     * an easy way.
+     * 
+     * @param mixed  $input The object/array/json_encoded object to wrap
+     * @param boolean $deep  Wrap also deep branches as Objects
      */
-    public static function & all(){
-        return static::$fields;
-    }
-
-    /**
-     * Get a value assigned to a key path from the dictionary
-     * @param  string $key The key path of the value in dot notation 
-     * @param  mixed $default (optional) The default value. If is a callable it will executed and the return value will be used.
-     * @return mixed The value of the key or the default (resolved) value if the key not existed.
-     */
-    public static function get($key,$default=null){
-        if ($ptr = & static::find($key,false)){
-            return $ptr;
-        } else {
-            if ($default !== null){
-                return static::set($key,is_callable($default)?call_user_func($default):$default);
-            } else {
-                return null;
+    public function __construct($input=[], $deep=true){
+        $data = is_string($input) ? json_decode($input,true) : (array)$input;
+        if (is_array($data)){
+            if ($deep) {
+                foreach ($data as $key => &$value) {
+                    if (is_array($value) || is_a($value,'stdClass')){
+                        $value = new self($value);
+                    }
+                }
             }
-        }
-    }
-
-    /**
-     * Set a value for a key path from dictionary
-     * @param  string $key The key path of the value in dot notation 
-     * @param  mixed $value (optional) The value. If is a callable it will executed and the return value will be used.
-     * @return mixed The value of the key or the default (resolved) value if the key not existed.
-     */
-    public static function set($key,$value=null){
-        if (is_array($key)) {
-            return static::merge($key);
+           parent::__construct($data, static::ARRAY_AS_PROPS);
         } else {
-            $ptr = & static::find($key,true);
-            return $ptr = $value;
+            throw new InvalidArgumentException(
+                'Argument must be a string containing valid JSON, an array or an stdClass.'
+            );
         }
     }
-
+ 
     /**
-     * Delete a value and the key path from dictionary.
-     * @param  string $key The key path in dot notation 
-     * @param  boolean $compact (optional) Compact dictionary removing empty paths.
+     * ArrayObject::offsetSet
      */
-    public static function delete($key,$compact=true){
-        static::set($key,null);
-        if ($compact) static::compact();
+    public function offsetSet($key, $value){   
+        if ( is_array($value) )
+          parent::offsetSet($key, new static($value));
+        else
+          parent::offsetSet($key, $value);
     }
-
+ 
     /**
-     * Check if a key path exists in dictionary.
-     * @param  string $key The key path in dot notation 
-     * @return boolean
+     * ArrayObject::offsetGet
      */
-    public static function exists($key){
-        return static::find($key,false) !== null;
+    public function offsetGet($key){
+        $raw = parent::offsetGet($key);
+        return is_callable($raw) ? call_user_func($raw) : $raw;
     }
-
+ 
     /**
-     * Clear all key path in dictionary.
+     * Emulate object methods
      */
-    public static function clear(){
-        static::$fields = [];
+    public function __call($method, $args){
+        $raw = parent::offsetGet($method);
+        if (is_callable($raw)) {
+            if ($raw instanceof \Closure) $raw->bindTo($this);
+            return call_user_func_array($raw, $args);
+        }
     }
     
     /**
-     * Load an associative array/object as the dictionary source.
-     * @param  string $fields The array to merge
+     * If casted as a string, return a JSON rappresentation of the wrapped payload
+     * @return string
      */
-    public static function load($fields){
-        if($fields) static::$fields = (array)$fields;
+    public function __toString(){
+        return json_encode($this,JSON_NUMERIC_CHECK);
     }
-
+    
     /**
-     * Merge an associative array to the dictionary. 
-     * @param  array   $array The array to merge
-     * @param  boolean $merge_back If `true` merge the dictionary over the $array, if `false` (default) the reverse.
+     * Dot-Notation Array Path Resolver
+     * @param  string $path The dot-notation path
+     * @param  array $root The array to navigate
+     * @return mixed The pointed value 
      */
-    public static function merge(array $array,$merge_back=false){
-        static::$fields = $merge_back
-            ? array_replace_recursive($array, static::$fields)
-            : array_replace_recursive(static::$fields, $array);
+    public static function fetch($path, array & $root) {
+      $frag = strtok($path,'.');
+      $ptr = $root;
+      while (
+        ( $ptr = isset($ptr[$frag]) ? $ptr[$frag] : '' )
+        &&
+        ( $frag = strtok('.') )
+      );
+      return $frag ? '' : $ptr;
     }
-
-    /**
-     * Compact dictionary removing empty paths
-     */
-    protected static function compact(){
-        function array_filter_rec($input, $callback = null) { 
-            foreach ($input as &$value) { 
-                if (is_array($value)) { 
-                    $value = array_filter_rec($value, $callback); 
-                } 
-            } 
-            return array_filter($input, $callback); 
-        } 
-
-        static::$fields = array_filter_rec(static::$fields,function($a){ return $a !== null; });
-    }
-
-    /**
-     * Navigate dictionary and find the element from the path in dot notation.
-     * @param  string  $path Key path in dot notation.
-     * @param  boolean $create If true will create empty paths.
-     * @param  callable  If passed this callback will be applied to the founded value.
-     * @return mixed The founded value.
-     */
-    protected static function & find($path,$create=false,callable $operation=null) {
-        $tok = strtok($path,'.');        
-        if($create){
-            $value = & static::$fields;
-        } else {
-            $value = static::$fields;
-        }
-        while($tok !== false){
-            $value = & $value[$tok];
-            $tok = strtok('.');
-        }
-        is_callable($operation) ? $operation($value) : '';
-        return $value;
-    }
-
-    /**
-     * JsonSerializable Interface handler
-     *
-     * @method jsonSerialize
-     *
-     * @return string        The json object
-     */
-    public function jsonSerialize(){
-      return static::$fields;
-    }
-
-
+ 
 }
