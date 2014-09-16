@@ -97,7 +97,7 @@ class Request {
           filter_input(INPUT_SERVER,'SERVER_NAME') ?:
           filter_input(INPUT_SERVER,'HTTP_HOST')
     );
-    return $protocol ? ('http' . (filter_input(INPUT_SERVER,'HTTPS')?'s':'') . '://') . $host;
+    return ($protocol ? 'http' . (filter_input(INPUT_SERVER,'HTTPS')?'s':'') . '://' : '') . $host;
   }
 
   /**
