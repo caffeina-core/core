@@ -88,16 +88,25 @@ class Request {
   }
 
   /**
+   * Returns the current host, complete with protocol (pass `false` to omit).
+   *
+   * @return string
+   */
+  public static function host($protocol=true){
+    $host = filter_input(INPUT_SERVER,'HOSTNAME') ?: (
+          filter_input(INPUT_SERVER,'SERVER_NAME') ?:
+          filter_input(INPUT_SERVER,'HTTP_HOST')
+    );
+    return $protocol ? ('http' . (filter_input(INPUT_SERVER,'HTTPS')?'s':'') . '://') . $host;
+  }
+
+  /**
    * Returns the current request URL, complete with host and protocol.
    *
    * @return string
    */
   public static function URL(){
-    $host = filter_input(INPUT_SERVER,'HOSTNAME') ?: (
-          filter_input(INPUT_SERVER,'SERVER_NAME') ?:
-          filter_input(INPUT_SERVER,'HTTP_HOST')
-    );
-    return 'http' . (filter_input(INPUT_SERVER,'HTTPS')?'s':'') . '://' . $host . static::URI(false);
+    return static::host(true) . static::URI(false);
   }
 
   /**
