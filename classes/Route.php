@@ -17,7 +17,7 @@ class Route {
     protected static $routes;
     protected static $base    = '';
     protected static $prefix  = [];
-    protected static $group   = null;
+    protected static $group   = [];
 
     protected $URLPattern     = '';
     protected $pattern        = '';
@@ -315,7 +315,7 @@ class Route {
      * @return Route
      */
     public static function add(Route $r){
-        if(static::$group) static::$group->add($r);
+        if(isset(static::$group[0])) static::$group[0]->add($r);
         return static::$routes[implode('',static::$prefix)][] = $r;
     }
 
@@ -339,10 +339,11 @@ class Route {
             if (false === $vars) return; 
          
             static::$prefix[] = $prefix;
-            static::$group = new RouteGroup();
+            if(empty(static::$group)) static::$group = [];
+            array_unshift(static::$group, new RouteGroup());
             if($callback) call_user_func_array($callback,$vars);
-            $group = static::$group;
-            static::$group = null;
+            $group = static::$group[0];
+            array_shift(static::$group);
             array_pop(static::$prefix);
             if(empty(static::$prefix)) static::$prefix=[''];
             return $group;
@@ -351,10 +352,11 @@ class Route {
          
             // Static group
             static::$prefix[] = $prefix;
-            static::$group = new RouteGroup();
+            if(empty(static::$group)) static::$group = [];
+            array_unshift(static::$group, new RouteGroup());
             if($callback) call_user_func($callback);
-            $group = static::$group;
-            static::$group = null;
+            $group = static::$group[0];
+            array_shift(static::$group);
             array_pop(static::$prefix);
             if(empty(static::$prefix)) static::$prefix=[''];
             return $group;
