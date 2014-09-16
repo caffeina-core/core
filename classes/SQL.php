@@ -33,13 +33,15 @@ class SQL {
   }
 
   public static function & connection(){
-    if(null === static::$pdo) static::$pdo = new PDO(
+    if(null === static::$pdo) {
+      static::$pdo = new PDO(
           static::$connection['dsn'],
           static::$connection['username'],
           static::$connection['password'],
           static::$connection['options']
       );
-    Event::trigger('core.sql.connect');
+      Event::triggerOnce('core.sql.connect');
+    }
     return static::$pdo;
   }
   
