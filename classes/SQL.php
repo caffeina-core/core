@@ -39,6 +39,7 @@ class SQL {
           static::$connection['password'],
           static::$connection['options']
       );
+    Event::trigger('core.sql.connect');
     return static::$pdo;
   }
   
