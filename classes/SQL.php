@@ -70,6 +70,18 @@ class SQL {
     }
   }  
 
+  public static function single($query,$params=[],callable $handler = null){
+    // ($query,$handler) shorthand
+    if ($handler===null && is_callable($params)) {$handler = $params; $params = [];}
+    if( $res = static::exec($query,$params) ){
+        if (is_callable($handler)) 
+          $handler($res->fetchObject());
+        else
+          return $res->fetchObject();
+    }
+  }  
+
+
   public static function all($query,$params=[]){
     return static::each($query,$params);
   }  
