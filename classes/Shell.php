@@ -12,6 +12,8 @@
  */
 
 class Shell {
+    use Module;
+  
     protected static $aliases = [];
     protected $command;
     

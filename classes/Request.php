@@ -13,6 +13,7 @@
 
 class Request {
   use Module;
+  
   protected static $body;
 
   /**

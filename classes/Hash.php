@@ -13,7 +13,8 @@
 
 
 class Hash {
-    
+    use Module;
+   
     /**
      * Create ah hash for payload
      * @param  mixed $payload The payload string/object/array

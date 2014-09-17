@@ -12,6 +12,8 @@
  */
 
 class Check {
+  use Module;
+
   protected static $methods = [];
   protected static $errors = [];
   public static $data = [];

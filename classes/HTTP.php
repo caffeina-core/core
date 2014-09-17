@@ -12,6 +12,8 @@
  */
 
 class HTTP {
+  use Module;
+
   protected static $UA = "Mozilla/4.0 (compatible; Core::HTTP; Windows NT 6.1)";
   protected static $json_data = false;
   protected static $headers = [];

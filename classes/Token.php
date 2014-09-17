@@ -14,6 +14,7 @@
 
 
 class Token {
+  use Module;
 
   protected static $options = array(
     'secret'          => 'CHANGE_ME_PLEASE',

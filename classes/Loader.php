@@ -11,6 +11,8 @@
  */
 
 class Loader {
+    use Module;
+    
     protected static $paths = [];
     
     public static function addPath($path,$name=null){
@@ -33,4 +35,3 @@ class Loader {
 
 Loader::addPath(__DIR__);
 Loader::register();
-

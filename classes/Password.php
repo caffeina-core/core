@@ -13,6 +13,7 @@
 
 
  class Password {
+    use Module;
 
     /**
      * Create a secure password hash.

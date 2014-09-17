@@ -12,6 +12,8 @@
  */
 
 class Filter {
+    use Module;
+
     protected static $_modders = [];
     
     public static function add($name,callable $modder){

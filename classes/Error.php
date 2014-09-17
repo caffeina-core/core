@@ -12,6 +12,8 @@
  */
 
 class Error {
+    use Module;
+
     const SIMPLE = 0;
     const HTML = 1;
     const SILENT = 2;

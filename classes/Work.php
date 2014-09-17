@@ -16,7 +16,8 @@ version_compare(PHP_VERSION, '5.5.0', '>=')
  */
 
 class Work {
-  
+  use Module;
+ 
   protected static $pool = null;
   protected static $workers;
   protected static $lastID = 0;

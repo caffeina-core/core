@@ -12,6 +12,8 @@
  */
 
 class Event {
+    use Module;
+
     protected static $_listeners = [];
 
     public static function on($name,callable $listener){

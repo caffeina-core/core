@@ -12,6 +12,7 @@
  */
 
 class Session {
+    use Module;
 
 	/**
 	 * Start session handler

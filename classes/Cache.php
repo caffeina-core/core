@@ -12,6 +12,8 @@
  */
 
 class Cache {
+   use Module;
+   
    protected static $driver = null;
    protected static $enabled = true;
 
