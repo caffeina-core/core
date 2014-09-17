@@ -38,30 +38,38 @@ class HTTP {
 
     $headers = array_merge($headers,static::$headers);
 
-    if($http_method=='GET'){
-      if($data && is_array($data)){
-        $tmp = [];
-        $queried_url = $url;
-        foreach($data as $key=>$val) $tmp[] = $key.'='.$val;
-        $queried_url .= (strpos($queried_url,'?')===false)?'?':'&';
-        $queried_url .= implode('&',$tmp);
-        $opt[CURLOPT_URL] = $queried_url;
-      } 
-    } else {
-      if($http_method=='POST') {
-        $opt[CURLOPT_POST]            = true;
-      } else {
+    switch($http_method){
+      case 'DELETE':
         $opt[CURLOPT_CUSTOMREQUEST]   = $http_method;
-      }
-      if(null!==$data){
-        if($data_as_json){
-          $headers['Content-Type']    = 'application/json';
-          $opt[CURLOPT_POSTFIELDS]    = json_encode($data);     
-        } else {
-          $opt[CURLOPT_POSTFIELDS]    = http_build_query($data);
-        }
+      case 'GET':
+        if($data && is_array($data)){
+          $tmp = [];
+          $queried_url = $url;
+          foreach($data as $key=>$val) $tmp[] = $key.'='.$val;
+          $queried_url .= (strpos($queried_url,'?')===false)?'?':'&';
+          $queried_url .= implode('&',$tmp);
+          $opt[CURLOPT_URL] = $queried_url;
+        } 
+        break;
+      case 'PUT':
+        $opt[CURLOPT_PUT]            = true;
+        break;
+      case 'POST':
+        $opt[CURLOPT_POST]            = true;
+        break;
+      default:
+        $opt[CURLOPT_CUSTOMREQUEST]   = $http_method;
+    }
+
+    if($http_method != 'GET' && $http_method != 'DELETE' && null!==$data){
+      if($data_as_json){
+        $headers['Content-Type']    = 'application/json';
+        $opt[CURLOPT_POSTFIELDS]    = json_encode($data);     
+      } else {
+        $opt[CURLOPT_POSTFIELDS]    = http_build_query($data);
       }
     }
+
     curl_setopt_array($ch,$opt);
     foreach($headers as $key=>$val) curl_setopt($ch, CURLOPT_HTTPHEADER, $key.': '.$val);
     $result = curl_exec($ch);
