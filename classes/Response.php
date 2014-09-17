@@ -45,21 +45,24 @@ class Response {
     public static function enableCORS(){
         
         // Allow from any origin
-        if (isset($_SERVER['HTTP_ORIGIN'])) {
-          static::header('Access-Control-Allow-Origin',$_SERVER['HTTP_ORIGIN']);
-          static::header('Access-Control-Allow-Credentials','true');
-          static::header('Access-Control-Max-Age',86400);
+        if ($origin = filter_input(INPUT_SERVER,'HTTP_ORIGIN')) {
+          static::header('Access-Control-Allow-Origin', $origin);
+          static::header('Access-Control-Allow-Credentials', 'true');
+          static::header('Access-Control-Max-Age', 86400);
         }
 
         // Access-Control headers are received during OPTIONS requests
-        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-            if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+        if (filter_input(INPUT_SERVER,'REQUEST_METHOD') == 'OPTIONS') {
+            static::clear();
+
+            if ($req_m = filter_input(INPUT_SERVER,'HTTP_ACCESS_CONTROL_REQUEST_METHOD')) {
               static::header('Access-Control-Allow-Methods',
                 'GET, POST, PUT, DELETE, OPTIONS, HEAD, CONNECT, PATCH, TRACE');
             }
-            if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
-              static::header('Access-Control-Allow-Headers',$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
+            if ($req_h = filter_input(INPUT_SERVER,'HTTP_ACCESS_CONTROL_REQUEST_HEADERS')) {
+              static::header('Access-Control-Allow-Headers',$req_h);
             }
+            
             static::send();
             exit;
         }
