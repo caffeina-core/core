@@ -55,7 +55,7 @@ class Response {
         if (filter_input(INPUT_SERVER,'REQUEST_METHOD') == 'OPTIONS') {
             static::clear();
 
-            if ($req_m = filter_input(INPUT_SERVER,'HTTP_ACCESS_CONTROL_REQUEST_METHOD')) {
+            if (filter_input(INPUT_SERVER,'HTTP_ACCESS_CONTROL_REQUEST_METHOD')) {
               static::header('Access-Control-Allow-Methods',
                 'GET, POST, PUT, DELETE, OPTIONS, HEAD, CONNECT, PATCH, TRACE');
             }
