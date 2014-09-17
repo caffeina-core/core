@@ -176,7 +176,7 @@ class CLI {
             static::write($m[3]);
             array_pop(static::$color_stack);
             $back_color = array_pop(static::$color_stack) ?: static::$color_stack[]='NORMAL';
-            if( isset(static::$shell_colors[$color]) ) echo static::$shell_colors[$color];
+            if( isset(static::$shell_colors[$back_color]) ) echo static::$shell_colors[$back_color];
             static::write($m[4]);
          },$message);
       } else {
