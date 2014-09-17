@@ -12,6 +12,7 @@
  */
 
 class String {
+  use Module;
 
 	/**
 	 * Fast string templating.
