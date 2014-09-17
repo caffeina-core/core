@@ -108,20 +108,18 @@ class HTTP {
     return static::request('delete',$url,$data,$headers,static::$json_data,$username,$password);
   }
 
-  public static function info($url,array $options=[]){
+  public static function info($url){
     $ch = curl_init($url);
-    curl_setopt_array($ch, array_merge([
+    curl_setopt_array($ch, [
       CURLOPT_SSL_VERIFYHOST  => false,
       CURLOPT_CONNECTTIMEOUT  => 10,
       CURLOPT_RETURNTRANSFER  => true,
       CURLOPT_USERAGENT       => static::$UA,
       CURLOPT_HEADER          => false,
-      CURLOPT_MAXREDIRS       => 10,
-      CURLOPT_FOLLOWLOCATION  => true,
       CURLOPT_ENCODING        => '',
       CURLOPT_FILETIME        => true,
       CURLOPT_NOBODY          => true,
-    ],$options));
+    ]);
 
     curl_exec($ch);
     $info = curl_getinfo($ch);
