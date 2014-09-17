@@ -33,15 +33,11 @@ class HTTP {
 
     if($username && $password) {
       $opt[CURLOPT_USERPWD]   =  "$username:$password";
-      $opt[CURLOPT_HTTPAUTH]  =  CURLAUTH_BASIC;
     }
 
     $headers = array_merge($headers,static::$headers);
 
-    switch($http_method){
-      case 'DELETE':
-        $opt[CURLOPT_CUSTOMREQUEST]   = $http_method;
-      case 'GET':
+    if($http_method == 'GET'){
         if($data && is_array($data)){
           $tmp = [];
           $queried_url = $url;
@@ -49,37 +45,32 @@ class HTTP {
           $queried_url .= (strpos($queried_url,'?')===false)?'?':'&';
           $queried_url .= implode('&',$tmp);
           $opt[CURLOPT_URL] = $queried_url;
+          unset($opt[CURLOPT_CUSTOMREQUEST]);
+          $opt[CURLOPT_CUSTOMREQUEST] = true;
         } 
-        break;
-      case 'PUT':
-        $opt[CURLOPT_PUT]            = true;
-        break;
-      case 'POST':
-        $opt[CURLOPT_POST]            = true;
-        break;
-      default:
+    } else {
         $opt[CURLOPT_CUSTOMREQUEST]   = $http_method;
+        if($data_as_json or is_object($data)){
+          $headers['Content-Type']    = 'application/json';
+          $opt[CURLOPT_POSTFIELDS]    = json_encode($data);     
+        } else {
+          $opt[CURLOPT_POSTFIELDS]    = http_build_query($data);
+        }
     }
 
-    if($http_method != 'GET' && $http_method != 'DELETE' && null!==$data){
-      if($data_as_json){
-        $headers['Content-Type']    = 'application/json';
-        $opt[CURLOPT_POSTFIELDS]    = json_encode($data);     
-      } else {
-        $opt[CURLOPT_POSTFIELDS]    = http_build_query($data);
-      }
-    }
 
     curl_setopt_array($ch,$opt);
-    foreach($headers as $key=>$val) curl_setopt($ch, CURLOPT_HTTPHEADER, $key.': '.$val);
+    $_harr = [];
+    foreach($headers as $key=>$val)  $_harr[] = $key.': '.$val;
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $_harr);
     $result = curl_exec($ch);
     $contentType = strtolower(curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
 
-    if(strpos($contentType,'application/json') === 0) $result = json_decode($result);
+    if(false !== strpos($contentType,'json')) $result = json_decode($result);
     curl_close($ch);
     return $result;
   }
-
+  
   public static function useJSON($value=null){
     return static::$json_data = ($value===null?static::$json_data:$value);
   }
