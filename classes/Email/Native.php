@@ -87,7 +87,7 @@ class Native implements \EmailInterface {
            '',
            $body
       );
-      Event::trigger('core.email.send',$to,$this->from,$this->subject,$body,$success);
+      \Event::trigger('core.email.send',$to,$this->from,$this->subject,$body,$success);
       $success = $success && $success;
     }
     return $success;
