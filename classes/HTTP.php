@@ -46,7 +46,7 @@ class HTTP {
           $queried_url .= implode('&',$tmp);
           $opt[CURLOPT_URL] = $queried_url;
           unset($opt[CURLOPT_CUSTOMREQUEST]);
-          $opt[CURLOPT_CUSTOMREQUEST] = true;
+          $opt[CURLOPT_HTTPGET] = true;
         } 
     } else {
         $opt[CURLOPT_CUSTOMREQUEST]   = $http_method;
