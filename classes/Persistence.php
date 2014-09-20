@@ -127,7 +127,9 @@ trait Persistence {
     $cb = static::persistenceSave();
     // Use standard persistence on DB layer
     if (!$cb) $cb = function($table,$options){
-       return SQL::insert($table,$this,$options['key']);
+       return SQL::value("SELECT 1 FROM `{$options['table']}` WHERE `{$options['key']}`=?",[$this->{$options['key']}]) 
+            ? SQL::update($table,$this,$options['key'])
+            : SQL::insert($table,$this);
     };
     $cb = Closure::bind($cb,$this);
     return $cb($op['table'],$op);
