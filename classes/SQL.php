@@ -28,8 +28,12 @@ class SQL {
         PDO::ATTR_ERRMODE              => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE   => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES     => true,
-      ],(array)$options),
+      ],$options),
     ];
+    // "The auto-commit mode cannot be changed for this driver" SQLite workaround
+    if (strpos($dsn,'sqlite:') === 0) {
+      static::$connection['options'] = $options;
+    }
   }
 
   public static function & connection(){
@@ -39,6 +43,7 @@ class SQL {
           static::$connection['username'],
           static::$connection['password'],
           static::$connection['options']
+        
       );
       Event::triggerOnce('core.sql.connect');
     }
@@ -98,7 +103,7 @@ class SQL {
       } else {
         $_pks_condition = '?'; $_pks = $pks;
       }
-      static::exec("DELETE FROM `$table` WHERE `$pk` $comp $_pks_condition",[$_pks]);
+      static::exec("DELETE FROM `$table` WHERE `$pk` $comp $_pks_condition LIMIT 1",[$_pks]);
     }
   }
 
@@ -116,15 +121,18 @@ class SQL {
     $k = array_keys($data); asort($k);
     array_walk($k,function(&$e){ $e = "`$e`=:$e";});
     $data_x = []; array_walk($data,function($e,$key)use(&$data_x){$data_x[':'.$key]=$e;});
-    $q = "UPDATE `$table` SET ".implode(',',$k)." WHERE `$pk`=:$pk";
+    $q = "UPDATE `$table` SET ".implode(', ',$k)." WHERE `$pk`=:$pk";
     static::exec($q,$data_x);
     return static::$last_exec_success;
   }  
 
   public static function insertOrUpdate($table, $data=[], $pk='id'){
     if (empty($data[$pk])) return false;
-    return static::value("SELECT 1 FROM `$table` WHERE `$pk`=:$pk LIMIT 1", (array)$data)
-         ? static::update($table, $data, $pk) : static::insert($table, $data);
+    if( (string) static::value("SELECT `$pk` FROM `$table` WHERE `$pk`=? LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
+        return static::update($table, $data, $pk);
+    } else {
+        return static::insert($table, $data);        
+    }
   } 
   
 }

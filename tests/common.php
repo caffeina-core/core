@@ -12,7 +12,7 @@ function test($condition,$group='COMMON',$message='Error') {
   global $test_stats,$test_verbose;
   $test_stats[$result=$condition?"PASS":"FAIL"]++;
   $test_stats['GROUPS'][$group][] = "[$result]: $group: $message";
-  if($test_verbose && !$result)
-    echo "[FAIL]: $group: $message\n";
+  if($test_verbose)
+    echo "[$result]: $group: $message\n";
 }
 
