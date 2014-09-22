@@ -4,4 +4,4 @@ php:
   - 5.5
   - hhvm
 
-script: "php ./tests/run-tests.php"
+script: "php ./tests/run_tests.php"
