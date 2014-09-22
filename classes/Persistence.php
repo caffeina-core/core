@@ -101,19 +101,21 @@ trait Persistence {
    * Load the model from the persistence layer
    * @return mixed The retrieved object
    */
-  public function load($pk){    
+  public static function load($pk){    
     $op = static::persistenceOptions();
     $cb = static::persistenceLoad();
     // Use standard persistence on DB layer
     if (!$cb) $cb = function($pk, $table, $options){
-       $data = SQL::row("SELECT * FROM $table WHERE {$options['key']}=? LIMIT 1",$pk);
-       $obj = new static;
-       foreach ((array)$data as $key => $value) {
-         $obj->$key = $value;
+       if ( $data = SQL::row("SELECT * FROM $table WHERE {$options['key']}=? LIMIT 1",$pk) ){
+         $obj = new static;
+         foreach ((array)$data as $key => $value) {
+           $obj->$key = $value;
+         }
+         return $obj;
+       } else {
+         return null;
        }
-       return $obj;
     };
-    $cb = Closure::bind($cb,$this);
     return $cb($pk,$op['table'],$op);
   }
 
