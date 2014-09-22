@@ -11,7 +11,6 @@
  */
 
 class Loader {
-    use Module;
     
     protected static $paths = [];
     
