@@ -94,16 +94,13 @@ class SQL {
     return static::each($query,$params);
   }  
 
-  public static function delete($table, $pks=null, $pk='id', $comp='IN'){
+  public static function delete($table, $pks=null, $pk='id', $inclusive=true){
     if (null===$pks) {
-      static::connection()->exec("TRUNCATE TABLE `$table`");
+      return static::exec("DELETE FROM `$table`");
     } else {
-      if (is_array($pks)){
-        $_pks_condition = '(?)'; $_pks = implode(',',$pks);
-      } else {
-        $_pks_condition = '?'; $_pks = $pks;
-      }
-      static::exec("DELETE FROM `$table` WHERE `$pk` $comp $_pks_condition LIMIT 1",[$_pks]);
+      return static::exec("DELETE FROM `$table` WHERE `$pk` ".($inclusive ? "" : "NOT " )."IN (?)",[
+           implode(',',(array)$pks)
+      ]);
     }
   }
 
