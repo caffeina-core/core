@@ -19,7 +19,7 @@ class SQL {
   protected static $queries    = [];
   protected static $last_exec_success = true;
   
-  public static function connect($dsn,$username=null,$password=null,$options=[]){
+  public static function connect($dsn, $username=null, $password=null, $options=[]){
     static::$connection = [
       'dsn'        => $dsn,
       'username'   => $username,
@@ -49,7 +49,7 @@ class SQL {
     return isset(static::$queries[$query]) ? static::$queries[$query] : (static::$queries[$query] = static::connection()->prepare($query));
   }
 
-  public static function exec($query,$params=[]){
+  public static function exec($query, $params=[]){
     $query = Filter::with('core.sql.query',$query);
     $statement = static::prepare($query);
     Event::trigger('core.sql.query',$query,$params,!!$statement);
@@ -57,12 +57,12 @@ class SQL {
     return $statement;
   }
 
-  public static function value($query,$params=[],$column=0){
+  public static function value($query, $params=[], $column=0){
     $res = static::exec($query,$params);
     return $res ? $res->fetchColumn($column) : null;
   }  
 
-  public static function each($query,$params=[],callable $looper = null){
+  public static function each($query, $params=[], callable $looper = null){
     // ($query,$looper) shorthand
     if ($looper===null && is_callable($params)) {$looper = $params; $params = [];}
     if( $res = static::exec($query,$params) ){
@@ -73,7 +73,7 @@ class SQL {
     }
   }  
 
-  public static function single($query,$params=[],callable $handler = null){
+  public static function single($query, $params=[], callable $handler = null){
     // ($query,$handler) shorthand
     if ($handler===null && is_callable($params)) {$handler = $params; $params = [];}
     if( $res = static::exec($query,$params) ){
@@ -85,34 +85,34 @@ class SQL {
   }  
 
 
-  public static function all($query,$params=[]){
+  public static function all($query, $params=[]){
     return static::each($query,$params);
   }  
 
-  public static function delete($table,$pks=null,$pk='id',$comp='IN'){
-    if(null===$pks) {
-      static::connection()->exec("truncate table `$table`");
+  public static function delete($table, $pks=null, $pk='id', $comp='IN'){
+    if (null===$pks) {
+      static::connection()->exec("TRUNCATE TABLE `$table`");
     } else {
-      if(is_array($pks)){
+      if (is_array($pks)){
         $_pks_condition = '(?)'; $_pks = implode(',',$pks);
       } else {
         $_pks_condition = '?'; $_pks = $pks;
       }
-      static::exec("delete from `$table` where `$pk` $comp $_pks_condition",[$_pks]);
+      static::exec("DELETE FROM `$table` WHERE `$pk` $comp $_pks_condition",[$_pks]);
     }
   }
 
-  public static function insert($table,$data=[]){
+  public static function insert($table, $data=[]){
     $k = array_keys($data); asort($k);
     $pk = $k; array_walk($pk,function(&$e){ $e = ':'.$e;});
     $data_x = []; array_walk($data,function($e,$key)use(&$data_x){$data_x[':'.$key]=$e;});
-    $q = "INSERT into `$table` (`".implode('`,`',$k)."`) VALUES (".implode(',',$pk).")";
+    $q = "INSERT INTO `$table` (`".implode('`,`',$k)."`) VALUES (".implode(',',$pk).")";
     static::exec($q,$data_x);
     return static::$last_exec_success ? static::connection()->lastInsertId() : false;
   }  
 
-  public static function update($table,$data=[],$pk='id'){
-    if(empty($data[$pk])) return false;
+  public static function update($table, $data=[], $pk='id'){
+    if (empty($data[$pk])) return false;
     $k = array_keys($data); asort($k);
     array_walk($k,function(&$e){ $e = "`$e`=:$e";});
     $data_x = []; array_walk($data,function($e,$key)use(&$data_x){$data_x[':'.$key]=$e;});
@@ -121,5 +121,10 @@ class SQL {
     return static::$last_exec_success;
   }  
 
+  public static function insertOrUpdate($table, $data=[], $pk='id'){
+    if (empty($data[$pk])) return false;
+    return static::value("SELECT 1 FROM `$table` WHERE `$pk`=:$pk LIMIT 1", (array)$data)
+         ? static::update($table, $data, $pk) : static::insert($table, $data);
+  } 
   
 }
