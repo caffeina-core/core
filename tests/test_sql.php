@@ -46,7 +46,7 @@ SQL::each('SELECT id FROM users',function($row) use (&$cc) {
     $cc += $row->id;
 });
 
-test($cc == 3,'SQL','Each, row callback.');
+test($cc == 10,'SQL','Each, row callback.');
 
 
 test(SQL::update('users',[
