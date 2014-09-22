@@ -11,8 +11,7 @@
  */
 
 class Loader {
-    use Module;
-    
+
     protected static $paths = [];
     
     public static function addPath($path,$name=null){
