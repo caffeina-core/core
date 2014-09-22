@@ -2,7 +2,7 @@
 
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/caffeina-core/core/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/caffeina-core/core/?branch=master)
-[![Build Status](https://scrutinizer-ci.com/g/caffeina-core/core/badges/build.png?b=master)](https://scrutinizer-ci.com/g/caffeina-core/core/build-status/master)
+[![Build Status](https://travis-ci.org/caffeina-core/core.svg)](https://travis-ci.org/caffeina-core/core)
 [![Total Downloads](https://poser.pugx.org/caffeina-core/core/downloads.svg)](https://packagist.org/packages/caffeina-core/core)
 [![Latest Stable Version](https://poser.pugx.org/caffeina-core/core/v/stable.svg)](https://packagist.org/packages/caffeina-core/core)
 [![Latest Unstable Version](https://poser.pugx.org/caffeina-core/core/v/unstable.svg)](https://packagist.org/packages/caffeina-core/core)
