@@ -7,6 +7,7 @@
 [![Latest Stable Version](https://poser.pugx.org/caffeina-core/core/v/stable.svg)](https://packagist.org/packages/caffeina-core/core)
 [![Latest Unstable Version](https://poser.pugx.org/caffeina-core/core/v/unstable.svg)](https://packagist.org/packages/caffeina-core/core)
 [![License](https://poser.pugx.org/caffeina-core/core/license.svg)](https://packagist.org/packages/caffeina-core/core)
+[![HHVM Status](http://hhvm.h4cc.de/badge/caffeina-core/core.svg)](http://hhvm.h4cc.de/package/caffeina-core/core)
 
 > Core is NOT a framework, Core is a toolkit.
 
