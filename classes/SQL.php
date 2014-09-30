@@ -119,9 +119,11 @@ class SQL {
   }
 
   public static function insert($table, $data=[]){
-    $k = array_keys($data); asort($k);
-    $pk = $k; array_walk($pk,function(&$e){ $e = ':'.$e;});
-    $data_x = []; array_walk($data,function($e,$key)use(&$data_x){$data_x[':'.$key]=$e;});
+    $k = array_keys($data);
+    asort($k);
+    $pk = $k;
+    array_walk($pk,function(&$e){ $e = ':'.$e;});
+    $data_x = [];
     $q = "INSERT INTO `$table` (`".implode('`,`',$k)."`) VALUES (".implode(',',$pk).")";
     static::exec($q,$data_x);
     return static::$last_exec_success ? static::connection()->lastInsertId() : false;
@@ -129,9 +131,10 @@ class SQL {
 
   public static function update($table, $data=[], $pk='id'){
     if (empty($data[$pk])) return false;
-    $k = array_keys($data); asort($k);
+    $k = array_keys($data);
+    asort($k);
     array_walk($k,function(&$e){ $e = "`$e`=:$e";});
-    $data_x = []; array_walk($data,function($e,$key)use(&$data_x){$data_x[':'.$key]=$e;});
+    $data_x = [];
     $q = "UPDATE `$table` SET ".implode(', ',$k)." WHERE `$pk`=:$pk";
     static::exec($q,$data_x);
     return static::$last_exec_success;
