@@ -58,7 +58,21 @@ class SQL {
     $query = Filter::with('core.sql.query',$query);
     $statement = static::prepare($query);
     Event::trigger('core.sql.query',$query,$params,!!$statement);
-    static::$last_exec_success = $statement && $statement->execute($params);
+
+    foreach ($params as $key => $val) {
+      $type = PDO::PARAM_STR;
+      if (is_bool($val)) {
+        $type = PDO::PARAM_BOOL;
+      } elseif (is_null($val)) {
+        $type = PDO::PARAM_NULL;
+      } elseif (is_int($val)) {
+        $type = PDO::PARAM_INT;
+      }
+      // bindValue need a 1-based numeric parameter
+      $statement->bindValue(is_numeric($key)?$key+1:':'.$key, $val, $type);
+    }
+
+    static::$last_exec_success = $statement && $statement->execute();
     return $statement;
   }
 
