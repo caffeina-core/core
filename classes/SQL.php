@@ -123,9 +123,8 @@ class SQL {
     asort($k);
     $pk = $k;
     array_walk($pk,function(&$e){ $e = ':'.$e;});
-    $data_x = [];
     $q = "INSERT INTO `$table` (`".implode('`,`',$k)."`) VALUES (".implode(',',$pk).")";
-    static::exec($q,$data_x);
+    static::exec($q,$data);
     return static::$last_exec_success ? static::connection()->lastInsertId() : false;
   }  
 
@@ -134,9 +133,8 @@ class SQL {
     $k = array_keys($data);
     asort($k);
     array_walk($k,function(&$e){ $e = "`$e`=:$e";});
-    $data_x = [];
     $q = "UPDATE `$table` SET ".implode(', ',$k)." WHERE `$pk`=:$pk";
-    static::exec($q,$data_x);
+    static::exec($q,$data);
     return static::$last_exec_success;
   }  
 
