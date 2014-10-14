@@ -55,18 +55,19 @@ class REST {
     } else {
       $collection = '/'.$element;
     }
-
-    $collection_routes = [];
-    if(isset($maps['list']))    $collection_routes['get']    = $maps['list'];
-    if(isset($maps['create']))  $collection_routes['post']   = $maps['create'];
-    if(isset($maps['clear']))   $collection_routes['delete'] = $maps['clear'];
-    Route::map($collection.'/',$collection_routes);
-
-    $entity_routes = [];
-    if(isset($maps['read']))    $entity_routes['get']    = $maps['read'];
-    if(isset($maps['update']))  $entity_routes['put']    = $maps['update'];
-    if(isset($maps['delete']))  $entity_routes['delete'] = $maps['delete'];
-    Route::map($collection."/:id",$entity_routes);
+    return Route:group($collection,function() use ($maps){
+      $actions = [];
+      if(isset($maps['list']))    $actions['get']    = $maps['list'];
+      if(isset($maps['create']))  $actions['post']   = $maps['create'];
+      if(isset($maps['clear']))   $actions['delete'] = $maps['clear'];
+      Route::map('/',$actions);
+  
+      $actions = [];
+      if(isset($maps['read']))    $actions['get']    = $maps['read'];
+      if(isset($maps['update']))  $actions['put']    = $maps['update'];
+      if(isset($maps['delete']))  $actions['delete'] = $maps['delete'];
+      Route::map("/:id",$actions);
+    });
   }
 
 }
