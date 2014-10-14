@@ -55,7 +55,7 @@ class REST {
     } else {
       $collection = '/'.$element;
     }
-    return Route:group($collection,function() use ($maps){
+    return Route::group($collection,function() use ($maps){
       $actions = [];
       if(isset($maps['list']))    $actions['get']    = $maps['list'];
       if(isset($maps['create']))  $actions['post']   = $maps['create'];
