@@ -24,12 +24,13 @@ class Route {
     protected $dynamic        = false;
     protected $callback       = null;
     protected $methods        = [];
-    protected $middlewares    = [];
+    protected $befores    = [];
     protected $afters         = [];
 
     protected $rules          = [];
 
     protected $response       = '';
+
 
     /**
      * Create a new route definition. This method permits a fluid interface.
@@ -39,11 +40,11 @@ class Route {
      * @param string $method The HTTP method for which the route must respond.
      * @return Route
      */
-    public function __construct($URLPattern,callable $callback = null,$method='get'){
+    public function __construct($URLPattern, callable $callback = null, $method='get'){
         $this->URLPattern = rtrim(implode('',static::$prefix),'/') . '/' . trim($URLPattern,'/')?:'/';
         $this->URLPattern = $this->URLPattern != '/' ? rtrim($this->URLPattern,'/') : $this->URLPattern;
         $this->dynamic = $this->isDynamic($this->URLPattern);
-        $this->pattern = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern,$this->rules) : $this->URLPattern;
+        $this->pattern = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern, $this->rules) : $this->URLPattern;
         $this->callback = $callback;
 
         // We will use hash-checks, for O(1) complexity vs O(n)
@@ -61,20 +62,19 @@ class Route {
         $method = strtolower($method);
 
         // * is an http method wildcard
-        if(empty($this->methods[$method]) && empty($this->methods['*'])) return false;
+        if (empty($this->methods[$method]) && empty($this->methods['*'])) return false;
         $URL = rtrim($URL,'/');
         $args = [];
-        if(
-            $this->dynamic ?
-                preg_match($this->pattern,$URL,$args)
-                :
-                $URL == rtrim($this->pattern,'/')
+        if ( $this->dynamic
+               ? preg_match($this->pattern,$URL,$args)
+               : $URL == rtrim($this->pattern,'/')
         ){
-            if($args) foreach ($args as $key => $value) {
-                if(false===is_string($key)) unset($args[$key]);
+            foreach ($args as $key => $value) {
+              if (false === is_string($key)) unset($args[$key]);
             }
             return $args;
-        } else return false;
+        }
+        return false;
     }
 
     /**
@@ -85,12 +85,11 @@ class Route {
      */
     public function run(array $args,$method='get'){
         $method = strtolower($method);
-        if(Request::method() !== $method) return false;
 
-        // Call direct middlewares
-        if($this->middlewares) {
-          // Reverse middlewares order
-          foreach (array_reverse($this->middlewares) as $mw) {
+        // Call direct befores
+        if($this->befores) {
+          // Reverse befores order
+          foreach (array_reverse($this->befores) as $mw) {
             $mw_result = call_user_func($mw->bindTo($this));
             if (false  === $mw_result) return [''];
           }
@@ -120,8 +119,8 @@ class Route {
 
         // Apply afters
         if($this->afters) {
-          // Reverse middlewares order
-          foreach (array_reverse($this->afters) as $cb) {
+          // Reverse befores order
+          foreach ($this->afters as $cb) {
             call_user_func($cb->bindTo($this));
           }
         }
@@ -173,25 +172,21 @@ class Route {
 
     /**
      * Bind a middleware callback to invoked before the route definition
-     * @param  callable array $middlewares The callbacks to be invoked ($this is binded to the route object).
+     * @param  callable $before The callback to be invoked ($this is binded to the route object).
      * @return Route
      */
-    public function & before(callable $middlewares){
-        foreach((array)$middlewares as $middleware){
-            $this->middlewares[] = $middleware;
-        }
+    public function & before(callable $callback){
+        $this->befores[] = $callback;
         return $this;
     }
 
     /**
      * Bind a middleware callback to invoked after the route definition
-     * @param  callable array $callback The callbacks to be invoked ($this is binded to the route object).
+     * @param  callable $callback The callback to be invoked ($this is binded to the route object).
      * @return Route
      */
-    public function & after(callable $callbacks){
-        foreach((array)$callbacks as $callback){
-            $this->afters[] = $callback;
-        }
+    public function & after(callable $callback){
+        $this->afters[] = $callback;
         return $this;
     }
 
@@ -369,9 +364,9 @@ class Route {
      * @param  string $URL The URL to match onto.
      * @return boolean true if a route callback was executed.
      */
-    public static function dispatch($URL=null){
-        if (null === $URL) $URL = Request::URI();
-        $method = Request::method();
+    public static function dispatch($URL=null,$method=null){
+        $URL    || $URL     = Request::URI();
+        $method || $method  = Request::method();
         foreach ((array)static::$routes as $group => $routes){
             foreach ($routes as $route) {
                 if(false !== ($args = $route->match($URL,$method))){
@@ -380,7 +375,7 @@ class Route {
                 }
             }
         }
-        Response::error(404,'404 Resource not found.');
+        Response::status(404,'404 Resource not found.');
         Event::trigger(404);
     }
 }
@@ -391,7 +386,9 @@ class RouteGroup {
   public function __construct(){ $this->routes = new SplObjectStorage; }
   
   public function has(Route $r){ return $this->routes->contains($r); }
+
   public function add(Route $r){ $this->routes->attach($r); return $this; }
+
   public function remove(Route $r){ 
     $this->routes->contains($r) and $this->routes->detach($r);
     return $this;

@@ -161,8 +161,8 @@ class Response {
     }
 
     public static function error($code=500,$message='Application Error'){
-        static::status($code,$message);
         Event::trigger('core.response.error',$code,$message);
+        static::status($code,$message);
     }
 
     public static function body($setBody=null){

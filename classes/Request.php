@@ -98,7 +98,7 @@ class Request {
           filter_input(INPUT_SERVER,'SERVER_NAME') ?:
           filter_input(INPUT_SERVER,'HTTP_HOST')
     );
-    return ($protocol ? 'http' . (filter_input(INPUT_SERVER,'HTTPS')?'s':'') . '://' : '') . $host;
+    return ($protocol ? 'http' . (filter_input(INPUT_SERVER,'HTTPS')?'s':'') . '://' : '') . Filter::with('core.request.host',$host);
   }
 
   /**
@@ -160,7 +160,7 @@ class Request {
    * @return string
    */
   public static function method(){
-   return strtolower(filter_input(INPUT_SERVER,'REQUEST_METHOD')?:'get');
+   return Filter::with('core.request.method',strtolower(filter_input(INPUT_SERVER,'REQUEST_METHOD')?:'get'));
   }
 
   /**
