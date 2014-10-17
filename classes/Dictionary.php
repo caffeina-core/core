@@ -39,12 +39,12 @@ abstract class Dictionary implements JsonSerializable {
      * @param  mixed $default (optional) The default value. If is a callable it will executed and the return value will be used.
      * @return mixed The value of the key or the default (resolved) value if the key not existed.
      */
-    public static function get($key,$default=null){
-        if ($ptr = & static::find($key,false)){
+    public static function get($key, $default=null){
+        if ($ptr =& static::find($key,false)){
             return $ptr;
         } else {
             if ($default !== null){
-                return static::set($key,is_callable($default)?call_user_func($default):$default);
+                return static::set($key, is_callable($default) ? call_user_func($default) : $default);
             } else {
                 return null;
             }
@@ -57,7 +57,7 @@ abstract class Dictionary implements JsonSerializable {
      * @param  mixed $value (optional) The value. If is a callable it will executed and the return value will be used.
      * @return mixed The value of the key or the default (resolved) value if the key not existed.
      */
-    public static function set($key,$value=null){
+    public static function set($key, $value=null){
         if (is_array($key)) {
             return static::merge($key);
         } else {
@@ -71,7 +71,7 @@ abstract class Dictionary implements JsonSerializable {
      * @param  string $key The key path in dot notation 
      * @param  boolean $compact (optional) Compact dictionary removing empty paths.
      */
-    public static function delete($key,$compact=true){
+    public static function delete($key, $compact=true){
         static::set($key,null);
         if ($compact) static::compact();
     }
@@ -82,7 +82,7 @@ abstract class Dictionary implements JsonSerializable {
      * @return boolean
      */
     public static function exists($key){
-        return static::find($key,false) !== null;
+        return null !== static::find($key,false);
     }
 
     /**
@@ -97,7 +97,7 @@ abstract class Dictionary implements JsonSerializable {
      * @param  string $fields The array to merge
      */
     public static function load($fields){
-        if($fields) static::$fields = (array)$fields;
+        if ($fields) static::$fields = (array)$fields;
     }
 
     /**
@@ -105,7 +105,7 @@ abstract class Dictionary implements JsonSerializable {
      * @param  array   $array The array to merge
      * @param  boolean $merge_back If `true` merge the dictionary over the $array, if `false` (default) the reverse.
      */
-    public static function merge(array $array,$merge_back=false){
+    public static function merge(array $array, $merge_back=false){
         static::$fields = $merge_back
             ? array_replace_recursive($array, static::$fields)
             : array_replace_recursive(static::$fields, $array);
@@ -134,18 +134,18 @@ abstract class Dictionary implements JsonSerializable {
      * @param  callable  If passed this callback will be applied to the founded value.
      * @return mixed The founded value.
      */
-    protected static function & find($path,$create=false,callable $operation=null) {
+    protected static function & find($path, $create=false, callable $operation=null) {
         $tok = strtok($path,'.');        
         if($create){
-            $value = & static::$fields;
+            $value =& static::$fields;
         } else {
             $value = static::$fields;
         }
         while($tok !== false){
-            $value = & $value[$tok];
+            $value =& $value[$tok];
             $tok = strtok('.');
         }
-        is_callable($operation) ? $operation($value) : '';
+        if (is_callable($operation)) $operation($value);
         return $value;
     }
 
