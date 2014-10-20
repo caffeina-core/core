@@ -106,7 +106,7 @@ trait Persistence {
     $cb = static::persistenceLoad();
     // Use standard persistence on DB layer
     if (!$cb) $cb = function($pk, $table, $options){
-       if ( $data = SQL::row("SELECT * FROM $table WHERE {$options['key']}=? LIMIT 1",$pk) ){
+       if ( $data = SQL::single("SELECT * FROM $table WHERE {$options['key']}=? LIMIT 1",[$pk]) ){
          $obj = new static;
          foreach ((array)$data as $key => $value) {
            $obj->$key = $value;
