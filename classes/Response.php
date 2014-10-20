@@ -63,9 +63,6 @@ class Response {
               static::header('Access-Control-Allow-Headers',$req_h);
             }
             
-		var_dump(filter_input(INPUT_SERVER,'HTTP_ACCESS_CONTROL_REQUEST_METHOD'));
-		die;
-
             static::send();
             exit;
         }
