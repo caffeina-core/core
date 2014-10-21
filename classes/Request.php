@@ -173,8 +173,8 @@ class Request {
    */
   public static function data($key=null,$default=null){
     if(null===static::$body){
-      $json = (filter_input(INPUT_SERVER,'HTTP_CONTENT_TYPE')=='application/json') 
-           || (filter_input(INPUT_SERVER,'CONTENT_TYPE')=='application/json');
+      $json = (false !== stripos(filter_input(INPUT_SERVER,'HTTP_CONTENT_TYPE'),'json')) 
+           || (false !== stripos(filter_input(INPUT_SERVER,'CONTENT_TYPE'),'json'));
       
       static::$body = $json ? json_decode(file_get_contents("php://input")) : file_get_contents("php://input");
     }
