@@ -25,7 +25,7 @@ class Check {
     
     self::$data = $data;
     
-    foreach ($rules as $field_name => $rule) {
+    foreach ((array)$rules as $field_name => $rule) {
 
       $current = isset($data[$field_name])?$data[$field_name]:null;
 
