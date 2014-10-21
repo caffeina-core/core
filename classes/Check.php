@@ -18,12 +18,10 @@ class Check {
   protected static $errors = [];
   public static $data = [];
 
-  public static function valid($rules,$data){
+  public static function valid($rules, $data){
     static::$errors = [];
-
     Event::triggerOnce('core.check.init');
-    
-    self::$data = $data;
+    self::$data = ($data = (array)$data);
     
     foreach ((array)$rules as $field_name => $rule) {
 
