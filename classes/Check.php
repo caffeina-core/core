@@ -125,6 +125,14 @@ Event::on('core.check.init',function(){
        return $value==$x?true:'Field must be equal to '.$fieldname.'.';
     },
 
+    'true' => function($value){
+       return !$value ? 'This value must be true.' : true;
+    },
+
+    'false' => function($value){
+       return !$value ?: 'This value must be false.';
+    },
+
   ]);
 
 });
