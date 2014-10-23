@@ -164,6 +164,32 @@ class Request {
   }
 
   /**
+   * Returns the remote IP
+   *
+   * @return string
+   */
+  public static function IP(){
+   return Filter::with('core.request.IP',strtolower(filter_input(INPUT_SERVER,'REMOTE_ADDR')?:''));
+  }
+
+  /**
+   * Returns the remote UserAgent
+   *
+   * @return string
+   */
+  public static function UA(){
+   return Filter::with('core.request.UA',strtolower(filter_input(INPUT_SERVER,'HTTP_USER_AGENT')?:''));
+  }
+
+  /**
+   * Returns the HTTP Method
+   *
+   * @return string
+   */
+  public static function method(){
+   return Filter::with('core.request.method',strtolower(filter_input(INPUT_SERVER,'REQUEST_METHOD')?:'get'));
+  }
+  /**
    * Returns request body data, convert to object if content type is JSON
    * Gives you all request data if you pass `null` as $key
    * 
