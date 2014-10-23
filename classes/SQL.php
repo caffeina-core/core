@@ -1,9 +1,9 @@
 <?php
 
 /**
- * SQL
+ * Persistence trait
  *
- * SQL database access via PDO.
+ * Provides a way to persist a class on a Database.
  * 
  * @package core
  * @author stefano.azzolini@caffeinalab.com
@@ -11,144 +11,136 @@
  * @copyright Caffeina srl - 2014 - http://caffeina.co
  */
 
-class SQL {
-  use Module;
-
-  protected static $connection = [];
-  protected static $pdo        = null;
-  protected static $queries    = [];
-  protected static $last_exec_success = true;
+trait Persistence {
   
-  public static function connect($dsn, $username=null, $password=null, $options=[]){
-    static::$connection = [
-      'dsn'        => $dsn,
-      'username'   => $username,
-      'password'   => $password,
-      'options'    => array_merge([
-        PDO::ATTR_ERRMODE              => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE   => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES     => true,
-      ],$options),
-    ];
-    // "The auto-commit mode cannot be changed for this driver" SQLite workaround
-    if (strpos($dsn,'sqlite:') === 0) {
-      static::$connection['options'] = $options;
-    }
-  }
+  /**
+   * [Internal] : Retrieve/Set persistence options
+   * This function can be used to get all options passing null, setting options passing an associative
+   * array or retrieve a single value passing a string
+   * 
+   * @param  mixed $options The options passed to the persistence layer.
+   * @return mixed          All options array or a single value
+   */
+  protected static function persistenceOptions($options=null){
+    static $_options = [];
+    
+    if ($options === null) return $_options;
 
-  public static function & connection(){
-    if(null === static::$pdo) {
-      static::$pdo = new PDO(
-          static::$connection['dsn'],
-          static::$connection['username'],
-          static::$connection['password'],
-          static::$connection['options']
-        
-      );
-      Event::triggerOnce('core.sql.connect');
-    }
-    return static::$pdo;
-  }
-  
-  public static function prepare($query){
-    return isset(static::$queries[$query]) ? static::$queries[$query] : (static::$queries[$query] = static::connection()->prepare($query));
-  }
-
-  public static function exec($query, $params=[]){
-    if (false==is_array($params)) $data = (array)$params;
-    $query = Filter::with('core.sql.query',$query);
-    $statement = static::prepare($query);
-    Event::trigger('core.sql.query',$query,$params,(bool)$statement);
-
-    foreach ($params as $key => $val) {
-      $type = PDO::PARAM_STR;
-      if (is_bool($val)) {
-        $type = PDO::PARAM_BOOL;
-      } elseif (is_null($val)) {
-        $type = PDO::PARAM_NULL;
-      } elseif (is_int($val)) {
-        $type = PDO::PARAM_INT;
-      }
-      // bindValue need a 1-based numeric parameter
-      $statement->bindValue(is_numeric($key)?$key+1:':'.$key, $val, $type);
-    }
-
-    static::$last_exec_success = $statement && $statement->execute();
-    return $statement;
-  }
-
-  public static function value($query, $params=[], $column=0){
-    $res = static::exec($query,$params);
-    return $res ? $res->fetchColumn($column) : null;
-  }  
-
-  public static function each($query, $params=[], callable $looper = null){
-    // ($query,$looper) shorthand
-    if ($looper===null && is_callable($params)) {$looper = $params; $params = [];}
-    if( $res = static::exec($query,$params) ){
-      if(is_callable($looper)) 
-        while ($row = $res->fetchObject()) $looper($row);
-      else
-        return $res->fetchAll(PDO::FETCH_CLASS);
-    }
-  }  
-
-  public static function single($query, $params=[], callable $handler = null){
-    // ($query,$handler) shorthand
-    if ($handler===null && is_callable($params)) {$handler = $params; $params = [];}
-    if( $res = static::exec($query,$params) ){
-        if (is_callable($handler)) 
-          $handler($res->fetchObject());
-        else
-          return $res->fetchObject();
-    }
-  }  
-
-
-  public static function all($query, $params=[]){
-    return static::each($query,$params);
-  }  
-
-  public static function delete($table, $pks=null, $pk='id', $inclusive=true){
-    if (null===$pks) {
-      return static::exec("DELETE FROM `$table`");
+    if (is_array($options)) {
+      return $_options = $options;
     } else {
-      return static::exec("DELETE FROM `$table` WHERE `$pk` ".($inclusive ? "" : "NOT " )."IN (?)",[
-           implode(',',(array)$pks)
-      ]);
+      return isset($_options[$options]) ? $_options[$options] : '';
     }
+ 
   }
 
-  public static function insert($table, $data=[]){
-    if (false==is_array($data)) $data = (array)$data;
-    $k = array_keys($data);
-    asort($k);
-    $pk = $k;
-    array_walk($pk,function(&$e){ $e = ':'.$e;});
-    $q = "INSERT INTO `$table` (`".implode('`,`',$k)."`) VALUES (".implode(',',$pk).")";
-    static::exec($q,$data);
-    return static::$last_exec_success ? static::connection()->lastInsertId() : false;
-  }  
+  /**
+   * [Internal] : Assigns or retrieve the Save callback
+   * The save callback interface is 
+   *   function($table, array $options)
+   *  
+   * @param  callable $callback The callback to use on model save
+   * @return callable           Current save callback
+   */
+  protected static function persistenceSave(callable $callback=null){
+    static $save_cb = null;
+    return $callback ? $save_cb = $callback : $save_cb;
+  }
 
-  public static function update($table, $data=[], $pk='id'){
-    if (false==is_array($data)) $data = (array)$data;
-    if (empty($data[$pk])) return false;
-    $k = array_keys($data);
-    asort($k);
-    array_walk($k,function(&$e){ $e = "`$e`=:$e";});
-    $q = "UPDATE `$table` SET ".implode(', ',$k)." WHERE `$pk`=:$pk";
-    static::exec($q,$data);
-    return static::$last_exec_success;
-  }  
+  /**
+   * [Internal] : Assigns or load the Load callback
+   * The load callback interface is 
+   *   function($table, array $options)
+   *  
+   * @param  callable $callback The callback to use on model load
+   * @return callable           Current load callback
+   */
+  protected static function persistenceLoad(callable $callback=null){
+    static $retrieve_cb = null;
+    return $callback ? $retrieve_cb = $callback : $retrieve_cb;
+  }
 
-  public static function insertOrUpdate($table, $data=[], $pk='id'){
-    if (false==is_array($data)) $data = (array)$data;
-    if (empty($data[$pk])) return static::insert($table, $data); 
-    if( (string) static::value("SELECT `$pk` FROM `$table` WHERE `$pk`=? LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
-        return static::update($table, $data, $pk); 
-    } else {
-        return static::insert($table, $data);               
-    }
-  } 
-  
+
+  /**
+   * Enable peristence on `$table` with `$options`
+   *   Avaiable options:
+   *     `key` : The column name of the primary key, default to `id`.
+   *
+   * @param  string $table   The table name
+   * @param  array $options An associative array with options for the persistance layer.
+   * @return void
+   */
+  public static function persistOn($table, array $options=[]){
+    $options = array_merge($options,[
+      'key' => 'id'
+    ]);
+    $options['table'] = $table;
+    static::persistenceOptions($options);
+  }
+
+
+  /**
+   * Override standard save function with a new callback
+   * @param  callable $callback The callback to use on model save
+   * @return void
+   */
+  public static function onSave(callable $callback){
+    static::persistenceSave($callback);
+  }
+
+  /**
+   * Override standard load function with a new callback
+   * @param  callable $callback The callback to use on model load
+   * @return void
+   */
+  public static function onLoad(callable $callback){
+    static::persistenceLoad($callback);
+  }
+
+  /**
+   * Load the model from the persistence layer
+   * @return mixed The retrieved object
+   */
+  public static function load($pk){    
+    $op = static::persistenceOptions();
+    $cb = static::persistenceLoad();
+    // Use standard persistence on DB layer
+    $cb = $cb ? Closure::bind($cb,$this) : [$this,'persistenceLoadDefault'];
+    return $cb($pk,$op['table'],$op);
+  }
+
+  /**
+   * Private Standard Load Method
+   */
+  private function persistenceLoadDefault($pk, $table, $options){
+    if ( $data = SQL::single("SELECT * FROM $table WHERE {$options['key']}=? LIMIT 1",[$pk]) ){
+       $obj = new static;
+       foreach ((array)$data as $key => $value) {
+         $obj->$key = $value;
+       }
+       return $obj;
+     } else {
+       return null;
+     } 
+  }
+
+  /**
+   * Save the model to the persistence layer
+   * @return mixed The results from the save callback. (default: lastInsertID)
+   */
+  public function save(){    
+    $op = static::persistenceOptions();
+    $cb = static::persistenceSave();
+    // Use standard persistence on DB layer
+    $cb = $cb ? Closure::bind($cb,$this) : [$this,'persistenceSaveDefault'];
+    return $cb($op['table'],$op);
+  }
+
+  /**
+   * Private Standard Save Method
+   */
+  private function persistenceSaveDefault($table,$options){
+     return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);    
+  }
+
 }
