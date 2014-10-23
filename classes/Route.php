@@ -104,7 +104,9 @@ class Route {
         Response::start();
 
         $this->response = '';
-        $view_results = call_user_func_array($callback->bindTo($this), $args);
+        
+        // Silence "Cannot bind an instance to a static closure" warnings
+        $view_results = call_user_func_array(@$callback->bindTo($this), $args);
 
         // Render View if returned, else echo string or encode json response
         if(null !== $view_results) {
