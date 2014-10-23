@@ -55,7 +55,7 @@ class SQL {
   }
 
   public static function exec($query, $params=[]){
-    if (false==is_array($params)) $data = (array)$params;
+    if (false==is_array($params)) $params = (array)$params;
     $query = Filter::with('core.sql.query',$query);
     $statement = static::prepare($query);
     Event::trigger('core.sql.query',$query,$params,(bool)$statement);
