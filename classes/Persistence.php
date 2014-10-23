@@ -105,18 +105,23 @@ trait Persistence {
     $op = static::persistenceOptions();
     $cb = static::persistenceLoad();
     // Use standard persistence on DB layer
-    if (!$cb) $cb = function($pk, $table, $options){
-       if ( $data = SQL::single("SELECT * FROM $table WHERE {$options['key']}=? LIMIT 1",[$pk]) ){
-         $obj = new static;
-         foreach ((array)$data as $key => $value) {
-           $obj->$key = $value;
-         }
-         return $obj;
-       } else {
-         return null;
-       }
-    };
+    if ( false == is_callable($cb) ) $cb = 'static::persistenceLoadDefault';
     return $cb($pk,$op['table'],$op);
+  }
+
+  /**
+   * Private Standard Load Method
+   */
+  private static function persistenceLoadDefault($pk, $table, $options){
+    if ( $data = SQL::single("SELECT * FROM $table WHERE {$options['key']}=? LIMIT 1",[$pk]) ){
+       $obj = new static;
+       foreach ((array)$data as $key => $value) {
+         $obj->$key = $value;
+       }
+       return $obj;
+     } else {
+       return null;
+     } 
   }
 
   /**
@@ -127,11 +132,15 @@ trait Persistence {
     $op = static::persistenceOptions();
     $cb = static::persistenceSave();
     // Use standard persistence on DB layer
-    if (!$cb) $cb = function($table,$options){
-       return SQL::insertOrUpdate($table,$this,$options['key']);
-    };
-    $cb = Closure::bind($cb,$this);
+    $cb = $cb ? Closure::bind($cb,$this) : [$this,'persistenceSaveDefault'];
     return $cb($op['table'],$op);
+  }
+
+  /**
+   * Private Standard Save Method
+   */
+  private function persistenceSaveDefault($table,$options){
+     return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);    
   }
 
 }
