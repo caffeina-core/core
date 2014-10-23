@@ -55,9 +55,10 @@ class SQL {
   }
 
   public static function exec($query, $params=[]){
+    if (false==is_array($params)) $data = (array)$params;
     $query = Filter::with('core.sql.query',$query);
     $statement = static::prepare($query);
-    Event::trigger('core.sql.query',$query,$params,!!$statement);
+    Event::trigger('core.sql.query',$query,$params,(bool)$statement);
 
     foreach ($params as $key => $val) {
       $type = PDO::PARAM_STR;
@@ -119,6 +120,7 @@ class SQL {
   }
 
   public static function insert($table, $data=[]){
+    if (false==is_array($data)) $data = (array)$data;
     $k = array_keys($data);
     asort($k);
     $pk = $k;
@@ -129,6 +131,7 @@ class SQL {
   }  
 
   public static function update($table, $data=[], $pk='id'){
+    if (false==is_array($data)) $data = (array)$data;
     if (empty($data[$pk])) return false;
     $k = array_keys($data);
     asort($k);
@@ -139,6 +142,7 @@ class SQL {
   }  
 
   public static function insertOrUpdate($table, $data=[], $pk='id'){
+    if (false==is_array($data)) $data = (array)$data;
     if (empty($data[$pk])) return false;
     if( (string) static::value("SELECT `$pk` FROM `$table` WHERE `$pk`=? LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
         return static::update($table, $data, $pk);
