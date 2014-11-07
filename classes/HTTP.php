@@ -15,10 +15,11 @@ class HTTP {
   use Module;
 
   protected static $UA = "Mozilla/4.0 (compatible; Core::HTTP; Windows NT 6.1)";
-  protected static $json_data = false;
-  protected static $headers = [];
+  protected static $json_data   = false;
+  protected static $headers     = [];
+  protected static $last_info   = null;
 
-  protected static function request($method,$url,$data=null,array $headers=[], $data_as_json=false, $username = null, $password = null){
+  protected static function request($method, $url, $data=null, array $headers=[], $data_as_json=false, $username=null, $password = null){
     $http_method = strtoupper($method);
     $ch = curl_init($url);
     $opt = [
@@ -67,7 +68,7 @@ class HTTP {
     curl_setopt($ch, CURLOPT_HTTPHEADER, $_harr);
     $result = curl_exec($ch);
     $contentType = strtolower(curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
-
+    static::$last_info = curl_getinfo($ch);
     if(false !== strpos($contentType,'json')) $result = json_decode($result);
     curl_close($ch);
     return $result;
@@ -109,23 +110,27 @@ class HTTP {
     return static::request('delete',$url,$data,$headers,static::$json_data,$username,$password);
   }
 
-  public static function info($url){
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-      CURLOPT_SSL_VERIFYHOST  => false,
-      CURLOPT_CONNECTTIMEOUT  => 10,
-      CURLOPT_RETURNTRANSFER  => true,
-      CURLOPT_USERAGENT       => static::$UA,
-      CURLOPT_HEADER          => false,
-      CURLOPT_ENCODING        => '',
-      CURLOPT_FILETIME        => true,
-      CURLOPT_NOBODY          => true,
-    ]);
-
-    curl_exec($ch);
-    $info = curl_getinfo($ch);
-    curl_close($ch);
-    return $info;
+  public static function info($url=null){
+    if ($url){
+      $ch = curl_init($url);
+      curl_setopt_array($ch, [
+        CURLOPT_SSL_VERIFYHOST  => false,
+        CURLOPT_CONNECTTIMEOUT  => 10,
+        CURLOPT_RETURNTRANSFER  => true,
+        CURLOPT_USERAGENT       => static::$UA,
+        CURLOPT_HEADER          => false,
+        CURLOPT_ENCODING        => '',
+        CURLOPT_FILETIME        => true,
+        CURLOPT_NOBODY          => true,
+      ]);
+  
+      curl_exec($ch);
+      $info = curl_getinfo($ch);
+      curl_close($ch);
+      return $info;
+    } else {
+      return static::$last_info;
+    }
   }
 
 }
