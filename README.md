@@ -1,5 +1,7 @@
 <img src="https://github.com/caffeina-core/core/blob/master/core-logo.png?raw=true" height="130">
 
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/caffeina-core/core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/caffeina-core/core/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/caffeina-core/core/?branch=master)
 [![Build Status](https://travis-ci.org/caffeina-core/core.svg)](https://travis-ci.org/caffeina-core/core)
 [![Total Downloads](https://poser.pugx.org/caffeina-core/core/downloads.svg)](https://packagist.org/packages/caffeina-core/core)
