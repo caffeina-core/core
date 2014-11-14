@@ -14,6 +14,7 @@
 
 
 ## Installation
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/caffeina-core/core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Install via [composer](https://getcomposer.org/download/):
 
