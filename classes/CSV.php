@@ -23,6 +23,7 @@ class CSV {
 
   protected $file,
             $headers      = [],
+            $template     = [],
             $mode         = self::WRITE,
             $format       = self::STANDARD,
             $savedheaders = false;
@@ -31,7 +32,7 @@ class CSV {
     return new static($file,self::READ,$format);
   }
 
-  public static function create($file,$format=self::AUTO){
+  public static function create($file,$format=self::STANDARD){
     return new static($file,self::WRITE,$format);
   }
 
@@ -87,12 +88,15 @@ class CSV {
 
   public function write($row){
     if ($this->mode != self::WRITE) return;
+    $row = (array)$row;
     if (false === $this->savedheaders) {
-      $this->savedheaders = true;
-      if (!$this->headers) $this->headers = array_keys((array)$row);
-      $this->file->fputcsv($this->headers);
+      $this->schema(array_keys($row));
     }
-    $this->file->fputcsv(array_values((array)$row));
+    $row_t = $this->template;
+    foreach ($this->headers as $key) {
+      if (isset($row[$key])) $row_t[$key] = $row[$key]; 
+    }
+    $this->file->fputcsv($row_t);
   }
 
   public function read(){
@@ -127,13 +131,31 @@ class CSV {
     $this->each(function($row) use ($csv) {
       $csv->write($row);
     });
-    echo $csv; die;
     return $this;
   }
 
+  public function flush(){
+    if ($this->mode == self::WRITE) {
+      $this->file->fflush();
+    }
+  }
+
+  public function schema($schema=null){
+    if($schema){
+      $this->headers = array_values((array)$schema);
+      if ($this->mode == self::WRITE) {
+        $this->savedheaders = true;
+        $this->template = array_combine($this->headers, array_pad([],count($this->headers),''));
+        $this->file->fputcsv($this->headers);
+      }
+      return $this;
+    } else {
+      return $this->headers;
+    }
+  }
 
   public function asString(){
-    $this->file->fflush();
+    $this->flush();
     return file_get_contents($this->file->getPathname());
   }
 
