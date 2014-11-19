@@ -19,7 +19,7 @@ class HTTP {
   protected static $headers     = [];
   protected static $last_info   = null;
 
-  protected static function request($method, $url, $data=null, array $headers=[], $data_as_json=false, $username=null, $password = null){
+  public static function request($method, $url, $data=null, array $headers=[], $data_as_json=false, $username=null, $password = null){
     $http_method = strtoupper($method);
     $ch = curl_init($url);
     $opt = [
@@ -110,8 +110,7 @@ class HTTP {
     return static::request('delete',$url,$data,$headers,static::$json_data,$username,$password);
   }
 
-  public static function info($url=null){
-    if ($url){
+  public static function touch($url){
       $ch = curl_init($url);
       curl_setopt_array($ch, [
         CURLOPT_SSL_VERIFYHOST  => false,
@@ -128,9 +127,10 @@ class HTTP {
       $info = curl_getinfo($ch);
       curl_close($ch);
       return $info;
-    } else {
-      return static::$last_info;
-    }
+  }
+
+  public static function info($key=null){
+    return $key===null ? static::$last_info : (isset(static::$last_info[$key]) ? static::$last_info[$key] : '');
   }
 
 }

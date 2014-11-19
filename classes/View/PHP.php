@@ -13,7 +13,7 @@
 
 namespace View;
 
-class PHP {
+class PHP implements Engine {
     protected $templatePath = __DIR__;
     protected static $globals = [];
     const EXTENSION = 'php';
@@ -26,13 +26,13 @@ class PHP {
         return is_file($this->templatePath.$path.'.php');
     }
     
-    public static function addGlobal($key,$val){
-      self::$globals[$key] = $val;
-    }
-
-    public static function addGlobals(array $defs){
-      foreach ((array)$defs as $key=>$val) {
-          self::$globals[$key] = $val;
+    public static function addGlobal($key,$val=null){
+      if(is_array($key) || is_object($key)){
+        foreach ((array)$key as $property=>$val) {
+            self::$globals[$property] = $val;
+        }
+      } else {
+        self::$globals[$key] = $val;
       }
     }
 
