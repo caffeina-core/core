@@ -18,14 +18,12 @@ class Check {
   protected static $errors = [];
   public static $data = [];
 
-  public static function valid($rules,$data){
+  public static function valid($rules, $data){
     static::$errors = [];
-
     Event::triggerOnce('core.check.init');
+    self::$data = ($data = (array)$data);
     
-    self::$data = $data;
-    
-    foreach ($rules as $field_name => $rule) {
+    foreach ((array)$rules as $field_name => $rule) {
 
       $current = isset($data[$field_name])?$data[$field_name]:null;
 
@@ -125,6 +123,14 @@ Event::on('core.check.init',function(){
     'same_as' => function($value,$fieldname){
        $x = isset(Check::$data[$fieldname])?Check::$data[$fieldname]:'';
        return $value==$x?true:'Field must be equal to '.$fieldname.'.';
+    },
+
+    'true' => function($value){
+       return !$value ? 'This value must be true.' : true;
+    },
+
+    'false' => function($value){
+       return !$value ?: 'This value must be false.';
     },
 
   ]);

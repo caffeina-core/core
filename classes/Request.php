@@ -164,6 +164,25 @@ class Request {
   }
 
   /**
+   * Returns the remote IP
+   *
+   * @return string
+   */
+  public static function IP(){
+   return Filter::with('core.request.IP',strtolower(filter_input(INPUT_SERVER,'REMOTE_ADDR')?:''));
+  }
+
+  /**
+   * Returns the remote UserAgent
+   *
+   * @return string
+   */
+  public static function UA(){
+   return Filter::with('core.request.UA',strtolower(filter_input(INPUT_SERVER,'HTTP_USER_AGENT')?:''));
+  }
+
+ 
+  /**
    * Returns request body data, convert to object if content type is JSON
    * Gives you all request data if you pass `null` as $key
    * 
@@ -173,8 +192,8 @@ class Request {
    */
   public static function data($key=null,$default=null){
     if(null===static::$body){
-      $json = (filter_input(INPUT_SERVER,'HTTP_CONTENT_TYPE')=='application/json') 
-           || (filter_input(INPUT_SERVER,'CONTENT_TYPE')=='application/json');
+      $json = (false !== stripos(filter_input(INPUT_SERVER,'HTTP_CONTENT_TYPE'),'json')) 
+           || (false !== stripos(filter_input(INPUT_SERVER,'CONTENT_TYPE'),'json'));
       
       static::$body = $json ? json_decode(file_get_contents("php://input")) : file_get_contents("php://input");
     }

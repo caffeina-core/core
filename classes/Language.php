@@ -7,10 +7,11 @@
  *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
- * @version 1.0
+ * @version 0.1
  * @copyright Caffeina srl - 2014 - http://caffeina.co
  */
 
+// DRAFT
 
  class Language extends Dictionary {
     use Module;

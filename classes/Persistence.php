@@ -21,15 +21,13 @@ trait Persistence {
    * @param  mixed $options The options passed to the persistence layer.
    * @return mixed          All options array or a single value
    */
+  protected static $__persistence__ = [];
   protected static function persistenceOptions($options=null){
-    static $_options = [];
-    
-    if ($options === null) return $_options;
-
+    if ($options === null) return static::$__persistence__;
     if (is_array($options)) {
-      return $_options = $options;
+      return static::$__persistence__ = $options;
     } else {
-      return isset($_options[$options]) ? $_options[$options] : '';
+      return isset(static::$__persistence__[$options]) ? static::$__persistence__[$options] : '';
     }
  
   }
@@ -75,7 +73,7 @@ trait Persistence {
       'key' => 'id'
     ]);
     $options['table'] = $table;
-    static::persistenceOptions($options);
+    static::$__persistence__ = $options;
   }
 
 
@@ -102,21 +100,25 @@ trait Persistence {
    * @return mixed The retrieved object
    */
   public static function load($pk){    
-    $op = static::persistenceOptions();
+    $op = static::$__persistence__;
     $cb = static::persistenceLoad();
     // Use standard persistence on DB layer
-    if (!$cb) $cb = function($pk, $table, $options){
-       if ( $data = SQL::row("SELECT * FROM $table WHERE {$options['key']}=? LIMIT 1",$pk) ){
-         $obj = new static;
-         foreach ((array)$data as $key => $value) {
-           $obj->$key = $value;
-         }
-         return $obj;
-       } else {
-         return null;
+    return ( false == is_callable($cb) ) ? static::persistenceLoadDefault($pk,$op['table'],$op) : $cb($pk,$op['table'],$op);
+  }
+
+  /**
+   * Private Standard Load Method
+   */
+  private static function persistenceLoadDefault($pk, $table, $options){
+    if ( $data = SQL::single("SELECT * FROM $table WHERE {$options['key']}=? LIMIT 1",[$pk]) ){
+       $obj = new static;
+       foreach ((array)$data as $key => $value) {
+         $obj->$key = $value;
        }
-    };
-    return $cb($pk,$op['table'],$op);
+       return $obj;
+     } else {
+       return null;
+     } 
   }
 
   /**
@@ -124,14 +126,18 @@ trait Persistence {
    * @return mixed The results from the save callback. (default: lastInsertID)
    */
   public function save(){    
-    $op = static::persistenceOptions();
+    $op = static::$__persistence__;
     $cb = static::persistenceSave();
     // Use standard persistence on DB layer
-    if (!$cb) $cb = function($table,$options){
-       return SQL::insertOrUpdate($table,$this,$options['key']);
-    };
-    $cb = Closure::bind($cb,$this);
+    $cb = $cb ? Closure::bind($cb,$this) : [$this,'persistenceSaveDefault'];
     return $cb($op['table'],$op);
+  }
+
+  /**
+   * Private Standard Save Method
+   */
+  private function persistenceSaveDefault($table,$options){
+     return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);    
   }
 
 }

@@ -2,9 +2,9 @@
     "name": "caffeina-core/core",
     "type": "library",
     "description": "Caffeina - Core PHP SDK",
-    "keywords": ["framework","core","sdk"],
+    "keywords": ["framework","core","sdk","tool","toolbox"],
     "homepage": "http://labs.caffeina.co/tech/core",
-    "version": "1.0.0",
+    "version": "0.8.3",
     "license": "MIT",
     "authors": [
         {
@@ -15,7 +15,7 @@
     "require": {
         "php": ">=5.4"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "autoload": {
         "classmap": [ "classes/" ]
     }
