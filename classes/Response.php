@@ -53,7 +53,7 @@ class Response {
 
         // Access-Control headers are received during OPTIONS requests
         if (filter_input(INPUT_SERVER,'REQUEST_METHOD') == 'OPTIONS') {
-            static::clear();
+            static::clean();
 
             if (filter_input(INPUT_SERVER,'HTTP_ACCESS_CONTROL_REQUEST_METHOD')) {
               static::header('Access-Control-Allow-Methods',

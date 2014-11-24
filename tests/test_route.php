@@ -1,6 +1,7 @@
 <?php
 
 
+Response::clean();
 Route::on('/',function(){ return "index"; });
 Route::dispatch('/','get');
 test(Response::body() == 'index','Route','Basic');
