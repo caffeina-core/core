@@ -24,7 +24,7 @@ class Route {
     protected $dynamic        = false;
     protected $callback       = null;
     protected $methods        = [];
-    protected $befores    = [];
+    protected $befores        = [];
     protected $afters         = [];
 
     protected $rules          = [];
@@ -43,9 +43,9 @@ class Route {
     public function __construct($URLPattern, callable $callback = null, $method='get'){
         $this->URLPattern = rtrim(implode('',static::$prefix),'/') . '/' . trim($URLPattern,'/')?:'/';
         $this->URLPattern = $this->URLPattern != '/' ? rtrim($this->URLPattern,'/') : $this->URLPattern;
-        $this->dynamic = $this->isDynamic($this->URLPattern);
-        $this->pattern = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern, $this->rules) : $this->URLPattern;
-        $this->callback = $callback;
+        $this->dynamic    = $this->isDynamic($this->URLPattern);
+        $this->pattern    = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern, $this->rules) : $this->URLPattern;
+        $this->callback   = $callback;
 
         // We will use hash-checks, for O(1) complexity vs O(n)
         $this->methods[$method] = 1;
@@ -311,7 +311,7 @@ class Route {
      * @param Route $r
      * @return Route
      */
-    public static function add(Route $r){
+    public static function add($r){
         if(isset(static::$group[0])) static::$group[0]->add($r);
         return static::$routes[implode('',static::$prefix)][] = $r;
     }
@@ -357,7 +357,10 @@ class Route {
             array_pop(static::$prefix);
             if(empty(static::$prefix)) static::$prefix=[''];
             return $group;
-        } 
+        } else {
+            // Null Object Pattern
+            return new RouteGroup();
+        }
 
     }
 
@@ -367,11 +370,11 @@ class Route {
      * @return boolean true if a route callback was executed.
      */
     public static function dispatch($URL=null,$method=null){
-        $URL    || $URL     = Request::URI();
-        $method || $method  = Request::method();
+        if (!$URL)     $URL     = Request::URI();
+        if (!$method)  $method  = Request::method();
         foreach ((array)static::$routes as $group => $routes){
             foreach ($routes as $route) {
-                if(false !== ($args = $route->match($URL,$method))){
+                if (is_a($route, 'Route') && false !== ($args = $route->match($URL,$method))){
                     $route->run($args,$method);
                     return true;
                 }
@@ -385,7 +388,10 @@ class Route {
 class RouteGroup {
   protected $routes;
 
-  public function __construct(){ $this->routes = new SplObjectStorage; }
+  public function __construct(){ 
+    $this->routes = new SplObjectStorage;
+    return Route::add($this);
+  }
   
   public function has(Route $r){ return $this->routes->contains($r); }
 
