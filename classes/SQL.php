@@ -144,7 +144,7 @@ class SQL {
   public static function insertOrUpdate($table, $data=[], $pk='id', $extra_where=''){
     if (false==is_array($data)) $data = (array)$data;
     if (empty($data[$pk])) return static::insert($table, $data);
-    if( (string) static::value("SELECT `$pk` FROM `$table` WHERE `$pk`=? $extra_where LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
+    if( (string) static::value("SELECT `$pk` FROM `$table` WHERE `$pk`=? LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
         return static::update($table, $data, $pk, $extra_where); 
     } else {
         return static::insert($table, $data);         
