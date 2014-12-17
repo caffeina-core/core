@@ -130,24 +130,24 @@ class SQL {
     return static::$last_exec_success ? static::connection()->lastInsertId() : false;
   }  
 
-  public static function update($table, $data=[], $pk='id'){
+  public static function update($table, $data=[], $pk='id', $extra_where=''){
     if (false==is_array($data)) $data = (array)$data;
     if (empty($data[$pk])) return false;
     $k = array_keys($data);
     asort($k);
     array_walk($k,function(&$e){ $e = "`$e`=:$e";});
-    $q = "UPDATE `$table` SET ".implode(', ',$k)." WHERE `$pk`=:$pk";
+    $q = "UPDATE `$table` SET ".implode(', ',$k)." WHERE `$pk`=:$pk $extra_where";
     static::exec($q,$data);
     return static::$last_exec_success;
   }  
 
-  public static function insertOrUpdate($table, $data=[], $pk='id'){
+  public static function insertOrUpdate($table, $data=[], $pk='id', $extra_where=''){
     if (false==is_array($data)) $data = (array)$data;
-    if (empty($data[$pk])) return static::insert($table, $data); 
-    if( (string) static::value("SELECT `$pk` FROM `$table` WHERE `$pk`=? LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
-        return static::update($table, $data, $pk); 
+    if (empty($data[$pk])) return static::insert($table, $data);
+    if( (string) static::value("SELECT `$pk` FROM `$table` WHERE $pk $extra_where LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
+        return static::update($table, $data, $pk, $extra_where); 
     } else {
-        return static::insert($table, $data);               
+        return static::insert($table, $data);         
     }
   } 
   
