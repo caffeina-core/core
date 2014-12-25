@@ -11,20 +11,29 @@
  * @copyright Caffeina srl - 2014 - http://caffeina.co
  */
 
-class Model {
+abstract class Model {
     use Module, Persistence;
 
-    public static function all(){
+    public static function where($where_sql = false){
+        $self = get_called_class();
 
-        $table   = static::persistenceOptions('table');
-        $key     = static::persistenceOptions('key');
+        $table   = $self::persistenceOptions('table');
+        $key     = $self::persistenceOptions('key');
 
         if (!$table) return [];
 
+        $sql = "select $key from $table" . ($where_sql ? " where $where_sql" : '');
+
         $results = [];
-        SQL::each("select $key from $table", function($row) use (&$results){
-            $results[] = static::load($row->id);
+        SQL::each($sql, function($row) use ($self,&$results){
+            $results[] = $self::load($row->id);
         });
         return $results;
     }
+
+
+    public static function all(){
+        return static::where();
+    }
+
 }
