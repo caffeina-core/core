@@ -31,7 +31,6 @@ abstract class Model {
         return $results;
     }
 
-
     public static function all(){
         return static::where();
     }

@@ -100,13 +100,16 @@ trait Persistence {
    * @return mixed The retrieved object
    */
   public static function load($pk){
-    $op = static::$__persistence__;
     $cb = static::persistenceLoad();
+    $op = & static::$__persistence__;
 
-    if (empty($op['table'])) throw new \Exception(__CLASS__."::Persistence You must define a table before using persistence methods.");
+    if (empty($op['table'])) {
+      static::persistenceAutoDiscover();
+    }
 
     // Use standard persistence on DB layer
-    return ( false == is_callable($cb) ) ? static::persistenceLoadDefault($pk,$op['table'],$op) : $cb($pk,$op['table'],$op);
+    return ( false == is_callable($cb) ) ?
+      static::persistenceLoadDefault($pk,$op['table'],$op) : $cb($pk,$op['table'],$op);
   }
 
   /**
@@ -129,10 +132,12 @@ trait Persistence {
    * @return mixed The results from the save callback. (default: lastInsertID)
    */
   public function save(){
-    $op = static::$__persistence__;
+    $op = & static::$__persistence__;
     $cb = static::persistenceSave();
 
-    if (empty($op['table'])) throw new \Exception(__CLASS__."::Persistence You must define a table before using persistence methods.");
+    if (empty($op['table'])) {
+      static::persistenceAutoDiscover();
+    }
 
     // Use standard persistence on DB layer
     $cb = $cb ? Closure::bind($cb,$this) : [$this,'persistenceSaveDefault'];
@@ -144,6 +149,29 @@ trait Persistence {
    */
   private function persistenceSaveDefault($table,$options){
      return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);
+  }
+
+  /**
+   * Private Table and primary Key autodiscover
+   */
+  private static function persistenceAutoDiscover(){
+    if (empty(static::$__persistence__['table'])) {
+      // static::persistOn was not called
+      if (defined('static::_PRIMARY_KEY_')){
+        $x = explode('.', static::_PRIMARY_KEY_);
+        static::$__persistence__['table'] = current($x);
+        static::$__persistence__['key'] = isset($x[1])?$x[1]:'id';
+      } else {
+        // User pluralized class name as default table
+        switch(substr($s = strtolower(get_called_class()),-1)){
+            case 'y': static::$__persistence__['table'] = substr($s,0,-1).'ies'; break;
+            case 's': static::$__persistence__['table'] = substr($s,0,-1).'es';  break;
+            default:  static::$__persistence__['table'] = $s.'s'; break;
+        }
+        // Default ID
+        static::$__persistence__['key'] = 'id';
+      }
+    }
   }
 
 }
