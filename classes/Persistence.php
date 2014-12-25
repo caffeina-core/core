@@ -4,7 +4,7 @@
  * Persistence trait
  *
  * Provides a way to persist a class on a Database.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @version 1.0
@@ -12,12 +12,12 @@
  */
 
 trait Persistence {
-  
+
   /**
    * [Internal] : Retrieve/Set persistence options
    * This function can be used to get all options passing null, setting options passing an associative
    * array or retrieve a single value passing a string
-   * 
+   *
    * @param  mixed $options The options passed to the persistence layer.
    * @return mixed          All options array or a single value
    */
@@ -29,14 +29,14 @@ trait Persistence {
     } else {
       return isset(static::$__persistence__[$options]) ? static::$__persistence__[$options] : '';
     }
- 
+
   }
 
   /**
    * [Internal] : Assigns or retrieve the Save callback
-   * The save callback interface is 
+   * The save callback interface is
    *   function($table, array $options)
-   *  
+   *
    * @param  callable $callback The callback to use on model save
    * @return callable           Current save callback
    */
@@ -47,9 +47,9 @@ trait Persistence {
 
   /**
    * [Internal] : Assigns or load the Load callback
-   * The load callback interface is 
+   * The load callback interface is
    *   function($table, array $options)
-   *  
+   *
    * @param  callable $callback The callback to use on model load
    * @return callable           Current load callback
    */
@@ -99,9 +99,12 @@ trait Persistence {
    * Load the model from the persistence layer
    * @return mixed The retrieved object
    */
-  public static function load($pk){    
+  public static function load($pk){
     $op = static::$__persistence__;
     $cb = static::persistenceLoad();
+
+    if (empty($op['table'])) throw new \Exception(__CLASS__."::Persistence You must define a table before using persistence methods.");
+
     // Use standard persistence on DB layer
     return ( false == is_callable($cb) ) ? static::persistenceLoadDefault($pk,$op['table'],$op) : $cb($pk,$op['table'],$op);
   }
@@ -118,16 +121,19 @@ trait Persistence {
        return $obj;
      } else {
        return null;
-     } 
+     }
   }
 
   /**
    * Save the model to the persistence layer
    * @return mixed The results from the save callback. (default: lastInsertID)
    */
-  public function save(){    
+  public function save(){
     $op = static::$__persistence__;
     $cb = static::persistenceSave();
+
+    if (empty($op['table'])) throw new \Exception(__CLASS__."::Persistence You must define a table before using persistence methods.");
+
     // Use standard persistence on DB layer
     $cb = $cb ? Closure::bind($cb,$this) : [$this,'persistenceSaveDefault'];
     return $cb($op['table'],$op);
@@ -137,7 +143,7 @@ trait Persistence {
    * Private Standard Save Method
    */
   private function persistenceSaveDefault($table,$options){
-     return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);    
+     return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);
   }
 
 }
