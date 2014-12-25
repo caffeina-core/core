@@ -28,32 +28,33 @@ class CSV {
             $format       = self::STANDARD,
             $savedheaders = false;
 
-  public static function open($file,$format=self::AUTO){
+  public static function open($file, $format=self::AUTO){
     return new static($file,self::READ,$format);
   }
 
-  public static function create($file,$format=self::STANDARD){
-    return new static($file,self::WRITE,$format);
+  public static function create($file, $format=self::STANDARD){
+    return new static($file,self::WRITE, $format);
   }
 
-  public static function fromSQL($sql,$format=self::AUTO){
-    $csv = new static(tempnam(sys_get_temp_dir(), 'CSVx'),$format);
+  public static function fromSQL($sql, $format=self::AUTO){
+    $csv = static::create(tempnam(sys_get_temp_dir(), 'CSVx'), $format);
     SQL::each($sql,function($row) use (&$csv){
       $csv->write($row);
     });
-    return $this;
+    return $csv;
   }
 
-  public static function fromTable($table,$format=self::AUTO){
-    $csv = new static(tempnam(sys_get_temp_dir(), 'CSVx'),$format);
+  public static function fromTable($table, $format=self::AUTO){
+    $csv = static::create(tempnam(sys_get_temp_dir(), 'CSVx'), $format);
     foreach($table as $row){
       $csv->write($row);
     }
-    return $this;
+    return $csv;
   }
 
-  public function __construct($file,$mode=self::READ,$format=self::AUTO){
-    $this->file = new \SplFileObject($file,$this->mode = $mode);
+  public function __construct($file, $mode=self::READ, $format=self::AUTO){
+    $this->mode = $mode;
+    $this->file = new \SplFileObject($file,'r+');
     if (!$this->file->valid()) throw new Exception("Error opening CSV file [$file]", 1);
     $this->file->setFlags(
       \SplFileObject::READ_CSV |     // set file reading mode to csv
@@ -65,6 +66,7 @@ class CSV {
   }
 
   private function guessSeparator($checkLines = 2){
+    if ($this->mode == self::WRITE) return self::STANDARD;
     $delimiters = [",","\t",";"];
     $results = [];
     $this->file->rewind();
@@ -76,8 +78,8 @@ class CSV {
                 if(empty($results[$delimiter])){
                   $results[$delimiter] = 1;
                 } else {
-                  $results[$delimiter]++; 
-                }   
+                  $results[$delimiter]++;
+                }
             }
         }
     }
@@ -94,7 +96,7 @@ class CSV {
     }
     $row_t = $this->template;
     foreach ($this->headers as $key) {
-      if (isset($row[$key])) $row_t[$key] = $row[$key]; 
+      if (isset($row[$key])) $row_t[$key] = $row[$key];
     }
     $this->file->fputcsv($row_t);
   }
@@ -107,7 +109,7 @@ class CSV {
           $this->headers = $row;
           continue;
         }
-        yield array_combine($this->headers,array_map('trim', $row));        
+        yield array_combine($this->headers, array_map('trim', $row));
       }
     }
     return;
@@ -120,18 +122,18 @@ class CSV {
     } else {
       $results = [];
       foreach($this->read() as $row) $results[] = $row;
-      return $results;      
+      return $results;
     }
   }
 
-  public function convert($filename,$format=self::STANDARD){
+  public function convert($filename, $format=self::STANDARD){
     if ($this->mode != self::READ) return;
     if ($format == self::AUTO) $format = self::STANDARD;
-    $csv = CSV::create($filename,CSV::EXCEL);
+    $csv = CSV::create($filename, CSV::EXCEL);
     $this->each(function($row) use ($csv) {
       $csv->write($row);
     });
-    return $this;
+    return $csv;
   }
 
   public function flush(){
