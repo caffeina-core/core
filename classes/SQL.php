@@ -57,20 +57,24 @@ class SQL {
   public static function exec($query, $params=[]){
     if (false==is_array($params)) $params = (array)$params;
     $query = Filter::with('core.sql.query',$query);
-    $statement = static::prepare($query);
-    Event::trigger('core.sql.query',$query,$params,(bool)$statement);
+    if($statement = static::prepare($query)){
+      Event::trigger('core.sql.query',$query,$params,(bool)$statement);
 
-    foreach ($params as $key => $val) {
-      $type = PDO::PARAM_STR;
-      if (is_bool($val)) {
-        $type = PDO::PARAM_BOOL;
-      } elseif (is_null($val)) {
-        $type = PDO::PARAM_NULL;
-      } elseif (is_int($val)) {
-        $type = PDO::PARAM_INT;
+      foreach ($params as $key => $val) {
+        $type = PDO::PARAM_STR;
+        if (is_bool($val)) {
+          $type = PDO::PARAM_BOOL;
+        } elseif (is_null($val)) {
+          $type = PDO::PARAM_NULL;
+        } elseif (is_int($val)) {
+          $type = PDO::PARAM_INT;
+        }
+        // bindValue need a 1-based numeric parameter
+        $statement->bindValue(is_numeric($key)?$key+1:':'.$key, $val, $type);
       }
-      // bindValue need a 1-based numeric parameter
-      $statement->bindValue(is_numeric($key)?$key+1:':'.$key, $val, $type);
+    } else {
+      Event::trigger('core.sql.error',$query,$params);
+      return false;
     }
 
     static::$last_exec_success = $statement && $statement->execute();
