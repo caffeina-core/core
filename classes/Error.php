@@ -19,7 +19,7 @@ class Error {
     const SILENT = 2;
     const JSON = 3;
 
-    static $mode = self::SIMPLE;
+    static $mode = self::SILENT;
 
     public static function capture($tracing_level=null){
       if($tracing_level!==null) error_reporting($tracing_level);

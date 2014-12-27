@@ -4,7 +4,7 @@
  * Persistence trait
  *
  * Provides a way to persist a class on a Database.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @version 1.0
@@ -12,31 +12,53 @@
  */
 
 trait Persistence {
-  
+
   /**
    * [Internal] : Retrieve/Set persistence options
    * This function can be used to get all options passing null, setting options passing an associative
    * array or retrieve a single value passing a string
-   * 
+   *
    * @param  mixed $options The options passed to the persistence layer.
    * @return mixed          All options array or a single value
    */
-  protected static $__persistence__ = [];
   protected static function persistenceOptions($options=null){
-    if ($options === null) return static::$__persistence__;
+    static $_options = [];
+
+    if ($options === null) return $_options;
     if (is_array($options)) {
-      return static::$__persistence__ = $options;
+      return $_options = $options;
     } else {
-      return isset(static::$__persistence__[$options]) ? static::$__persistence__[$options] : '';
+      if (empty($_options['table'])) {
+        $self = get_called_class();
+        if (defined("$self::_PRIMARY_KEY_")){
+          $x = explode('.', $self::_PRIMARY_KEY_);
+          $_options = [
+            'table' => current($x),
+            'key'   => isset($x[1])?$x[1]:'id',
+          ];
+        } else {
+          // User pluralized class name as default table
+          switch(substr($s = strtolower($self),-1)){
+              case 'y': $table = substr($s,0,-1).'ies'; break;
+              case 's': $table = substr($s,0,-1).'es';  break;
+              default:  $table = $s.'s'; break;
+          }
+          // Default ID
+          $_options = [
+            'table' => $table,
+            'key'   => 'id',
+          ];
+        }
+      }
+      return isset($_options[$options]) ? $_options[$options] : '';
     }
- 
   }
 
   /**
    * [Internal] : Assigns or retrieve the Save callback
-   * The save callback interface is 
+   * The save callback interface is
    *   function($table, array $options)
-   *  
+   *
    * @param  callable $callback The callback to use on model save
    * @return callable           Current save callback
    */
@@ -47,9 +69,9 @@ trait Persistence {
 
   /**
    * [Internal] : Assigns or load the Load callback
-   * The load callback interface is 
+   * The load callback interface is
    *   function($table, array $options)
-   *  
+   *
    * @param  callable $callback The callback to use on model load
    * @return callable           Current load callback
    */
@@ -73,7 +95,7 @@ trait Persistence {
       'key' => 'id'
     ]);
     $options['table'] = $table;
-    static::$__persistence__ = $options;
+    static::persistenceOptions($options);
   }
 
 
@@ -99,11 +121,14 @@ trait Persistence {
    * Load the model from the persistence layer
    * @return mixed The retrieved object
    */
-  public static function load($pk){    
-    $op = static::$__persistence__;
-    $cb = static::persistenceLoad();
+  public static function load($pk){
+    $table = static::persistenceOptions('table');
+    $cb    = static::persistenceLoad();
+    $op    = static::persistenceOptions();
+
     // Use standard persistence on DB layer
-    return ( false == is_callable($cb) ) ? static::persistenceLoadDefault($pk,$op['table'],$op) : $cb($pk,$op['table'],$op);
+    return ( false == is_callable($cb) ) ?
+      static::persistenceLoadDefault($pk,$table,$op) : $cb($pk,$table,$op);
   }
 
   /**
@@ -118,26 +143,29 @@ trait Persistence {
        return $obj;
      } else {
        return null;
-     } 
+     }
   }
 
   /**
    * Save the model to the persistence layer
    * @return mixed The results from the save callback. (default: lastInsertID)
    */
-  public function save(){    
-    $op = static::$__persistence__;
-    $cb = static::persistenceSave();
+  public function save(){
+    $table  = static::persistenceOptions('table');
+    $op     = static::persistenceOptions();
+    $cb     = static::persistenceSave();
+
     // Use standard persistence on DB layer
-    $cb = $cb ? Closure::bind($cb,$this) : [$this,'persistenceSaveDefault'];
-    return $cb($op['table'],$op);
+    $cb = $cb ? Closure::bind($cb, $this) : [$this,'persistenceSaveDefault'];
+    return $cb($table,$op);
   }
 
   /**
    * Private Standard Save Method
    */
   private function persistenceSaveDefault($table,$options){
-     return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);    
+     return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);
   }
+
 
 }

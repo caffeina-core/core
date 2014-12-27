@@ -16,3 +16,4 @@ function test($condition,$group='COMMON',$message='Error') {
     echo "[$result]: $group: $message\n";
 }
 
+SQL::connect('sqlite::memory:');

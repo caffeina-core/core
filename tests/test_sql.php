@@ -1,7 +1,5 @@
 <?php
 
-SQL::connect('sqlite::memory:');
-
 //Event::on('core.sql.query',function($sql){ echo "SQL: $sql\n"; });
 
 test(SQL::exec("
@@ -11,10 +9,6 @@ test(SQL::exec("
         password text
     );
 "),'SQL','Exec');
-
-
-$table_schema = SQL::each('PRAGMA table_info(users)');
-test($table_schema[1]->name == 'email','SQL','Each, retrieving all.');
 
 
 $id1 = SQL::insert('users',[
@@ -47,7 +41,7 @@ SQL::each('SELECT id FROM users',function($row) use (&$cc) {
 });
 
 test($cc == 10,'SQL','Each, row callback.');
-
+test(json_encode(SQL::each('SELECT id FROM users')) == '[{"id":"1"},{"id":"2"},{"id":"3"},{"id":"4"}]','SQL','Each, retrieving all.');
 
 test(SQL::update('users',[
     'id'       => 2,
