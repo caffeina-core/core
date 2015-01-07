@@ -38,7 +38,7 @@ class CSV {
 
   public static function fromSQL($sql,$format=self::AUTO){
     $csv = new static(tempnam(sys_get_temp_dir(), 'CSVx'),$format);
-    SQL::all($sql,function($row) use (&$csv){
+    SQL::each($sql,function($row) use (&$csv){
       $csv->write($row);
     });
     return $this;

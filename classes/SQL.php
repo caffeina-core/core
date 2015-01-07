@@ -161,8 +161,6 @@ class SQL {
     if (empty($data[$pk])) return static::insert($table, $data);
     if( (string) static::value("SELECT `$pk` FROM `$table` WHERE `$pk`=? LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
         return static::update($table, $data, $pk, $extra_where);
-    } else {
-        return static::insert($table, $data);
     }
   }
 
