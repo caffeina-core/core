@@ -26,3 +26,15 @@ File::write('temp://core-test.txt','TESTIFICATE');
 test(File::read('core-test.txt')=='TESTIFICATE','File','Find');
 
 test(implode('|',File::search('*.txt'))=="temp://core-test.txt|mem://my/file.txt|mem://my/cool/data.txt",'File','Search');
+
+
+File::mount('assets','zip',[
+	//'root' => sys_get_temp_dir().'/'.time().'_core_test.zip'
+]);
+
+File::write('assets://info/manifest.txt','YEAH!');
+test(File::exists('assets://info/manifest.txt'),'File','ZIP Exists');
+test(File::read('assets://info/manifest.txt')=='YEAH!','File','ZIP Read/Write');
+
+test(array_search("assets://info/manifest.txt", File::search("*"))!==false,'File','ZIP Search');
+
