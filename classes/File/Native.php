@@ -35,6 +35,10 @@ class Native implements \FileInterface {
     public function append($path, $data){
         return file_put_contents($this->realPath($path), $data, FILE_APPEND);        
     }
+
+    public function delete($path){
+        return $this->exists($path) ? unlink($this->realPath($path)) : false;
+    }
     
     public function search($pattern, $recursive=true){
         $results = [];

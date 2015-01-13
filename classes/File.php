@@ -88,6 +88,7 @@ interface FileInterface {
     public function read($path);
     public function write($path, $data);
     public function append($path, $data);
+    public function delete($path);
     public function search($pattern, $recursive=true);
         
 }

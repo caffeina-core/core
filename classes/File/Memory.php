@@ -31,6 +31,11 @@ class Memory implements \FileInterface {
 	public function append($path, $data){
 		@$this->storage[$path] .= $data;
 	}
+
+	public function delete($path){
+		unset($this->storage[$path];
+		return true;
+	}
 	
 	public function search($pattern, $recursive=true){
 		$results = [];
