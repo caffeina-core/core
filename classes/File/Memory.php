@@ -33,7 +33,7 @@ class Memory implements \FileInterface {
 	}
 
 	public function delete($path){
-		unset($this->storage[$path];
+		unset($this->storage[$path]);
 		return true;
 	}
 	
