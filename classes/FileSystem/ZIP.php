@@ -1,7 +1,7 @@
 <?php
 
 /**
- * File\ZIP
+ * FileSystem\ZIP
  *
  * ZIP Archive Filesystem
  * 
@@ -11,9 +11,9 @@
  * @copyright Caffeina srl - 2014 - http://caffeina.co
  */
 
-namespace File;
+namespace FileSystem;
 
-class ZIP implements \FileInterface {
+class ZIP implements Adapter {
 	protected 
 		$path,
 		$zipfile,
@@ -48,7 +48,14 @@ class ZIP implements \FileInterface {
 	public function delete($path){
 		return $this->exists($path) ? $this->zipfile->deleteName($path) : false;
 	}
-	
+
+	public function move($old, $new){
+		// Atomic rename
+		// This is needed because we cant write and read from the same archive.
+		return $this->write($new,$this->read($old)) && $this->delete($old);
+		// return $this->zipfile->renameName($old, $new);
+	}
+		
 	public function search($pattern, $recursive=true){
 		$results = [];
 		$rx_pattern = '('.strtr($pattern,['.'=>'\.','*'=>'.*','?'=>'.']).')Ai';

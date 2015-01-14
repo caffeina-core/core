@@ -1,7 +1,7 @@
 <?php
 
 /**
- * File\Native
+ * FileSystem\Native
  *
  * Native Filesystem
  * 
@@ -11,9 +11,9 @@
  * @copyright Caffeina srl - 2014 - http://caffeina.co
  */
 
-namespace File;
+namespace FileSystem;
 
-class Native implements \FileInterface {
+class Native implements Adapter {
     protected $root;
     
     public function __construct(array $options = []) {
@@ -29,11 +29,20 @@ class Native implements \FileInterface {
     }
     
     public function write($path, $data){
-        return file_put_contents($this->realPath($path), $data);
+        $r_path = $this->realPath($path);
+        if ( ! is_dir($r_dir = dirname($r_path)) ) @mkdir($r_dir,0775,true);
+        return file_put_contents($r_path, $data);
     }
     
     public function append($path, $data){
         return file_put_contents($this->realPath($path), $data, FILE_APPEND);        
+    }
+
+    public function move($old, $new){
+        // Atomic
+        if($this->exists($old)){
+            return $this->write($new,$this->read($old)) && $this->delete($old);
+        } else return false;
     }
 
     public function delete($path){
@@ -44,12 +53,31 @@ class Native implements \FileInterface {
         $results = [];
         $root_len = strlen($this->root);
         $rx_pattern = '('.strtr($pattern,['.'=>'\.','*'=>'.*','?'=>'.']).')Ai';
+        /*
         $files = new \RegexIterator(new \RecursiveDirectoryIterator($this->root,
                      \RecursiveDirectoryIterator::SKIP_DOTS),$rx_pattern);
         foreach ($files as $path) {
             $results[] = trim(substr($path, $root_len),'/');
         }
         return $results;
+        */
+    
+        $tree = new \RegexIterator(
+                 new \RecursiveIteratorIterator(
+                 new \RecursiveDirectoryIterator(
+                    $this->root,
+                    \RecursiveDirectoryIterator::SKIP_DOTS)),
+                    $rx_pattern,\RegexIterator::GET_MATCH);
+                    
+        $fileList = [];
+        foreach($tree as $group) {
+            foreach($group as $path) {
+                $results[] = trim(substr($path, $root_len),'/');
+            }
+        }
+        return $results;
+  
+
     }
     
     protected function realPath($path){

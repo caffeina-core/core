@@ -11,13 +11,14 @@
  */
 
 class File {
-	use Module;
+    
+    use Module;
 
     protected static $mount_points = [];
 
-    public static function mount($alias, $driver, array $options = []) {
-        $driver_class = '\\File\\'.ucfirst(strtolower($driver));
-        if (!class_exists($driver_class)) throw new \Exception('Filesystem driver '.$driver.' not found.');
+    public static function mount($alias, $driver, $options = null) {
+        $driver_class = '\\FileSystem\\'.ucfirst(strtolower($driver));
+        if (!class_exists($driver_class)) throw new \Exception('Filesystem adapter '.$driver.' not found.');
         static::$mount_points[$alias] = new $driver_class($options);
     }
     
@@ -78,17 +79,22 @@ class File {
         return $results;
     }
 
+
+    public static function move($old,$new) {
+        $src  = static::locate($old);
+        $dest = static::locate($new);
+        if ($src && $dest) {
+            $_sfs = static::$mount_points[$src[0]];
+            $_dfs = static::$mount_points[$dest[0]];
+            if ($src[0] == $dest[0]) {
+                // Same filesystem
+                return $_sfs->move($src[1],$dest[1]);           
+            } else {
+                return $_dfs->write($dest[1],$_sfs->read($src[1])) && $_sfs->delete($src[1]);
+            }
+        } else return false;
+    }
+
     
 }
 
-
-interface FileInterface {
-    
-    public function exists($path);
-    public function read($path);
-    public function write($path, $data);
-    public function append($path, $data);
-    public function delete($path);
-    public function search($pattern, $recursive=true);
-        
-}

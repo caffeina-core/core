@@ -93,5 +93,9 @@ class Object extends ArrayObject {
       );
       return $frag ? '' : $ptr;
     }
+    
+    public static function canBeString($var) {
+      return $var === null || is_scalar($var) || is_callable([$var, '__toString']);
+    }
  
 }

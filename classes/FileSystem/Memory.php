@@ -1,7 +1,7 @@
 <?php
 
 /**
- * File\Memory
+ * FileSystem\Memory
  *
  * Temp Memory Filesystem
  * 
@@ -11,9 +11,9 @@
  * @copyright Caffeina srl - 2014 - http://caffeina.co
  */
 
-namespace File;
+namespace FileSystem;
 
-class Memory implements \FileInterface {
+class Memory implements Adapter {
 	protected $storage = [];
 	
 	public function exists($path){
@@ -30,6 +30,14 @@ class Memory implements \FileInterface {
 	
 	public function append($path, $data){
 		@$this->storage[$path] .= $data;
+	}
+
+	public function move($old, $new){
+		if($this->exists($old)){
+			$this->storage[$new] = $this->storage[$old];
+			unset($this->storage[$old]);
+			return true;
+		} else return false;
 	}
 
 	public function delete($path){
