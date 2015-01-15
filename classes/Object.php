@@ -83,14 +83,24 @@ class Object extends ArrayObject {
      * @param  array $root The array to navigate
      * @return mixed The pointed value 
      */
-    public static function fetch($path, array & $root) {
+    public static function fetch($path, & $root) {
       $frag = strtok($path,'.');
       $ptr = $root;
-      while (
-        ( $ptr = isset($ptr[$frag]) ? $ptr[$frag] : '' )
-        &&
-        ( $frag = strtok('.') )
-      );
+      
+      if (is_object($root)) {
+        while (
+          ( $ptr = isset($ptr[$frag]) ? $ptr[$frag] : '' )
+          &&
+          ( $frag = strtok('.') )
+        );
+      } else if (is_array($root)) {
+        while (
+          ( $ptr = isset($ptr->$frag) ? $ptr->$frag : '' )
+          &&
+          ( $frag = strtok('.') )
+        );
+      }
+    
       return $frag ? '' : $ptr;
     }
     
