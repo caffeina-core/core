@@ -14,7 +14,7 @@
 
 namespace Cache;
 
-class Memory implements \CacheInterface {
+class Memory implements Adapter {
 
 	protected $memory = [];
     

@@ -13,7 +13,7 @@
 
 namespace Cache;
 
-class Files implements \CacheInterface {
+class Files implements Adapter {
     protected $options;
 
     public static function valid(){
