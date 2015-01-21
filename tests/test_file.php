@@ -8,7 +8,6 @@ File::mount('mem','memory');
 
 test(json_encode(File::mounts()) == '["temp","mem"]','File','Mount');
 
-
 File::write('mem://my/file.txt','Hello World!');
 
 test(File::exists('mem://my/file.txt'),'File','Exists');
@@ -35,7 +34,10 @@ test(File::read('temp://tests/1.json')=='YEAH!','File','Native Read');
 test(File::move('temp://tests/1.json','temp://tests/1.xml'),'File','Native Move');	
 test(array_search("temp://my/test/test_file.txt", File::search("*"))!==false,'File','Native Search');
 
+
+
 // ZIP
+if (!defined('HHVM_VERSION')){
 File::mount('assets','zip'); // created in temp dir
 test(File::write('assets://info/manifest.txt','YEAH!')
 	&& File::write('assets://some/good/test.txt','123'),'File','ZIP Write');
@@ -43,4 +45,4 @@ test(File::exists('assets://info/manifest.txt'),'File','ZIP Exists');
 test(File::read('assets://info/manifest.txt')=='YEAH!','File','ZIP Read');
 test(File::move('assets://info/manifest.txt','assets://info/manifest.info'),'File','ZIP Move');	
 test(array_search("assets://some/good/test.txt", File::search("*"))!==false,'File','ZIP Search');
-
+}
