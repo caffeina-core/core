@@ -4,7 +4,7 @@
     "description": "Caffeina - Core PHP SDK",
     "keywords": ["framework","core","sdk","tool","toolbox"],
     "homepage": "http://labs.caffeina.co/tech/core",
-    "version": "0.9.1",
+    "version": "0.9.2",
     "license": "MIT",
     "authors": [
         {
