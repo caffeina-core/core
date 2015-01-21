@@ -13,16 +13,19 @@
 
 
 class Email {
+  
   use Module;
   
-  protected static $driver = null;
+  protected static $driver;
 
   protected static function instance(){
-    return new static::$driver();
+    return static::$driver;
   }
 
-  public static function using($driver){
-    static::$driver = '\\Email\\'.ucfirst(strtolower($driver));
+  public static function using($driver, $options = null){
+    $class = '\\Email\\'.ucfirst(strtolower($driver));
+    if ( ! class_exists($class) ) throw new \Exception("Email : $driver driver not found.");
+    static::$driver = new $class($options);
   }
 
   protected static function get_email_parts($value){
@@ -88,28 +91,6 @@ class Email {
 
     return $mail->send();
   }
-}
-
-
-/**
- * EmailInterface
- *
- * Email services common interface.
- * 
- * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @version 1.0
- * @copyright Caffeina srl - 2014 - http://caffeina.co
- */
-
-interface EmailInterface  {
-  public function addAddress($email,$name='');
-  public function from($email,$name='');
-  public function replyTo($email,$name='');
-  public function subject($text);
-  public function message($text);
-  public function addAttachment($file);
-  public function send();
 }
 
 Email::using('native');

@@ -393,11 +393,11 @@ class RouteGroup {
     return Route::add($this);
   }
   
-  public function has(Route $r){ return $this->routes->contains($r); }
+  public function has($r){ return $this->routes->contains($r); }
 
-  public function add(Route $r){ $this->routes->attach($r); return $this; }
+  public function add($r){ $this->routes->attach($r); return $this; }
 
-  public function remove(Route $r){ 
+  public function remove($r){ 
     $this->routes->contains($r) and $this->routes->detach($r);
     return $this;
   }

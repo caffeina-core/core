@@ -14,7 +14,7 @@
 
 namespace Email;
 
-class Native implements \EmailInterface {
+class Native implements Driver {
   
   protected $recipients = [];
   protected $attachments = [];
@@ -22,7 +22,7 @@ class Native implements \EmailInterface {
   protected $replyTo;
   protected $subject;
   protected $message;
-
+  
   public function addAddress($email,$name=''){
     $this->recipients[] = empty($name)?$email:"$name <{$email}>";
   }
@@ -66,29 +66,37 @@ class Native implements \EmailInterface {
     
     
     foreach ($this->attachments as $file) {
-      $name = basename($file);
+      if (is_string($file)) {
+        $name = basename($file);
+        $data = file_get_contents($file);
+      } else {
+        $name = $file['name'];
+        $data = $file['content'];
+      }
+
       $headers[] = "--$uid";
       $headers[] = "Content-type: application/octet-stream; name=\"".$name."\"";
       $headers[] = "Content-Transfer-Encoding: base64";
       $headers[] = "Content-Disposition: attachment; filename=\"".$name."\"";
       $headers[] = '';
-      $headers[] = chunk_split(base64_encode(file_get_contents($file)));
-      $headers[] = '';
+      $headers[] = chunk_split(base64_encode($data));
+      $headers[] = ''; 
     }
 
     $headers[] = "--$uid--";
 
     $success = true;
+    $body = implode("\r\n",$headers);
+    
     foreach ($this->recipients as $to) {
-      $body = implode("\r\n",$headers);
-      $success = mail(
+      $current_success = mail(
            $to,
            $this->subject,
            '',
            $body
       );
       \Event::trigger('core.email.send',$to,$this->from,$this->subject,$body,$success);
-      $success = $success && $success;
+      $success = $success && $current_success;
     }
     return $success;
   }
