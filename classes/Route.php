@@ -271,7 +271,7 @@ class Route {
     protected static function compilePatternAsRegex($pattern,$rules=[]){
         return '#^'.preg_replace_callback('#:([a-zA-Z]\w*)#S',function($g) use (&$rules){
             return '(?<' . $g[1] . '>' . (isset($rules[$g[1]])?$rules[$g[1]]:'[^/]+') .')';
-        },str_replace(['.',')'],['\.',')?'],$pattern)).'$#';
+        },str_replace(['.',')','*'],['\.',')?','.+'],$pattern)).'$#';
     }
 
     /**
