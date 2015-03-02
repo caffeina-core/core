@@ -269,9 +269,22 @@ class Route {
      * @return string The compiled PREG RegEx.
      */
     protected static function compilePatternAsRegex($pattern,$rules=[]){
+        /*
         return '#^'.preg_replace_callback('#:([a-zA-Z]\w*)#S',function($g) use (&$rules){
             return '(?<' . $g[1] . '>' . (isset($rules[$g[1]])?$rules[$g[1]]:'[^/]+') .')';
         },str_replace(['.',')','*'],['\.',')?','.+'],$pattern)).'$#';
+        */
+        $ofs = 0; $res = '#^';
+    	if($i = strpos($pattern,':',$ofs) === false) return '#^'.$pattern.'$#';
+    	$res .= substr($pattern,0,$i);
+    	
+    	while (false !== ($i = strpos($pattern,':',$ofs))){
+    		$res .= substr($pattern,$ofs,$i-$ofs);
+    		$ofs  = strpos($pattern,'/',$i) ?: strlen($pattern);
+    		$id   = substr($pattern,$i+1,$ofs-$i-1);
+    		$res .= '(?<' . $id . '>' . (isset($rules[$id])?$rules[$id]:'[^/]+') . ')';
+    	}
+    	return $res . substr($pattern,$ofs) . '$#';
     }
 
     /**
