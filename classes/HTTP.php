@@ -19,7 +19,7 @@ class HTTP {
   protected static $headers     = [];
   protected static $last_info   = null;
 
-  protected static function request($method, $url, $data=null, array $headers=[], $data_as_json=false, $username=null, $password = null){
+  protected static function request($method, $url, $data=[], array $headers=[], $data_as_json=false, $username=null, $password = null){
     $http_method = strtoupper($method);
     $ch = curl_init($url);
     $opt = [
@@ -42,14 +42,14 @@ class HTTP {
 
     if($http_method == 'GET'){
         if($data && is_array($data)){
-          $tmp = [];
-          $queried_url = $url;
+          $tmp                       = [];
+          $queried_url               = $url;
           foreach($data as $key=>$val) $tmp[] = $key.'='.$val;
-          $queried_url .= (strpos($queried_url,'?')===false)?'?':'&';
-          $queried_url .= implode('&',$tmp);
-          $opt[CURLOPT_URL] = $queried_url;
+          $queried_url               .= (strpos($queried_url,'?')===false)?'?':'&';
+          $queried_url               .= implode('&',$tmp);
+          $opt[CURLOPT_URL]          = $queried_url;
           unset($opt[CURLOPT_CUSTOMREQUEST]);
-          $opt[CURLOPT_HTTPGET] = true;
+          $opt[CURLOPT_HTTPGET]      = true;
         } 
     } else {
         $opt[CURLOPT_CUSTOMREQUEST]   = $http_method;
