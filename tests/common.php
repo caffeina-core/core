@@ -1,5 +1,8 @@
 <?php
+
 include dirname(__DIR__).'/classes/Loader.php';
+
+// Silence errors
 error_reporting(-1);
 set_error_handler(function(){});
 set_exception_handler(function(){});
@@ -16,4 +19,5 @@ function test($condition,$group='COMMON',$message='Error') {
     echo "[$result]: $group: $message\n";
 }
 
+// In-Memory Database
 SQL::connect('sqlite::memory:');

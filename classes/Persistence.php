@@ -3,7 +3,7 @@
 /**
  * Persistence trait
  *
- * Provides a way to persist a class on a Database.
+ * Provides a way to persist a class on a storage.
  *
  * @package core
  * @author stefano.azzolini@caffeinalab.com

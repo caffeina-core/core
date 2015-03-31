@@ -1,7 +1,7 @@
 <?php
 
 version_compare(PHP_VERSION, '5.5.0', '>=') 
-  or trigger_error('Work class need PHP 5.5 or later.',E_USER_ERROR);
+  or trigger_error('Work module need PHP 5.5 or later.',E_USER_ERROR);
 
 /**
  * Work

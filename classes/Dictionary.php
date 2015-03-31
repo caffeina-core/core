@@ -3,9 +3,8 @@
 /**
  * Dictionary class
  *
- * The dictionary trait allow to handle a repository of key-values data
+ * The dictionary class allow to handle a repository of key-values data
  * Values are accessibles via a dot notation key path.
- * Must be used by class hierarchy.
  * 
  * Example:
  * <code>

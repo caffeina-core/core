@@ -11,8 +11,6 @@
  * @copyright Caffeina srl - 2014 - http://caffeina.co
  */
 
-// DRAFT
-
  class Language extends Dictionary {
     use Module;
     protected static $current_lang = 'en';

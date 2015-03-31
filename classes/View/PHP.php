@@ -62,9 +62,8 @@ class PHPContext {
         if ($path) $this->templatePath = rtrim($path,'/') . '/';
     }
     
-    public function partial($template){
-      $template_path = $this->templatePath . trim($template,'/') . '.php';
-      include $template_path;        
+    public function partial($template,$vars=[]){
+        return \View::from($template,array_merge($this->data,$vars));
     }
     
     public function __isset($n){return 1;}
