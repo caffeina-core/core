@@ -1,14 +1,16 @@
 build_settings:
-  verbose: false
+  verbose: true
 
 test:
-  lint:
   shell:
-    command: "php ./tests/run_tests.php"
+    - "cd tests"
+    - "php run_tests.php"
+  lint:
 
 failure:
   email:
     committer: true
+    
   slack_notify:
       webhook_url: "https://hooks.slack.com/services/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"
       room: "#commits"
