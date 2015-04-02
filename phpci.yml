@@ -3,7 +3,8 @@ build_settings:
 
 test:
   lint:
+  shell:
+    command: "php ./tests/run_tests.php"
 
 failure:
-  email:
-    committer: true
+success:
