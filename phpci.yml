@@ -3,8 +3,8 @@ build_settings:
 
 test:
   shell:
-    - "cd tests"
-    - "php run_tests.php"
+    - "cd tests && php run_tests.php"
+    
   lint:
 
 failure:
