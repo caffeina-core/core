@@ -1,9 +1,9 @@
 build_settings:
-  verbose: true
+  verbose: false
 
 test:
   lint:
-  php_loc:
-  php_mess_detector:
-    allowed_warnings: 1
 
+failure:
+  email:
+    committer: true
