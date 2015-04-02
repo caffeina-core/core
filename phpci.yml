@@ -1,0 +1,9 @@
+build_settings:
+  verbose: true
+
+test:
+  lint:
+  php_loc:
+  php_mess_detector:
+    allowed_warnings: 1
+
