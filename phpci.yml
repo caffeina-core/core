@@ -2,7 +2,7 @@ build_settings:
   verbose: false
 
 test:
-  parallel-lint:
+  lint:
   shell:
     command: "php ./tests/run_tests.php"
 
