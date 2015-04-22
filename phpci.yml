@@ -1,0 +1,25 @@
+build_settings:
+  verbose: true
+
+test:
+  shell:
+    - "cd tests && php run_tests.php"
+    
+  lint:
+
+failure:
+  email:
+    committer: true
+    
+  slack_notify:
+      webhook_url: "https://hooks.slack.com/services/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"
+      room: "#commits"
+      username: "Arbiter"
+      icon: ":ghost:"
+
+success:
+  slack_notify:
+      webhook_url: "https://hooks.slack.com/services/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"
+      room: "#commits"
+      username: "Arbiter"
+      icon: ":ghost:"

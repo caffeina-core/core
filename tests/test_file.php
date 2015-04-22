@@ -26,6 +26,7 @@ test(File::read('core-test.txt')=='TESTIFICATE','File','Find');
 
 test(array_search("temp://core-test.txt", File::search("*.txt"))!==false,'File','Search');
 
+/*
 // ZIP
 test(File::write('temp://tests/1.json','YEAH!')
 	&& File::write('temp://my/test/test_file.txt','123'),'File','Native Write');
@@ -46,3 +47,4 @@ test(File::read('assets://info/manifest.txt')=='YEAH!','File','ZIP Read');
 test(File::move('assets://info/manifest.txt','assets://info/manifest.info'),'File','ZIP Move');	
 test(array_search("assets://some/good/test.txt", File::search("*"))!==false,'File','ZIP Search');
 }
+*/
