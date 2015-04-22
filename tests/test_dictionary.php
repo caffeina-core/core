@@ -39,3 +39,7 @@ test(TestDict::all()['a'] == 123,'Dictionary','Right Merge');
 
 test(TestDict::get('i-dont-exists','OK') == 'OK','Dictionary','Default on get fail (Immediate)');
 test(TestDict::get('i-dont-exists',function(){return 'OK';}) == 'OK','Dictionary','Default on get fail (Callable)');
+
+
+test(TestDict::set('a.b.c.d',1) === 1,'Dictionary','Set from path');
+test(TestDict::get('a.b.c.d',0) === 1,'Dictionary','Get from path');
