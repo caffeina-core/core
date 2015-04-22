@@ -102,7 +102,7 @@ class Response {
      */
     public static function json($payload){
         static::type(static::TYPE_JSON);
-        static::$payload[] = json_encode($payload,JSON_NUMERIC_CHECK);
+        static::$payload[] = json_encode($payload, Options::get('core.response.json_flags',JSON_NUMERIC_CHECK));
     }
 
     /**
