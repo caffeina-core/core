@@ -7,15 +7,14 @@
  * 
  * @package core
  * @author stefano.azzolini@caffeinalab.com
- * @version 1.0
- * @copyright Caffeina srl - 2014 - http://caffeina.co
+ * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
 class Options extends Dictionary {
   protected static $fields = [];
 
 	/**
-	 * Load a PHP configuration file (script must return array())
+	 * Load a PHP configuration file (script must return array)
 	 * @param  string $filepath The path of the PHP config file
 	 * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
 	 */

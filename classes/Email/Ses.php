@@ -3,14 +3,12 @@
 /**
  * Email\SES
  *
- * Email\SES REST driver.
+ * Email\SES SMTP driver.
  * 
  * @package core
  * @author stefano.azzolini@caffeinalab.com
- * @version 1.0
- * @copyright Caffeina srl - 2014 - http://caffeina.co
+ * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
-
 
 namespace Email;
 

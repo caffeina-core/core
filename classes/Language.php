@@ -7,8 +7,7 @@
  *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
- * @version 0.1
- * @copyright Caffeina srl - 2014 - http://caffeina.co
+ * @version 0.1 * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
  class Language extends Dictionary {

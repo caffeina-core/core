@@ -7,10 +7,8 @@
  * 
  * @package core
  * @author stefano.azzolini@caffeinalab.com
- * @version 1.0
- * @copyright Caffeina srl - 2014 - http://caffeina.co
+ * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
-
 
 namespace Cache;
 

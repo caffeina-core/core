@@ -8,16 +8,14 @@
  * 
  * @package core
  * @author stefano.azzolini@caffeinalab.com
- * @version 1.0
- * @copyright Caffeina srl - 2014 - http://caffeina.co
+ * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
-
 
 class Token {
   use Module;
 
   protected static $options = array(
-    'secret'          => 'CHANGE_ME_PLEASE',
+    'secret'          => null,
     'signing_method'  => 'sha256',
     'verify'          => true, // flag to enable/disable signature verification
   );
@@ -26,6 +24,9 @@ class Token {
     foreach($options as $key => $val){
       static::$options[$key] = $val;
     }
+    if (!static::$options['secret']) {
+      throw new Exception( 'You must provide a secret passfrase.' );
+    }
   }
 
   public static function secret($secret){ 
@@ -33,9 +34,9 @@ class Token {
   }
 
   public static function parse($payload){
-    $packet = static::decode($payload);
-    $data = $packet['d'];
-    $signature = $packet['s'];
+    $packet     = static::decode($payload);
+    $data       = $packet['d'];
+    $signature  = $packet['s'];
     if( !static::$options['verify'] || $signature === static::sign($data) ){
       return $data;
     } else {
@@ -55,16 +56,18 @@ class Token {
   }
 
   /**
-   * @param $data
-   * @return string
+   * Encodes a string as a URL-safe Base64
+   * @param $data The string to encode
+   * @return string The encoded string
    */
   protected static function encode($data){
     return rtrim(strtr(base64_encode(addslashes(json_encode($data))), '+/', '-_'),'=');
   }
 
   /**
-   * @param $data
-   * @return mixed
+   * Decodes a string from URL-safe Base64
+   * @param $data The string to decode
+   * @return string The decoded string
    */
   protected static function decode($data){
     return json_decode(stripslashes(base64_decode(strtr($data, '-_', '+/'))));

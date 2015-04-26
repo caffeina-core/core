@@ -18,7 +18,7 @@
 Install via [composer](https://getcomposer.org/download/):
 
 ```bash
-$ composer require caffeina-core/core -o
+$ composer require caffeina-core/core
 ```
 
 ## Documentation

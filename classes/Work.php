@@ -1,8 +1,5 @@
 <?php
 
-version_compare(PHP_VERSION, '5.5.0', '>=') 
-  or trigger_error('Work module need PHP 5.5 or later.',E_USER_ERROR);
-
 /**
  * Work
  *
@@ -11,9 +8,11 @@ version_compare(PHP_VERSION, '5.5.0', '>=')
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @reference http://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html
- * @version 1.0
- * @copyright Caffeina srl - 2014 - http://caffeina.co
+ * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
+
+// version_compare(PHP_VERSION, '5.5.0', '>=') 
+//  or trigger_error('Work module need PHP 5.5 or later.',E_USER_ERROR);
 
 class Work {
   use Module;

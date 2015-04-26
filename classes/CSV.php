@@ -7,8 +7,7 @@
  *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
- * @version 0.9.2
- * @copyright Caffeina srl - 2014 - http://caffeina.co
+ * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
 class CSV {

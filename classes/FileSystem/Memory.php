@@ -6,9 +6,8 @@
  * Temp Memory Filesystem
  * 
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @version 1.0.0
- * @copyright Caffeina srl - 2014 - http://caffeina.co
+ * @author stefano.azzolini@caffeinalab.com 
+ * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
 namespace FileSystem;
