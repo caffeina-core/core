@@ -12,7 +12,6 @@
 
 
 class Email {
-  
   use Module;
   
   protected static $driver;

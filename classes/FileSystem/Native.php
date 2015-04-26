@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FileSystem\Native
+ * FileSystemNative
  *
  * Native Filesystem
  * 
@@ -49,9 +49,10 @@ class Native implements Adapter {
     }
     
     public function search($pattern, $recursive=true){
-        $results = [];
-        $root_len = strlen($this->root);
+        $results    = [];
+        $root_len   = strlen($this->root);
         $rx_pattern = '('.strtr($pattern,['.'=>'\.','*'=>'.*','?'=>'.']).')Ai';
+        
         /*
         $files = new \RegexIterator(new \RecursiveDirectoryIterator($this->root,
                      \RecursiveDirectoryIterator::SKIP_DOTS),$rx_pattern);
@@ -62,8 +63,8 @@ class Native implements Adapter {
         */
     
         $tree = new \RegexIterator(
-                 new \RecursiveIteratorIterator(
-                 new \RecursiveDirectoryIterator(
+                new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator(
                     $this->root,
                     \RecursiveDirectoryIterator::SKIP_DOTS)),
                     $rx_pattern,\RegexIterator::GET_MATCH);
@@ -74,8 +75,8 @@ class Native implements Adapter {
                 $results[] = trim(substr($path, $root_len),'/');
             }
         }
+
         return $results;
-  
 
     }
     

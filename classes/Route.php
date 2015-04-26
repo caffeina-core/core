@@ -13,22 +13,21 @@
 class Route {
     use Module;
 
-    protected static $routes;
-    protected static $base    = '';
-    protected static $prefix  = [];
-    protected static $group   = [];
+    protected static $routes,
+                     $base    = '',
+                     $prefix  = [],
+                     $group   = [];
 
-    protected $URLPattern     = '';
-    protected $pattern        = '';
-    protected $dynamic        = false;
-    protected $callback       = null;
-    protected $methods        = [];
-    protected $befores        = [];
-    protected $afters         = [];
+    protected $URLPattern     = '',
+              $pattern        = '',
+              $dynamic        = false,
+              $callback       = null,
+              $methods        = [],
+              $befores        = [],
+              $afters         = [],
 
-    protected $rules          = [];
-
-    protected $response       = '';
+              $rules          = [],
+              $response       = '';
 
 
     /**
@@ -69,7 +68,7 @@ class Route {
                : $URL == rtrim($this->pattern,'/')
         ){
             foreach ($args as $key => $value) {
-              if (false === is_string($key)) unset($args[$key]);
+              if ( false === is_string($key) ) unset($args[$key]);
             }
             return $args;
         }
@@ -86,18 +85,20 @@ class Route {
         $method = strtolower($method);
 
         // Call direct befores
-        if($this->befores) {
+        if ( $this->befores ) {
+
           // Reverse befores order
           foreach (array_reverse($this->befores) as $mw) {
             $mw_result = call_user_func($mw->bindTo($this));
-            if (false  === $mw_result) return [''];
+            if ( false  === $mw_result ) return [''];
           }
+
         }
 
         $callback = (is_array($this->callback) && isset($this->callback[$method]))  ?
                         $this->callback[$method] : $this->callback;
 
-        Event::trigger('core.route.before',$this);
+        Event::trigger('core.route.before', $this);
 
         // Start capturing output
         Response::start();
@@ -108,7 +109,7 @@ class Route {
         $view_results = call_user_func_array(@$callback->bindTo($this), $args);
 
         // Render View if returned, else echo string or encode json response
-        if(null !== $view_results) {
+        if ( null !== $view_results ) {
           if (is_a($view_results,'View') || is_string($view_results)) {
               echo $this->response = (string)$view_results;
           } else {
@@ -119,14 +120,14 @@ class Route {
         Response::end();
 
         // Apply afters
-        if($this->afters) {
+        if ( $this->afters ) {
           // Reverse befores order
           foreach ($this->afters as $cb) {
             call_user_func($cb->bindTo($this));
           }
         }
 
-        Event::trigger('core.route.after',$this);
+        Event::trigger('core.route.after', $this);
 
         return [$this->response];
     }
@@ -137,7 +138,7 @@ class Route {
      * @param  string $method The HTTP Method to check against.
      * @return array The callback response.
      */
-    public function runIfMatch($URL,$method='get'){
+    public function runIfMatch($URL, $method='get'){
         return ($args = $this->match($URL,$method)) ? $this->run($args,$method) : null;
     }
 
@@ -147,7 +148,7 @@ class Route {
      * @param  callable $callback The callback to be invoked (with variables extracted from the route if present) when the route match the request URI.
      * @return Route
      */
-    public static function on($URLPattern,callable $callback = null){
+    public static function on($URLPattern, callable $callback = null){
         return new Route($URLPattern,$callback);
     }
 
@@ -157,7 +158,7 @@ class Route {
      * @param  callable $callback The callback to be invoked (with variables extracted from the route if present) when the route match the request URI.
      * @return Route
      */
-    public static function any($URLPattern,callable $callback = null){
+    public static function any($URLPattern, callable $callback = null){
         return (new Route($URLPattern,$callback))->via('*');
     }
 
@@ -203,7 +204,7 @@ class Route {
      */
     public function & via(){
         $methodsmap = [];
-        foreach(func_get_args() as $method){
+        foreach (func_get_args() as $method){
             $methodsmap[strtolower($method)] = 1;
         }
         $this->methods = $methodsmap;
@@ -226,7 +227,7 @@ class Route {
      * @return Route
      */
     public function & rules(array $rules){
-        foreach((array)$rules as $varname => $rule){
+        foreach ((array)$rules as $varname => $rule){
             $this->rules[$varname] = $rule;
         }
         $this->pattern = $this->compilePatternAsRegex($this->URLPattern,$this->rules);
@@ -250,14 +251,14 @@ class Route {
      * @param  array $callbacks The HTTP Method => callable map.
      * @return Route
      */
-    public static function & map($URLPattern,$callbacks = []){
-        $route = new static($URLPattern);
+    public static function & map($URLPattern, $callbacks = []){
+        $route           = new static($URLPattern);
         $route->callback = [];
         foreach ($callbacks as $method => $callback) {
            $method = strtolower($method);
-           if(Request::method() !== $method) continue;
+           if (Request::method() !== $method) continue;
            $route->callback[$method] = $callback;
-           $route->methods[$method] = 1;
+           $route->methods[$method]  = 1;
         }
         return $route;
     }
@@ -272,19 +273,20 @@ class Route {
         return '#^'.preg_replace_callback('#:([a-zA-Z]\w*)#S',function($g) use (&$rules){
             return '(?<' . $g[1] . '>' . (isset($rules[$g[1]])?$rules[$g[1]]:'[^/]+') .')';
         },str_replace(['.',')','*'],['\.',')?','.+'],$pattern)).'$#';
+
         /*
         $ofs = 0; $res = '#^';
-    	if($i = strpos($pattern,':',$ofs) === false) return '#^'.$pattern.'$#';
-    	$res .= substr($pattern,0,$i);
-    	
-    	while (false !== ($i = strpos($pattern,':',$ofs))){
-    		$res .= substr($pattern,$ofs,$i-$ofs);
-    		$ofs  = strpos($pattern,'/',$i) ?: strlen($pattern);
-    		$id   = substr($pattern,$i+1,$ofs-$i-1);
-    		$res .= '(?<' . $id . '>' . (isset($rules[$id])?$rules[$id]:'[^/]+') . ')';
-    	}
-    	return $res . substr($pattern,$ofs) . '$#';
-    	*/
+        if ($i = strpos($pattern,':',$ofs) === false) return '#^'.$pattern.'$#';
+        $res .= substr($pattern,0,$i);
+        
+        while (false !== ($i = strpos($pattern,':',$ofs))){
+            $res .= substr($pattern,$ofs,$i-$ofs);
+            $ofs  = strpos($pattern,'/',$i) ?: strlen($pattern);
+            $id   = substr($pattern,$i+1,$ofs-$i-1);
+            $res .= '(?<' . $id . '>' . (isset($rules[$id])?$rules[$id]:'[^/]+') . ')';
+        }
+        return $res . substr($pattern,$ofs) . '$#';
+        */
     }
 
     /**
@@ -295,11 +297,11 @@ class Route {
      * @return array The extracted variables
      */
     protected static function extractVariablesFromURL($pattern,$URL=null,$cut=false){
-        $URL = $URL?:Request::URI();
+        $URL     = $URL ?: Request::URI();
         $pattern = $cut ? str_replace('$#','',$pattern).'#' : $pattern;
-        if(!preg_match($pattern,$URL,$args)) return false;
+        if ( !preg_match($pattern,$URL,$args) ) return false;
         foreach ($args as $key => $value) {
-            if(false===is_string($key)) unset($args[$key]);
+            if (false === is_string($key)) unset($args[$key]);
         }
         return $args;
     }
@@ -316,7 +318,7 @@ class Route {
             (strpos($pattern,'?')!==false) ||
             (strpos($pattern,'[')!==false) ||
             (strpos($pattern,'*')!==false) ||
-            (strpos($pattern,'+')!==false);
+            (strpos($pattern,'+')!==false) ;
     }
     
     /**
@@ -325,7 +327,7 @@ class Route {
      * @return Route
      */
     public static function add($r){
-        if(isset(static::$group[0])) static::$group[0]->add($r);
+        if ( isset(static::$group[0]) ) static::$group[0]->add($r);
         return static::$routes[implode('',static::$prefix)][] = $r;
     }
 
@@ -340,7 +342,7 @@ class Route {
 
         $prefix_complete = rtrim(implode('',static::$prefix),'/') . $prefix;
 
-        if(static::isDynamic($prefix)){
+        if ( static::isDynamic($prefix) ){
         
             // Dynamic group, capture vars
             $vars = static::extractVariablesFromURL(static::compilePatternAsRegex($prefix_complete),null,true);
@@ -349,29 +351,30 @@ class Route {
             if (false === $vars) return; 
          
             static::$prefix[] = $prefix;
-            if(empty(static::$group)) static::$group = [];
+            if (empty(static::$group)) static::$group = [];
             array_unshift(static::$group, new RouteGroup());
-            if($callback) call_user_func_array($callback,$vars);
+            if ($callback) call_user_func_array($callback,$vars);
             $group = static::$group[0];
             array_shift(static::$group);
             array_pop(static::$prefix);
-            if(empty(static::$prefix)) static::$prefix=[''];
+            if (empty(static::$prefix)) static::$prefix=[''];
             return $group;
         
-        } else if (0 === strpos(Request::URI(), $prefix_complete)){
+        } else if ( 0 === strpos(Request::URI(), $prefix_complete) ){
          
             // Static group
             static::$prefix[] = $prefix;
-            if(empty(static::$group)) static::$group = [];
+            if (empty(static::$group)) static::$group = [];
             array_unshift(static::$group, new RouteGroup());
-            if($callback) call_user_func($callback);
+            if ($callback) call_user_func($callback);
             $group = static::$group[0];
             array_shift(static::$group);
             array_pop(static::$prefix);
-            if(empty(static::$prefix)) static::$prefix=[''];
+            if (empty(static::$prefix)) static::$prefix=[''];
             return $group;
         } else {
-            // Null Object Pattern
+
+            // Null Object
             return new RouteGroup();
         }
 
@@ -393,8 +396,9 @@ class Route {
                 }
             }
         }
-        Response::status(404,'404 Resource not found.');
+        Response::status(404, '404 Resource not found.');
         Event::trigger(404);
+        return false;
     }
 }
 
@@ -406,24 +410,29 @@ class RouteGroup {
     return Route::add($this);
   }
   
-  public function has($r){ return $this->routes->contains($r); }
+  public function has($r){ 
+    return $this->routes->contains($r);
+  }
 
-  public function add($r){ $this->routes->attach($r); return $this; }
+  public function add($r){ 
+    $this->routes->attach($r);
+    return $this;
+  }
 
   public function remove($r){ 
-    $this->routes->contains($r) and $this->routes->detach($r);
+    if ($this->routes->contains($r)) $this->routes->detach($r);
     return $this;
   }
 
   public function before(callable $callbacks){
-    foreach($this->routes as $route){
+    foreach ($this->routes as $route){
       $route->before($callbacks);
     }
     return $this;
   }
 
   public function after(callable $callbacks){
-    foreach($this->routes as $route){
+    foreach ($this->routes as $route){
       $route->after($callbacks);
     }
     return $this;

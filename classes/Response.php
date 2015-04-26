@@ -13,20 +13,21 @@
 class Response {
     use Module;
 
-    const TYPE_JSON          = 'application/json';
-    const TYPE_HTML          = 'text/html';
-    const TYPE_TEXT          = 'text/plain';
-    const TYPE_CSS           = 'text/css';
-    const TYPE_XML           = 'text/xml';
-    const TYPE_SVG           = 'image/svg+xml';
-    const TYPE_JS            = 'application/javascript';
-    const TYPE_BIN           = 'application/octet-stream';
+    const TYPE_JSON               = 'application/json',
+          TYPE_HTML               = 'text/html',
+          TYPE_TEXT               = 'text/plain',
+          TYPE_CSS                = 'text/css',
+          TYPE_XML                = 'text/xml',
+          TYPE_SVG                = 'image/svg+xml',
+          TYPE_JS                 = 'application/javascript',
+          TYPE_BIN                = 'application/octet-stream';
 
-    protected static $payload     = [];
-    protected static $status      = 200;
-    protected static $headers     = ['Content-Type' => ['text/html'] ];
-    protected static $buffer      = null;
-    protected static $link        = null;
+    protected static $payload     = [],
+                     $status      = 200,
+                     $headers     = ['Content-Type' => ['text/html']],
+                     $buffer      = null,
+                     $link        = null;
+
 
     public static function type($mime){
         static::header('Content-Type',$mime);
@@ -163,12 +164,12 @@ class Response {
     }
 
     public static function body($setBody=null){
-      if($setBody) static::$payload = [$setBody];
+      if ($setBody) static::$payload = [$setBody];
       return Filter::with('core.response.body',is_array(static::$payload)?implode('',static::$payload):static::$payload);
     }
 
     public static function headers($setHeaders=null){
-       if($setHeaders) static::$headers = $setHeaders;
+       if ($setHeaders) static::$headers = $setHeaders;
        return static::$headers;
     }
 
@@ -201,7 +202,7 @@ class Response {
 
     public static function send(){
         Event::trigger('core.response.send');
-        if(false === headers_sent()) foreach (static::$headers as $name => $value_code) {
+        if (false === headers_sent()) foreach (static::$headers as $name => $value_code) {
             if (is_array($value_code)) {
                 list($value,$code) = count($value_code) >1 ? $value_code : [current($value_code),200];
             } else {
@@ -217,10 +218,9 @@ class Response {
               }
               
             } else {
-                $code ?
-                    header($name.': '.$value,true,$code)
-                :
-                    header($name.': '.$value,true);
+                $code 
+                ? header($name.': '.$value,true,$code)
+                : header($name.': '.$value,true);
             }
         }
         echo static::body();
