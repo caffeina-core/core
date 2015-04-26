@@ -201,9 +201,25 @@ class CLI {
    public static function color($color){
        if ( isset(static::$shell_colors[$color]) ) echo static::$shell_colors[$color];
    }
+
+   /**
+    * Edit a temporary block of text with $EDITOR (or nano as fallback)
+    * @param string $text The initial text of the document.
+    * @param string $filename The (fake) filename passed to the editor (for syntax highlighting hint).
+    * @return string The edited contents
+    */
+   public static function edit($text,$filename=''){
+      $EDITOR = getenv('EDITOR')?:'nano';
+      $tmp = tempnam(sys_get_temp_dir(), "E-").strtr($filename,'/','_');
+      file_put_contents($tmp, $text);
+      passthru("$EDITOR $tmp");
+      $result = file_get_contents($tmp);
+      unlink($tmp);
+      return $result;
+  }
+
+
 }
-
-
 
 
 // Standard Help Message
