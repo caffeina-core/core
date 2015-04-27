@@ -31,7 +31,7 @@ class View {
      * Load a Template Handler
      * @param  class $handler The template handler class instance
      */
-    public static function using(&$handler){
+    public static function using(Adapter &$handler){
       static::$handler = $handler;
     }
 

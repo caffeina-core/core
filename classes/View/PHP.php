@@ -12,13 +12,15 @@
 
 namespace View;
 
-class PHP {
-    protected $templatePath = __DIR__;
+class PHP implements Adapter {
+
+    const EXTENSION 		  = 'php';
+
+    protected $templatePath;
     protected static $globals = [];
-    const EXTENSION = 'php';
 
     public function __construct($path=null){
-        if ($path) $this->templatePath = rtrim($path,'/') . '/';
+        $this->templatePath = ($path ? rtrim($path,'/') : __DIR__) . '/';
     }
     
     public function exists($path){
@@ -37,7 +39,7 @@ class PHP {
 
     public function render($template,$data=[]){
         $template_path = $this->templatePath . trim($template,'/') . '.php';
-        $sandbox = function() use ($template_path){
+        $sandbox 	   = function() use ($template_path){
             ob_start();
             include($template_path);
             $__buffer__ = ob_get_contents();
@@ -45,7 +47,7 @@ class PHP {
             return $__buffer__;
         };
         $sandbox = $sandbox->bindTo(new PHPContext(
-            array_merge(self::$globals,$data),
+            array_merge(self::$globals, $data),
             $this->templatePath
         ));
         return $sandbox();
@@ -53,20 +55,24 @@ class PHP {
 }
 
 class PHPContext {
-    protected $data = [];
-    protected $templatePath = __DIR__;
+    protected $data 		 = [],
+    		  $templatePath;
    
-    public function __construct($data=[],$path=null){
+    public function __construct($data=[], $path=null){
         $this->data = $data;
-        if ($path) $this->templatePath = rtrim($path,'/') . '/';
+        $this->templatePath = ($path ? rtrim($path,'/') : __DIR__) . '/';
     }
     
-    public function partial($template,$vars=[]){
+    public function partial($template, $vars=[]){
         return \View::from($template,array_merge($this->data,$vars));
     }
     
-    public function __isset($n){return 1;}
+    public function __isset($n){ return true; }
+    
     public function __unset($n){}
-    public function __get($n){return (empty($this->data[$n])?'':$this->data[$n]);}
+
+    public function __get($n){ 
+    	return empty($this->data[$n]) ? '' : $this->data[$n];
+    }
     
 }
