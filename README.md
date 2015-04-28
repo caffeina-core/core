@@ -10,6 +10,8 @@
 [![License](https://poser.pugx.org/caffeina-core/core/license.svg)](https://packagist.org/packages/caffeina-core/core)
 [![HHVM Status](http://hhvm.h4cc.de/badge/caffeina-core/core.svg)](http://hhvm.h4cc.de/package/caffeina-core/core)
 
+[![Coverage Status](https://coveralls.io/repos/CaffeinaLab/core/badge.svg)](https://coveralls.io/r/CaffeinaLab/core)
+
 > Core is a collection of components for rapid application development. It doesn't make decisions for you; it gives you tools to build your own solutions.
 
 
