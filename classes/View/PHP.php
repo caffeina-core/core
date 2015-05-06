@@ -19,7 +19,7 @@ class PHP implements Adapter {
     protected $templatePath;
     protected static $globals = [];
 
-    public function __construct($path=null){
+    public function __construct($path=null,$options=[]){
         $this->templatePath = ($path ? rtrim($path,'/') : __DIR__) . '/';
     }
     
