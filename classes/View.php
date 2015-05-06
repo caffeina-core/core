@@ -23,7 +23,7 @@ class View {
      * Construct a new view based on the passed template
      * @param  string $template The template path
      */
-    public function __construct( View\Adapter $template){
+    public function __construct($template){
       $this->options['template'] = $template;
     }
 
@@ -31,7 +31,7 @@ class View {
      * Load a Template Handler
      * @param  class $handler The template handler class instance
      */
-    public static function using(&$handler){
+    public static function using(View\Adapter &$handler){
       static::$handler = $handler;
     }
 
