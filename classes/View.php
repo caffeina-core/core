@@ -23,7 +23,7 @@ class View {
      * Construct a new view based on the passed template
      * @param  string $template The template path
      */
-    public function __construct($template){
+    public function __construct( View\Adapter $template){
       $this->options['template'] = $template;
     }
 
