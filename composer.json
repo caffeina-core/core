@@ -1,15 +1,15 @@
 {
     "name": "caffeina-core/core",
     "type": "library",
-    "description": "Caffeina - Core PHP SDK",
+    "description": "Caffeina - Core PHP Toolbox",
     "keywords": ["framework","core","sdk","toolbox"],
     "homepage": "http://caffeina.it",
-    "version": "0.9.8",
+    "version": "1.0.0",
     "license": "MIT",
     "authors": [
         {
             "name": "Stefano Azzolini",
-            "email": "stefano.azzolini@caffeinalab.com"
+            "email": "stefano.azzolini@caffeina.it"
         }
     ],
     "require": {
