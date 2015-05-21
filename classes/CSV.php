@@ -53,7 +53,7 @@ class CSV {
 
   public function __construct($file, $mode=self::READ, $format=self::AUTO){
     $this->mode = $mode;
-    $this->file = new \SplFileObject($file,'r+');
+    $this->file = new \SplFileObject($file,'c+');
     if (!$this->file->valid()) throw new Exception("Error opening CSV file [$file]", 1);
     $this->file->setFlags(
       \SplFileObject::READ_CSV |     // set file reading mode to csv
