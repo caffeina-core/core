@@ -83,7 +83,9 @@ class Route {
      */
     public function run(array $args,$method='get'){
         $method = strtolower($method);
-        $this->response = '';
+        $this->response 			 		= '';
+        $this->response_object 		= null;
+       	$this->response_is_object = false;
 
         // Call direct befores
         if ( $this->befores ) {
@@ -100,27 +102,33 @@ class Route {
           }
         }
 
+        Event::trigger('core.route.before', $this);
+
         $callback = (is_array($this->callback) && isset($this->callback[$method]))  ?
                         $this->callback[$method] : $this->callback;
 
-        Event::trigger('core.route.before', $this);
-
-        ob_start();
         if (is_callable($callback)) {
-	        // Silence "Cannot bind an instance to a static closure" warnings
-	        $view_results = call_user_func_array(@$callback->bindTo($this), $args);
-        } else {
-        	$view_results = (string)$callback;
-        }
-        $this->response .= ob_get_clean();
 
-        // Render View if returned, else echo string or encode json response
-        if ( null !== $view_results ) {
-          if (is_a($view_results,'View') || is_string($view_results)) {
-              $this->response .= (string)$view_results;
-          } else {
-              $this->response .= Response::json($view_results);
-          }
+	        ob_start();
+	        // Silence "Cannot bind an instance to a static closure" warnings
+	        $view_results 	 = call_user_func_array(@$callback->bindTo($this), $args);
+	        $this->response .= ob_get_clean();
+
+	        // Render View if returned, else echo string or encode json response
+	        if ( null !== $view_results ) {
+	          if (is_a($view_results,'View') || is_string($view_results)) {
+	              $this->response .= (string)$view_results;
+	          } else {
+			        	$this->response_is_object = true;
+	              $this->response_object 		= $view_results;
+	          }
+	        }
+
+        } else if (is_a($callback,'View') || is_string($callback)) {
+        	$this->response .= (string)$callback;
+        } else {
+        	$this->response_is_object = true;
+        	$this->response_object 		= $callback;
         }
 
         // Apply afters
@@ -139,7 +147,11 @@ class Route {
 
         Event::trigger('core.route.after', $this);
 
-        echo $this->response;
+        if ( $this->response_is_object ){
+					$this->response = Response::json($this->response_object);
+        } else {
+					Response::html($this->response);
+        }
 
         return [$this->response];
     }
