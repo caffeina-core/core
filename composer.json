@@ -4,7 +4,7 @@
     "description": "Caffeina - Core PHP Toolbox",
     "keywords": ["framework","core","sdk","toolbox"],
     "homepage": "http://caffeina.it",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "license": "MIT",
     "authors": [
         {

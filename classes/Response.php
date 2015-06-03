@@ -4,7 +4,7 @@
  * Response
  *
  * Handles the HTTP Response for the current execution.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -44,7 +44,7 @@ class Response {
      * Enable CORS HTTP headers.
      */
     public static function enableCORS(){
-        
+
         // Allow from any origin
         if ($origin = filter_input(INPUT_SERVER,'HTTP_ORIGIN')) {
           static::header('Access-Control-Allow-Origin', $origin);
@@ -63,7 +63,7 @@ class Response {
             if ($req_h = filter_input(INPUT_SERVER,'HTTP_ACCESS_CONTROL_REQUEST_HEADERS')) {
               static::header('Access-Control-Allow-Headers',$req_h);
             }
-            
+
             static::send();
             exit;
         }
@@ -103,7 +103,10 @@ class Response {
      */
     public static function json($payload){
         static::type(static::TYPE_JSON);
-        static::$payload[] = json_encode($payload, Options::get('core.response.json_flags',JSON_NUMERIC_CHECK));
+        static::$payload = [
+        	json_encode($payload, Options::get('core.response.json_flags',JSON_NUMERIC_CHECK))
+        ];
+        return static::$payload[0];
     }
 
     /**
@@ -151,7 +154,7 @@ class Response {
     }
 
     public static function status($code,$message=''){
-        static::header('Status',$message?:$code,$code);
+        static::header('Status',"$code $message",$code);
     }
 
     public static function header($name,$value,$code=null){
@@ -161,6 +164,7 @@ class Response {
     public static function error($code=500,$message='Application Error'){
         Event::trigger('core.response.error',$code,$message);
         static::status($code,$message);
+        return false;
     }
 
     public static function body($setBody=null){
@@ -216,9 +220,9 @@ class Response {
               } else {
                 header('Status: '.$code,true,$code);
               }
-              
+
             } else {
-                $code 
+                $code
                 ? header($name.': '.$value,true,$code)
                 : header($name.': '.$value,true);
             }

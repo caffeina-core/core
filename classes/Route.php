@@ -4,7 +4,7 @@
  * Route
  *
  * URL Router and action dispatcher.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -32,13 +32,13 @@ class Route {
 
     /**
      * Create a new route definition. This method permits a fluid interface.
-     * 
+     *
      * @param string $URLPattern The URL pattern, can be used named parameters for variables extraction
-     * @param callable $callback The callback to invoke on route match.
+     * @param $callback The callback to invoke on route match.
      * @param string $method The HTTP method for which the route must respond.
      * @return Route
      */
-    public function __construct($URLPattern, callable $callback = null, $method='get'){
+    public function __construct($URLPattern, $callback = null, $method='get'){
         $this->URLPattern = rtrim(implode('',static::$prefix),'/') . '/' . trim($URLPattern,'/')?:'/';
         $this->URLPattern = $this->URLPattern != '/' ? rtrim($this->URLPattern,'/') : $this->URLPattern;
         $this->dynamic    = $this->isDynamic($this->URLPattern);
@@ -83,51 +83,75 @@ class Route {
      */
     public function run(array $args,$method='get'){
         $method = strtolower($method);
+        $this->response 			 		= '';
+        $this->response_object 		= null;
+       	$this->response_is_object = false;
 
         // Call direct befores
         if ( $this->befores ) {
-
           // Reverse befores order
           foreach (array_reverse($this->befores) as $mw) {
+	        	ob_start();
             $mw_result = call_user_func($mw->bindTo($this));
-            if ( false  === $mw_result ) return [''];
+          	$this->response .= ob_get_clean();
+            if ( false  === $mw_result ) {
+            	return [''];
+            } else if (is_a($mw_result,'View') || is_string($mw_result)) {
+              $this->response .= (string)$mw_result;
+          	}
           }
-
         }
+
+        Event::trigger('core.route.before', $this);
 
         $callback = (is_array($this->callback) && isset($this->callback[$method]))  ?
                         $this->callback[$method] : $this->callback;
 
-        Event::trigger('core.route.before', $this);
+        if (is_callable($callback)) {
 
-        // Start capturing output
-        Response::start();
+	        ob_start();
+	        // Silence "Cannot bind an instance to a static closure" warnings
+	        $view_results 	 = call_user_func_array(@$callback->bindTo($this), $args);
+	        $this->response .= ob_get_clean();
 
-        $this->response = '';
-        
-        // Silence "Cannot bind an instance to a static closure" warnings
-        $view_results = call_user_func_array(@$callback->bindTo($this), $args);
+	        // Render View if returned, else echo string or encode json response
+	        if ( null !== $view_results ) {
+	          if (is_a($view_results,'View') || is_string($view_results)) {
+	              $this->response .= (string)$view_results;
+	          } else {
+			        	$this->response_is_object = true;
+	              $this->response_object 		= $view_results;
+	          }
+	        }
 
-        // Render View if returned, else echo string or encode json response
-        if ( null !== $view_results ) {
-          if (is_a($view_results,'View') || is_string($view_results)) {
-              echo $this->response = (string)$view_results;
-          } else {
-              Response::json($view_results);
-          }
+        } else if (is_a($callback,'View') || is_string($callback)) {
+        	$this->response .= (string)$callback;
+        } else {
+        	$this->response_is_object = true;
+        	$this->response_object 		= $callback;
         }
-
-        Response::end();
 
         // Apply afters
         if ( $this->afters ) {
-          // Reverse befores order
-          foreach ($this->afters as $cb) {
-            call_user_func($cb->bindTo($this));
+          foreach ($this->afters as $mw) {
+	        	ob_start();
+            $mw_result = call_user_func($mw->bindTo($this));
+          	$this->response .= ob_get_clean();
+            if ( false  === $mw_result ) {
+            	return [''];
+            } else if (is_a($mw_result,'View') || is_string($mw_result)) {
+              $this->response .= (string)$mw_result;
+          	}
           }
         }
 
         Event::trigger('core.route.after', $this);
+
+        if ( $this->response_is_object ){
+					$this->response = Response::json($this->response_object);
+        } else {
+					Response::html($this->response);
+        }
 
         return [$this->response];
     }
@@ -145,29 +169,29 @@ class Route {
     /**
      * Start a route definition, default to HTTP GET.
      * @param  string $URLPattern The URL to match against, you can define named segments to be extracted and passed to the callback.
-     * @param  callable $callback The callback to be invoked (with variables extracted from the route if present) when the route match the request URI.
+     * @param  $callback The callback to be invoked (with variables extracted from the route if present) when the route match the request URI.
      * @return Route
      */
-    public static function on($URLPattern, callable $callback = null){
+    public static function on($URLPattern, $callback = null){
         return new Route($URLPattern,$callback);
     }
 
     /**
      * Start a route definition, for any HTTP Method (using * wildcard).
      * @param  string $URLPattern The URL to match against, you can define named segments to be extracted and passed to the callback.
-     * @param  callable $callback The callback to be invoked (with variables extracted from the route if present) when the route match the request URI.
+     * @param  $callback The callback to be invoked (with variables extracted from the route if present) when the route match the request URI.
      * @return Route
      */
-    public static function any($URLPattern, callable $callback = null){
+    public static function any($URLPattern, $callback = null){
         return (new Route($URLPattern,$callback))->via('*');
     }
 
     /**
      * Bind a callback to the route definition
-     * @param  callable $callback The callback to be invoked (with variables extracted from the route if present) when the route match the request URI.
+     * @param  $callback The callback to be invoked (with variables extracted from the route if present) when the route match the request URI.
      * @return Route
      */
-    public function & with(callable $callback){
+    public function & with($callback){
         $this->callback = $callback;
         return $this;
     }
@@ -177,29 +201,29 @@ class Route {
      * @param  callable $before The callback to be invoked ($this is binded to the route object).
      * @return Route
      */
-    public function & before(callable $callback){
+    public function & before($callback){
         $this->befores[] = $callback;
         return $this;
     }
 
     /**
      * Bind a middleware callback to invoked after the route definition
-     * @param  callable $callback The callback to be invoked ($this is binded to the route object).
+     * @param  $callback The callback to be invoked ($this is binded to the route object).
      * @return Route
      */
-    public function & after(callable $callback){
+    public function & after($callback){
         $this->afters[] = $callback;
         return $this;
     }
 
     /**
      * Defines the HTTP Methods to bind the route onto.
-     * 
+     *
      * Example:
      * <code>
      *  Route::on('/test')->via('get','post','delete');
      * </code>
-     * 
+     *
      * @return Route
      */
     public function & via(){
@@ -213,7 +237,7 @@ class Route {
 
     /**
      * Defines the regex rules for the named parameter in the current URL pattern
-     * 
+     *
      * Example:
      * <code>
      *  Route::on('/proxy/:number/:url')
@@ -222,7 +246,7 @@ class Route {
      *      'url'     => '.+',
      *    ]);
      * </code>
-     * 
+     *
      * @param  array  $rules The regex rules
      * @return Route
      */
@@ -246,7 +270,7 @@ class Route {
      *      'delete'  => function(){ echo "HTTP DELETE"; },
      *    ]);
      * </code>
-     * 
+     *
      * @param  string $URLPattern The URL to match against, you can define named segments to be extracted and passed to the callback.
      * @param  array $callbacks The HTTP Method => callable map.
      * @return Route
@@ -269,7 +293,7 @@ class Route {
      * @return string The compiled PREG RegEx.
      */
     protected static function compilePatternAsRegex($pattern,$rules=[]){
-        
+
         return '#^'.preg_replace_callback('#:([a-zA-Z]\w*)#S',function($g) use (&$rules){
             return '(?<' . $g[1] . '>' . (isset($rules[$g[1]])?$rules[$g[1]]:'[^/]+') .')';
         },str_replace(['.',')','*'],['\.',')?','.+'],$pattern)).'$#';
@@ -278,7 +302,7 @@ class Route {
         $ofs = 0; $res = '#^';
         if ($i = strpos($pattern,':',$ofs) === false) return '#^'.$pattern.'$#';
         $res .= substr($pattern,0,$i);
-        
+
         while (false !== ($i = strpos($pattern,':',$ofs))){
             $res .= substr($pattern,$ofs,$i-$ofs);
             $ofs  = strpos($pattern,'/',$i) ?: strlen($pattern);
@@ -312,7 +336,7 @@ class Route {
      * @return boolean
      */
     protected static function isDynamic($pattern){
-        return 
+        return
             (strpos($pattern,':')!==false) ||
             (strpos($pattern,'(')!==false) ||
             (strpos($pattern,'?')!==false) ||
@@ -320,7 +344,7 @@ class Route {
             (strpos($pattern,'*')!==false) ||
             (strpos($pattern,'+')!==false) ;
     }
-    
+
     /**
      * Add a route to the internal route repository.
      * @param Route $r
@@ -336,20 +360,20 @@ class Route {
      * @param  string $prefix The url prefix for the internal route definitions.
      * @param  string $callback This callback is invoked on $prefix match of the current request URI.
      */
-    public static function group($prefix,callable $callback=null){
+    public static function group($prefix,$callback=null){
 
         // Skip definition if current request doesn't match group.
 
         $prefix_complete = rtrim(implode('',static::$prefix),'/') . $prefix;
 
         if ( static::isDynamic($prefix) ){
-        
+
             // Dynamic group, capture vars
             $vars = static::extractVariablesFromURL(static::compilePatternAsRegex($prefix_complete),null,true);
 
             // Errors in compile pattern or variable extraction, aborting.
-            if (false === $vars) return; 
-         
+            if (false === $vars) return;
+
             static::$prefix[] = $prefix;
             if (empty(static::$group)) static::$group = [];
             array_unshift(static::$group, new RouteGroup());
@@ -359,9 +383,9 @@ class Route {
             array_pop(static::$prefix);
             if (empty(static::$prefix)) static::$prefix=[''];
             return $group;
-        
+
         } else if ( 0 === strpos(Request::URI(), $prefix_complete) ){
-         
+
             // Static group
             static::$prefix[] = $prefix;
             if (empty(static::$group)) static::$group = [];
@@ -378,6 +402,12 @@ class Route {
             return new RouteGroup();
         }
 
+    }
+
+    public static function exitWithError($code,$message="Application Error"){
+    	Response::error($code,$message);
+    	Response::send();
+    	exit;
     }
 
     /**
@@ -405,38 +435,38 @@ class Route {
 class RouteGroup {
   protected $routes;
 
-  public function __construct(){ 
+  public function __construct(){
     $this->routes = new SplObjectStorage;
     return Route::add($this);
   }
-  
-  public function has($r){ 
+
+  public function has($r){
     return $this->routes->contains($r);
   }
 
-  public function add($r){ 
+  public function add($r){
     $this->routes->attach($r);
     return $this;
   }
 
-  public function remove($r){ 
+  public function remove($r){
     if ($this->routes->contains($r)) $this->routes->detach($r);
     return $this;
   }
 
-  public function before(callable $callbacks){
+  public function before($callbacks){
     foreach ($this->routes as $route){
       $route->before($callbacks);
     }
     return $this;
   }
 
-  public function after(callable $callbacks){
+  public function after($callbacks){
     foreach ($this->routes as $route){
       $route->after($callbacks);
     }
     return $this;
-  }  
-  
+  }
+
 }
 

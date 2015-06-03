@@ -160,7 +160,7 @@ class Request {
    */
   public static function baseURI(){
     // On some web server configurations PHP_SELF is not populated.
-    $self = dirname(filter_input(INPUT_SERVER,'SCRIPT_NAME') ?: filter_input(INPUT_SERVER,'PHP_SELF'));
+    $uri = dirname(filter_input(INPUT_SERVER,'SCRIPT_NAME') ?: filter_input(INPUT_SERVER,'PHP_SELF'));
     return $uri ?: '/';
   }
 

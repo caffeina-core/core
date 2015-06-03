@@ -19,6 +19,16 @@ class SQL {
   protected static $last_exec_success = true;
 
   public static function connect($dsn, $username=null, $password=null, $options=[]){
+
+    // Support for named parameters interface
+    if (is_array($dsn) || is_object($dsn)){
+      $dsn      = (object)$dsn;
+      $username = isset($dsn->username) ? $dsn->username  : '';
+      $password = isset($dsn->password) ? $dsn->password  : '';
+      $options  = isset($dsn->options)  ? $dsn->options   : '';
+      $dsn      = isset($dsn->dsn)      ? $dsn->dsn       : '';
+    }
+
     static::$connection = [
       'dsn'        => $dsn,
       'username'   => $username,

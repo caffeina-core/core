@@ -55,12 +55,10 @@ class PHP implements Adapter {
 }
 
 class PHPContext {
-    protected $data 		 = [],
-    		  $templatePath;
-   
+    protected $data 		 = [];
+    
     public function __construct($data=[], $path=null){
         $this->data = $data;
-        self::$templatePath = ($path ? rtrim($path,'/') : __DIR__) . '/';
     }
     
     public function partial($template, $vars=[]){
