@@ -33,10 +33,10 @@ test(Response::body() == 'fefifo-1324','Route','Parameter Extraction');
 
 Response::clean();
 Route::on('/middle',function(){ return "-Test-"; })
-    ->before (function(){Response::text('AA');})
-    ->before (function(){Response::text('B');})
-    ->after  (function(){Response::text('AA');})
-    ->after  (function(){Response::text('B');})
+    ->before (function(){ echo 'AA'; })
+    ->before (function(){ echo 'B';  })
+    ->after  (function(){ echo 'AA'; })
+    ->after  (function(){ echo 'B';  })
 ;
 Route::dispatch('/middle','get');
 test(Response::body() == 'BAA-Test-AAB','Route','Middlewares');
@@ -63,8 +63,8 @@ Route::group('/api2',function(){
         Route::on('/info',function(){ echo "API-V1-INFO"; });        
     });
 })
-->before (function(){Response::text('AA-');})
-->after  (function(){Response::text('-BB');});
+->before (function(){ echo 'AA-';})
+->after  (function(){ echo '-BB';});
 
 Route::dispatch('/api2/v1/info','get');
 test(Response::body() == 'AA-API-V1-INFO-BB','Route','Nested group middlewares');
