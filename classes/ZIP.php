@@ -14,8 +14,8 @@ class ZIP {
 	use Module;
 
 	public $file,
-		     $name,
-		     $zip;
+	       $name,
+	       $zip;
 
 	public static function create($name=''){
 		return new ZIP($name);
@@ -58,12 +58,11 @@ class ZIP {
 			$folder = basename($folder);
 		}
 		$this->zip->addEmptyDir($folder);
-		$nodes = glob("$root/$folder/*"); 
-		foreach ($nodes as $node) { 
-			if (is_dir($node)) { 
-				$this->addDirectory(str_replace($root,'',$node),$root); 
-			} else if (is_file($node))  { 
-				$this->zip->addFile($node,str_replace($root,'',$node)); 
+		foreach (glob("$root/$folder/*") as $item) { 
+			if (is_dir($item)) { 
+			    $this->addDirectory(str_replace($root,'',$item),$root); 
+			} else if (is_file($item))  { 
+			    $this->zip->addFile($item, str_replace($root,'',$item)); 
 			} 
 		} 
 
