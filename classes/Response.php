@@ -4,7 +4,7 @@
  * Response
  *
  * Handles the HTTP Response for the current execution.
- *
+ * 
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -26,7 +26,8 @@ class Response {
                      $status      = 200,
                      $headers     = ['Content-Type' => ['text/html']],
                      $buffer      = null,
-                     $link        = null;
+                     $link        = null,
+                     $files     = [];
 
 
     public static function type($mime){
@@ -44,7 +45,7 @@ class Response {
      * Enable CORS HTTP headers.
      */
     public static function enableCORS(){
-
+        
         // Allow from any origin
         if ($origin = filter_input(INPUT_SERVER,'HTTP_ORIGIN')) {
           static::header('Access-Control-Allow-Origin', $origin);
@@ -63,7 +64,7 @@ class Response {
             if ($req_h = filter_input(INPUT_SERVER,'HTTP_ACCESS_CONTROL_REQUEST_HEADERS')) {
               static::header('Access-Control-Allow-Headers',$req_h);
             }
-
+            
             static::send();
             exit;
         }
@@ -103,10 +104,7 @@ class Response {
      */
     public static function json($payload){
         static::type(static::TYPE_JSON);
-        static::$payload = [
-        	json_encode($payload, Options::get('core.response.json_flags',JSON_NUMERIC_CHECK))
-        ];
-        return static::$payload[0];
+        static::$payload[] = json_encode($payload, Options::get('core.response.json_flags',JSON_NUMERIC_CHECK));
     }
 
     /**
@@ -146,6 +144,18 @@ class Response {
     }
 
     /**
+     * Append a file to the buffer.
+     * @param  mixed $files Text to append to the response buffer
+     */
+    public static function file(){
+        foreach (func_get_args() as $f) {
+            if(is_file($f)){
+                static::$files[] = $f;
+            }
+        }
+    }
+
+    /**
      * Append a raw string to the buffer.
      * @param  mixed $payload Data to append to the response buffer
      */
@@ -154,7 +164,7 @@ class Response {
     }
 
     public static function status($code,$message=''){
-        static::header('Status',"$code $message",$code);
+        static::header('Status',$message?:$code,$code);
     }
 
     public static function header($name,$value,$code=null){
@@ -164,7 +174,6 @@ class Response {
     public static function error($code=500,$message='Application Error'){
         Event::trigger('core.response.error',$code,$message);
         static::status($code,$message);
-        return false;
     }
 
     public static function body($setBody=null){
@@ -220,14 +229,27 @@ class Response {
               } else {
                 header('Status: '.$code,true,$code);
               }
-
+              
             } else {
-                $code
+                $code 
                 ? header($name.': '.$value,true,$code)
                 : header($name.': '.$value,true);
             }
         }
-        echo static::body();
+        if(static::$files){
+            if(count(static::$files) == 1){
+                // single file
+                $file = static::$files[0];
+                header('Content-Type: '.(finfo_file(finfo_open(FILEINFO_MIME_TYPE),$file)?:'application/octet-stream'));
+                header('Content-Disposition: inline; filename='.basename($file));
+                header('Content-Length: ' . filesize($file));
+                readfile($file);
+            } else {
+                // TODO --> zip files
+            }
+        } else{
+            echo static::body();
+        }
     }
 
 }
