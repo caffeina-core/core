@@ -14,51 +14,39 @@
 class Token {
 
   public static function encode($payload, $secret, $algo = 'HS256') {
-
-    $header         = [
-      'typ' => 'JWT',
-      'alg' => $algo,
-    ];
-  
-    $segments       = [
-      rtrim(strtr(base64_encode(json_encode($header)), '+/', '-_'),'='),
+    $encoded_payload = implode('.', [rtrim(strtr(base64_encode(json_encode([
+        'typ' => 'JWT',
+        'alg' => $algo,
+      ])), '+/', '-_'),'='),
       rtrim(strtr(base64_encode(json_encode($payload)), '+/', '-_'),'='),
-    ];
-  
-    $signing_input  = implode('.', $segments);
-  
-    $signature      = static::sign($signing_input, $secret, $algo);
-    $segments[]     = rtrim(strtr(base64_encode($signature), '+/', '-_'),'=');
-    
-    return implode('.', $segments);
-  
+    ]);
+    return $encoded_payload . '.' . rtrim(strtr(base64_encode(
+      static::sign($encoded_payload, $secret, $algo)), '+/', '-_'),'=');
   }
 
   public static function decode($jwt, $secret = null, $verify = true){
     
-    $tokens = explode('.', $jwt);
-    if (count($tokens) != 3) throw new \Exception('Token not valid');
+    if (substr_count($jwt,'.') != 3) throw new \Exception('Token not valid');
+    
+    list($encoded_header, $encoded_payload, $client_sig) = explode('.', $jwt);
 
-    list($headb64, $payloadb64, $cryptob64) = $tokens;
-    
-    if (null === ($header = json_decode(base64_decode(strtr($headb64, '-_', '+/'))))) 
+    if (null === ($header = json_decode(base64_decode(strtr($encoded_header, '-_', '+/'))))) 
       throw new \Exception('Invalid encoding');
     
-    if (null === ($payload = json_decode(base64_decode(strtr($payloadb64, '-_', '+/'))))) 
+    if (null === ($payload = json_decode(base64_decode(strtr($encoded_payload, '-_', '+/'))))) 
       throw new \Exception('Invalid encoding');
     
-    $signature = json_decode(base64_decode(strtr($cryptob64, '-_', '+/')));
+    $signature = json_decode(base64_decode(strtr($client_sig, '-_', '+/')));
 
     if ($verify) {
       if (empty($header->alg)) throw new \Exception('Invalid encoding');
 
-      if ($signature != static::sign("$headb64.$payloadb64", $secret, $header->alg))
+      if ($signature != static::sign("$encoded_header.$encoded_payload", $secret, $header->alg))
         throw new \Exception('Token verification failed');
     }
 
     return $payload;
   }
-
 
   protected static function sign($payload, $secret, $algo = 'HS256') {
     $algos = [
@@ -66,7 +54,7 @@ class Token {
       'HS384' => 'sha384',
       'HS256' => 'sha256',
     ];
-    if (empty($algos[$algo])) throw new \Exception('Algorithm not supported');
+    if (empty($algos[$algo])) throw new \Exception('Signing algorithm not supported');
     return hash_hmac($algos[$algo], $payload, $secret, true);
   }
 
