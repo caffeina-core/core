@@ -12,67 +12,62 @@
  */
 
 class Token {
-  use Module;
 
-  protected static $options = array(
-    'secret'          => null,
-    'signing_method'  => 'sha256',
-    'verify'          => true, // flag to enable/disable signature verification
-  );
+  public static function encode($payload, $secret, $algo = 'HS256') {
 
-  public static function init(array $options){
-    foreach($options as $key => $val){
-      static::$options[$key] = $val;
+    $header         = [
+      'typ' => 'JWT',
+      'alg' => $algo,
+    ];
+  
+    $segments       = [
+      rtrim(strtr(base64_encode(json_encode($header)), '+/', '-_'),'='),
+      rtrim(strtr(base64_encode(json_encode($payload)), '+/', '-_'),'='),
+    ];
+  
+    $signing_input  = implode('.', $segments);
+  
+    $signature      = static::sign($signing_input, $secret, $algo);
+    $segments[]     = rtrim(strtr(base64_encode($signature), '+/', '-_'),'=');
+    
+    return implode('.', $segments);
+  
+  }
+
+  public static function decode($jwt, $secret = null, $verify = true){
+    
+    $tokens = explode('.', $jwt);
+    if (count($tokens) != 3) throw new \Exception('Token not valid');
+
+    list($headb64, $payloadb64, $cryptob64) = $tokens;
+    
+    if (null === ($header = json_decode(base64_decode(strtr($headb64, '-_', '+/'))))) 
+      throw new \Exception('Invalid encoding');
+    
+    if (null === ($payload = json_decode(base64_decode(strtr($payloadb64, '-_', '+/'))))) 
+      throw new \Exception('Invalid encoding');
+    
+    $signature = json_decode(base64_decode(strtr($cryptob64, '-_', '+/')));
+
+    if ($verify) {
+      if (empty($header->alg)) throw new \Exception('Invalid encoding');
+
+      if ($signature != static::sign("$headb64.$payloadb64", $secret, $header->alg))
+        throw new \Exception('Token verification failed');
     }
-    if (!static::$options['secret']) {
-      throw new Exception( 'You must provide a secret passfrase.' );
-    }
+
+    return $payload;
   }
 
-  public static function secret($secret){ 
-    static::$options['secret'] = $secret;
-  }
 
-  public static function parse($payload){
-    $packet     = static::decode($payload);
-    $data       = $packet['d'];
-    $signature  = $packet['s'];
-    if( !static::$options['verify'] || $signature === static::sign($data) ){
-      return $data;
-    } else {
-      throw new Exception( 'Invalid payload signature or corrupted data.' );
-    }
-  }
-
-  public static function pack($data){
-    return static::encode(array(
-      'd' => $data,
-      's' => static::$options['verify'] ? static::sign($data) : false,
-    ));
-  }
-
-  protected static function sign($data){
-    return hash_hmac(static::$options['signing_method'],serialize($data),static::$options['secret']);
-  }
-
-  /**
-   * Encodes a string as a URL-safe Base64
-   * @param $data The string to encode
-   * @return string The encoded string
-   */
-  protected static function encode($data){
-    return rtrim(strtr(base64_encode(addslashes(json_encode($data))), '+/', '-_'),'=');
-  }
-
-  /**
-   * Decodes a string from URL-safe Base64
-   * @param $data The string to decode
-   * @return string The decoded string
-   */
-  protected static function decode($data){
-    return json_decode(stripslashes(base64_decode(strtr($data, '-_', '+/'))));
+  protected static function sign($payload, $secret, $algo = 'HS256') {
+    $algos = [
+      'HS512' => 'sha512',
+      'HS384' => 'sha384',
+      'HS256' => 'sha256',
+    ];
+    if (empty($algos[$algo])) throw new \Exception('Algorithm not supported');
+    return hash_hmac($algos[$algo], $payload, $secret, true);
   }
 
 }
-
-Token::secret(md5(__FILE__));
