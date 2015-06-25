@@ -15,7 +15,7 @@ class Redirect {
 
     public static function to($url){
         Response::clean();
-        Response::header('Location',$url);
+        Response::header('Location',Filter::with('core.redirect',$url));
         Response::send();
         exit;
     }
