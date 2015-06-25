@@ -64,7 +64,7 @@ class View {
      * @return string The rendered view
      */
     public function __toString(){
-      return static::$handler->render($this->options['template'],$this->options['data']);
+      return Filter::with('core.view',static::$handler->render($this->options['template'],$this->options['data']));
     }
 
     /**
