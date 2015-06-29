@@ -22,7 +22,7 @@ class Redirect {
 
     public static function viaJavaScript($url,$parent=false){
         Response::type('text/html');
-        Response::text('<script>'.($parent?'parent.':'').'location.href="',addslashes($url),'"</script>');
+        Response::add('<script>'.($parent?'parent.':'').'location.href="',addslashes(Filter::with('core.redirect',$url)),'"</script>');
     }
 
 }
