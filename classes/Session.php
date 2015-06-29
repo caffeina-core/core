@@ -48,9 +48,13 @@ class Session {
 	 * @return mixed The variable value
 	 */
 	static public function & get($key,$default=null){
-		static::start();
-		if(isset($_SESSION[$key])==false) $_SESSION[$key] = is_callable($default)?call_user_func($default):$default;
-		return $_SESSION[$key];
+                if (($active = static::active()) && isset($_SESSION[$key])) {
+			return $_SESSION[$key];
+                } else if ($active) {
+                	return $_SESSION[$key] = (is_callable($default)?call_user_func($default):$default);
+                } else {
+                 	return (is_callable($default)?call_user_func($default):$default);
+                }
 	}
 
 	/**
@@ -98,6 +102,16 @@ class Session {
 		session_destroy();
 	}
 
+	/**
+	 * Check if session is active
+	 *
+	 * @access public
+	 * @static
+	 * @return void
+	 */
+	static public function active(){
+		return session_status() == PHP_SESSION_ACTIVE;
+	}
 
 	/**
 	 * Check if a session variable exists
