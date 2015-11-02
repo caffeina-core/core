@@ -4,7 +4,7 @@
  * Response
  *
  * Handles the HTTP Response for the current execution.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -24,14 +24,18 @@ class Response {
 
     protected static $payload     = [],
                      $status      = 200,
-                     $headers     = ['Content-Type' => ['text/html']],
+                     $charset     = "utf-8",
+                     $headers     = ['Content-Type' => ['text/html; charset=utf-8']],
                      $buffer      = null,
-                     $link        = null,
-                     $files     = [];
+                     $link        = null;
 
+
+    public static function charset($charset){
+        static::$charset = $charset;
+    }
 
     public static function type($mime){
-        static::header('Content-Type',$mime);
+        static::header('Content-Type',$mime . (static::$charset ? '; charset='.static::$charset : ''));
     }
 
     /**
@@ -45,7 +49,7 @@ class Response {
      * Enable CORS HTTP headers.
      */
     public static function enableCORS(){
-        
+
         // Allow from any origin
         if ($origin = filter_input(INPUT_SERVER,'HTTP_ORIGIN')) {
           static::header('Access-Control-Allow-Origin', $origin);
@@ -64,7 +68,7 @@ class Response {
             if ($req_h = filter_input(INPUT_SERVER,'HTTP_ACCESS_CONTROL_REQUEST_HEADERS')) {
               static::header('Access-Control-Allow-Headers',$req_h);
             }
-            
+
             static::send();
             exit;
         }
@@ -144,18 +148,6 @@ class Response {
     }
 
     /**
-     * Append a file to the buffer.
-     * @param  mixed $files Text to append to the response buffer
-     */
-    public static function file(){
-        foreach (func_get_args() as $f) {
-            if(is_file($f)){
-                static::$files[] = $f;
-            }
-        }
-    }
-
-    /**
      * Append a raw string to the buffer.
      * @param  mixed $payload Data to append to the response buffer
      */
@@ -229,27 +221,14 @@ class Response {
               } else {
                 header('Status: '.$code,true,$code);
               }
-              
+
             } else {
-                $code 
+                $code
                 ? header($name.': '.$value,true,$code)
                 : header($name.': '.$value,true);
             }
         }
-        if(static::$files){
-            if(count(static::$files) == 1){
-                // single file
-                $file = static::$files[0];
-                header('Content-Type: '.(finfo_file(finfo_open(FILEINFO_MIME_TYPE),$file)?:'application/octet-stream'));
-                header('Content-Disposition: inline; filename='.basename($file));
-                header('Content-Length: ' . filesize($file));
-                readfile($file);
-            } else {
-                // TODO --> zip files
-            }
-        } else{
-            echo static::body();
-        }
+        echo static::body();
     }
 
 }
