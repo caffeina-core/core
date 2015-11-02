@@ -169,7 +169,7 @@ class SQL {
     if(!static::connection()) return false;
 
     if (false==is_array($data)) $data = (array)$data;
-    if (empty($data[$pk])) return false;
+    if (empty($data)) return false;
     $k = array_keys($data);
     asort($k);
     array_walk($k,function(&$e){ $e = "`$e`=:$e";});
