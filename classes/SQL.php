@@ -19,16 +19,6 @@ class SQL {
   protected static $last_exec_success = true;
 
   public static function connect($dsn, $username=null, $password=null, $options=[]){
-
-    // Support for named parameters interface
-    if (is_array($dsn) || is_object($dsn)){
-      $dsn      = (object)$dsn;
-      $username = isset($dsn->username) ? $dsn->username  : '';
-      $password = isset($dsn->password) ? $dsn->password  : '';
-      $options  = isset($dsn->options)  ? $dsn->options   : '';
-      $dsn      = isset($dsn->dsn)      ? $dsn->dsn       : '';
-    }
-
     static::$connection = [
       'dsn'        => $dsn,
       'username'   => $username,
@@ -70,7 +60,7 @@ class SQL {
 
   public static function exec($query, $params=[]){
     if(!static::connection()) return false;
-    
+
     if (false==is_array($params)) $params = (array)$params;
     $query = Filter::with('core.sql.query',$query);
     if($statement = static::prepare($query)){
@@ -99,14 +89,14 @@ class SQL {
 
   public static function value($query, $params=[], $column=0){
     if(!static::connection()) return false;
-    
+
     $res = static::exec($query,$params);
     return $res ? $res->fetchColumn($column) : null;
   }
 
   public static function each($query, $params=[], callable $looper = null){
     if(!static::connection()) return false;
-    
+
     // ($query,$looper) shorthand
     if ($looper===null && is_callable($params)) {$looper = $params; $params = [];}
     if( $res = static::exec($query,$params) ){
@@ -119,7 +109,7 @@ class SQL {
 
   public static function single($query, $params=[], callable $handler = null){
     if(!static::connection()) return false;
-    
+
     // ($query,$handler) shorthand
     if ($handler===null && is_callable($params)) {$handler = $params; $params = [];}
     if( $res = static::exec($query,$params) ){
@@ -132,7 +122,7 @@ class SQL {
 
  public static function run($script){
     if(!static::connection()) return false;
-    
+
     $sql_path = Options::get('database.sql.path',APP_DIR.'/sql');
     $sql_sep  = Options::get('database.sql.separator',';');
     if (is_file($f = "$sql_path/$script.sql")){
@@ -146,13 +136,13 @@ class SQL {
 
   public static function all($query, $params=[]){
    if(!static::connection()) return false;
-  
+
    return static::each($query,$params);
   }
 
   public static function delete($table, $pks=null, $pk='id', $inclusive=true){
     if(!static::connection()) return false;
-    
+
     if (null===$pks) {
       return static::exec("DELETE FROM `$table`");
     } else {
@@ -164,7 +154,7 @@ class SQL {
 
   public static function insert($table, $data=[]){
     if(!static::connection()) return false;
-    
+
     if (false==is_array($data)) $data = (array)$data;
     $k = array_keys($data);
     asort($k);
@@ -175,22 +165,26 @@ class SQL {
     return static::$last_exec_success ? static::connection()->lastInsertId() : false;
   }
 
-  public static function update($table, $data=[], $pk='id', $extra_where=''){
+  public static function updateWhere($table, $data=[], $where){
     if(!static::connection()) return false;
-    
+
     if (false==is_array($data)) $data = (array)$data;
     if (empty($data[$pk])) return false;
     $k = array_keys($data);
     asort($k);
     array_walk($k,function(&$e){ $e = "`$e`=:$e";});
-    $q = "UPDATE `$table` SET ".implode(', ',$k)." WHERE `$pk`=:$pk $extra_where";
+    $q = "UPDATE `$table` SET ".implode(', ',$k)." WHERE $where";
     static::exec($q,$data);
     return static::$last_exec_success;
   }
 
+  public static function update($table, $data=[], $pk='id', $extra_where=''){
+    return static::updateWhere($table, $data, "`$pk`=:$pk $extra_where");
+  }
+
   public static function insertOrUpdate($table, $data=[], $pk='id', $extra_where=''){
     if(!static::connection()) return false;
-    
+
     if (false==is_array($data)) $data = (array)$data;
     if (empty($data[$pk])) return static::insert($table, $data);
     if( (string) static::value("SELECT `$pk` FROM `$table` WHERE `$pk`=? LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
