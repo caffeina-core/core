@@ -32,7 +32,8 @@ class Filter {
         }
     }
 
-    public static function with($name,$default){
+    public static function with($names, $default){
+      foreach ((array)$names as $name) {
         if (false === empty(static::$_modders[$name])){
             $value = $default;
             $args = func_get_args();
@@ -41,9 +42,9 @@ class Filter {
                 $value = call_user_func($modder,$value);
             }
             return $value;
-        } else {
-            return $default;
         }
+      }
+      return $default;
     }
 
 }
