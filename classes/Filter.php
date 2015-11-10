@@ -34,7 +34,7 @@ class Filter {
 
     public static function with($names, $default){
       foreach ((array)$names as $name) {
-        if (false === empty(static::$_modders[$name])){
+        if (in_array($name, static::$_modders)){
             $value = $default;
             $args = func_get_args();
             array_shift($args);
