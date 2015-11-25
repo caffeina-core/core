@@ -1,13 +1,13 @@
 <?php
 
-Service::single('email',function() {
+Service::register('email',function() {
     return "EMAIL SERVICE";
 });
 test(Service::email() . Service::email() == "EMAIL SERVICEEMAIL SERVICE",'Service','Simple service container');
 
 
 
-Service::single('test',function($data) {
+Service::register('test',function($data) {
     return (object)["data" => $data];
 });
 test(Service::test('--TEST--')->data == "--TEST--",'Service','Constructor');
@@ -17,7 +17,7 @@ test(Service::test()->data == "--TEST--",'Service','Service persistence');
 test(Service::test("NOT ME!")->data != "NOT ME!",'Service','Service persistence even with new constructor call');
 
 
-Service::multiple('foos',function($bar) {
+Service::registerFactory('foos',function($bar) {
     return (object)["data" => $bar];
 });
 test(
