@@ -47,7 +47,7 @@ class Session {
 	 * @param mixed $key The variable name
 	 * @return mixed The variable value
 	 */
-	static public function & get($key,$default=null){
+	static public function get($key,$default=null){
                 if (($active = static::active()) && isset($_SESSION[$key])) {
 			return $_SESSION[$key];
                 } else if ($active) {
