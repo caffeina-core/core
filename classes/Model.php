@@ -29,7 +29,7 @@ abstract class Model {
     }
 
     public static function all($page=1,$limit=-1){
-    		$offset = max(1,$page)-1;
+        $offset = max(1,$page)-1;
         return static::where($limit < 1 ? "" : "offset $offset limit $limit");
     }
 
