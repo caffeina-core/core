@@ -30,7 +30,7 @@ abstract class Model {
 
     public static function all($page=1,$limit=-1){
         $offset = max(1,$page)-1;
-        return static::where($limit < 1 ? "" : "offset $offset limit $limit");
+        return static::where($limit < 1 ? "" : "1 limit $limit offset $offset");
     }
 
     public static function create(array $data){
