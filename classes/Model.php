@@ -22,8 +22,8 @@ abstract class Model {
         $sql = "select $key from $table" . ($where_sql ? " where $where_sql" : '');
 
         $results = [];
-        SQL::each($sql, function($row) use ($self,&$results){
-            $results[] = $self::load($row->id);
+        SQL::each($sql, function($row) use ($self,&$results,$key){
+            $results[] = $self::load($row->$key);
         });
         return $results;
     }
