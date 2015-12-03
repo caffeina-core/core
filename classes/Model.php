@@ -29,8 +29,14 @@ abstract class Model {
     }
 
     public static function all($page=1,$limit=-1){
-        $offset = max(1,$page)-1;
+    		$offset = max(1,$page)-1;
         return static::where($limit < 1 ? "" : "1 limit $limit offset $offset");
+    }
+
+    public function primaryKey(){
+    	$self    = get_called_class();
+      $key     = $self::persistenceOptions('key');
+      return $this->$key;
     }
 
     public static function create(array $data){
