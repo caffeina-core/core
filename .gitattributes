@@ -4,3 +4,4 @@
 /.travis.yml        export-ignore
 /.scrutinizer.yml   export-ignore
 /core-logo.png      export-ignore
+/phpci.yml          export-ignore
