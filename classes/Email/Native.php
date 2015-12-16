@@ -47,20 +47,20 @@ class Native implements Driver {
 
   public function send(){
     $uid = md5(uniqid(time()));
-    $headers = [];
+    $head = $body = [];
 
-    if($this->from)     $headers[] = 'From: '.$this->from;
-    if($this->replyTo)  $headers[] = 'Reply-To: '.$this->replyTo;
+    if($this->from)     $head[] = 'From: ' . $this->from;
+    if($this->replyTo)  $head[] = 'Reply-To: ' . $this->replyTo;
 
-    $headers[] = 'MIME-Version: 1.0';
-    $headers[] = "Content-Type: multipart/mixed; boundary=\"".$uid."\"";
-    $headers[] = "This is a multi-part message in MIME format.";
-    $headers[] = "--$uid";
-    $headers[] = "Content-type: text/html; charset=UTF-8";
-    $headers[] = "Content-Transfer-Encoding: quoted-printable";
-    $headers[] = '';
-    $headers[] = quoted_printable_encode($this->message);
-    $headers[] = '';
+    $head[] = 'MIME-Version: 1.0';
+    $head[] = "Content-Type: multipart/mixed; boundary=\"".$uid."\"";
+
+    $body[] = "--$uid";
+    $body[] = "Content-type: text/html; charset=UTF-8";
+    $body[] = "Content-Transfer-Encoding: quoted-printable";
+    $body[] = '';
+    $body[] = quoted_printable_encode($this->message);
+    $body[] = '';
     
     
     foreach ($this->attachments as $file) {
@@ -72,26 +72,27 @@ class Native implements Driver {
         $data = $file['content'];
       }
 
-      $headers[] = "--$uid";
-      $headers[] = "Content-type: application/octet-stream; name=\"".$name."\"";
-      $headers[] = "Content-Transfer-Encoding: base64";
-      $headers[] = "Content-Disposition: attachment; filename=\"".$name."\"";
-      $headers[] = '';
-      $headers[] = chunk_split(base64_encode($data));
-      $headers[] = ''; 
+      $body[] = "--$uid";
+      $body[] = "Content-type: application/octet-stream; name=\"".$name."\"";
+      $body[] = "Content-Transfer-Encoding: base64";
+      $body[] = "Content-Disposition: attachment; filename=\"".$name."\"";
+      $body[] = '';
+      $body[] = chunk_split(base64_encode($data));
+      $body[] = ''; 
     }
 
-    $headers[] = "--$uid--";
+    $body[] = "--$uid--";
 
     $success = true;
-    $body = implode("\r\n",$headers);
+    $head    = implode("\r\n",$head);
+    $body    = implode("\r\n",$body);
     
     foreach ($this->recipients as $to) {
       $current_success = mail(
            $to,
            $this->subject,
-           '',
-           $body
+           $body,
+           $head
       );
       \Event::trigger('core.email.send',$to,$this->from,$this->subject,$body,$success);
       $success = $success && $current_success;
