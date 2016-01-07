@@ -134,10 +134,9 @@ class SQL {
     } else return false;
   }
 
-  public static function all($query, $params=[]){
+  public static function all($query, $params=[], callable $looper = null){
    if(!static::connection()) return false;
-
-   return static::each($query,$params);
+   return static::each($query,$params,$looper);
   }
 
   public static function delete($table, $pks=null, $pk='id', $inclusive=true){
