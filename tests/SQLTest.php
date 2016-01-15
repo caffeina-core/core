@@ -1,0 +1,97 @@
+<?php
+
+class SQLTest extends PHPUnit_Framework_TestCase {
+
+		public function __construct(){
+			SQL::connect('sqlite::memory:');
+		}
+
+    public function testCreateTable(){
+				$results = SQL::exec(
+<<<SQL
+CREATE TABLE `users` (
+  id integer primary key,
+  email text,
+  password text
+);
+SQL
+				);
+        $this->assertNotFalse($results);
+    }
+
+
+    public function testInsert(){
+				$id1 = SQL::insert('users',[
+				    'email' => 'user@email.com',
+				    'password' => '1111',
+				]);
+
+				$id2 = SQL::insert('users',[
+				    'email' => 'frank@email.com',
+				    'password' => '2222',
+				]);
+
+				$id3 = SQL::insert('users',[
+				    'email' => 'frank@email.com',
+				    'password' => '3333',
+				]);
+
+				$id4 = SQL::insert('users',[
+				    'email' => 'frank@email.com',
+				    'password' => '4444',
+				]);
+
+        $this->assertTrue(($id1 == 1) && ($id2 == 2));
+    }
+
+    public function testEachRowCallback(){
+				$cc = 0;
+				SQL::each('SELECT id FROM users',function($row) use (&$cc) {
+				    $cc += $row->id;
+				});
+        $this->assertEquals(10,$cc);
+    }
+
+    public function testEachRetrievingAll(){
+				$results = SQL::each('SELECT id FROM users');
+				$espect = '[{"id":"1"},{"id":"2"},{"id":"3"},{"id":"4"}]';
+        $this->assertEquals($espect,json_encode($results));
+    }
+
+    public function testUpdate(){
+				$results = SQL::update('users',[
+				    'id'       => 2,
+				    'password' => 'prova',
+				]);
+        $this->assertTrue($results);
+    }
+
+    public function testGetValue(){
+				$results = SQL::value('SELECT password FROM users WHERE id=?',[2]);
+        $this->assertEquals("prova", $results);
+    }
+
+    public function testInsertOrUpdate(){
+    		$iou = SQL::insertOrUpdate('users',[
+			    'id'       => "2",
+			    'password' => '2002',
+				]);
+				$check = SQL::value('SELECT password FROM users WHERE id=?',[2]);
+        $this->assertNotFalse($iou);
+        $this->assertEquals(2002, $check);
+    }
+
+    public function testDeleteSingle(){
+        $this->assertNotFalse(SQL::delete('users',2));
+    }
+
+    public function testDeleteMultiple(){
+        $this->assertNotFalse(SQL::delete('users',[1,4]));
+    }
+
+    public function testDeleteAll(){
+        $this->assertNotFalse(SQL::delete('users'));
+        $this->assertEquals(0,SQL::value("SELECT count(*) FROM users"));
+    }
+
+}
