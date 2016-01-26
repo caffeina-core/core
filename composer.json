@@ -3,13 +3,13 @@
     "type": "library",
     "description": "Caffeina - Core PHP Toolbox",
     "keywords": ["framework","core","sdk","toolbox"],
-    "homepage": "http://caffeina.it",
-    "version": "1.1.0",
+    "homepage": "http://caffeina.com",
+    "version": "1.1.1",
     "license": "MIT",
     "authors": [
         {
             "name": "Stefano Azzolini",
-            "email": "stefano.azzolini@caffeina.it"
+            "email": "stefano.azzolini@caffeina.com"
         }
     ],
     "require": {
