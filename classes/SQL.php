@@ -145,8 +145,7 @@ class SQL {
     if (null===$pks) {
       return static::exec("DELETE FROM `$table`");
     } else {
-      $sql = "DELETE FROM `$table` WHERE `$pk` ".($inclusive ? "" : "NOT " )."IN (" . implode( ',', array_fill_keys( (array)$pks, '?' ) ) . ")";
-      return static::exec( $sql, (array)$pks );
+      return static::exec("DELETE FROM `$table` WHERE `$pk` ".($inclusive ? "" : "NOT " )."IN (" . implode( ',', array_fill_keys( (array)$pks, '?' ) ) . ")",(array)$pks);
     }
   }
 
