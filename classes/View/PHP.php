@@ -4,7 +4,7 @@
  * View\PHP
  *
  * Core\View PHP templates bridge.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -14,19 +14,19 @@ namespace View;
 
 class PHP implements Adapter {
 
-    const EXTENSION 		  = 'php';
+    const EXTENSION       = 'php';
 
-    protected static $templatePath, 
+    protected static $templatePath,
                      $globals = [];
 
     public function __construct($path=null,$options=[]){
         self::$templatePath = ($path ? rtrim($path,'/') : __DIR__) . '/';
     }
-    
+
     public static function exists($path){
         return is_file(self::$templatePath.$path.'.php');
     }
-    
+
     public static function addGlobal($key,$val){
       self::$globals[$key] = $val;
     }
@@ -39,7 +39,7 @@ class PHP implements Adapter {
 
     public function render($template,$data=[]){
         $template_path = self::$templatePath . trim($template,'/') . '.php';
-        $sandbox 	   = function() use ($template_path){
+        $sandbox     = function() use ($template_path){
             ob_start();
             include($template_path);
             $__buffer__ = ob_get_contents();
@@ -55,22 +55,22 @@ class PHP implements Adapter {
 }
 
 class PHPContext {
-    protected $data 		 = [];
-    
+    protected $data      = [];
+
     public function __construct($data=[], $path=null){
         $this->data = $data;
     }
-    
+
     public function partial($template, $vars=[]){
         return \View::from($template,array_merge($this->data,$vars));
     }
-    
+
     public function __isset($n){ return true; }
-    
+
     public function __unset($n){}
 
-    public function __get($n){ 
-    	return empty($this->data[$n]) ? '' : $this->data[$n];
+    public function __get($n){
+      return empty($this->data[$n]) ? '' : $this->data[$n];
     }
-    
+
 }

@@ -11,12 +11,12 @@
  * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
-// version_compare(PHP_VERSION, '5.5.0', '>=') 
+// version_compare(PHP_VERSION, '5.5.0', '>=')
 //  or trigger_error('Work module need PHP 5.5 or later.',E_USER_ERROR);
 
 class Work {
   use Module;
- 
+
   protected static $pool = null;
   protected static $workers;
   protected static $lastID = 0;
@@ -25,7 +25,7 @@ class Work {
     self::$pool or ( self::$pool = new \SplQueue() );
     if(is_callable($id) && $job===null){
       $job = $id;
-      $id = ++self::$lastID;      
+      $id = ++self::$lastID;
     }
     $task = new TaskCoroutine($id, $job instanceof \Generator ? $job : $job());
     self::$workers[$id] = $task;
@@ -36,7 +36,7 @@ class Work {
   public static function send($id,$passValue) {
      isset(self::$workers[$id]) && self::$workers[$id]->pass($passValue);
   }
-  
+
   public static function run(){
     self::$pool or ( self::$pool = new \SplQueue() );
     while (!self::$pool->isEmpty()) {
@@ -49,11 +49,11 @@ class Work {
       }
     }
   }
-  
+
 }
 
 class TaskCoroutine {
-  
+
     protected $id;
     protected $coroutine;
     protected $passValue = null;

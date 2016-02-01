@@ -4,7 +4,7 @@
  * Cache\Files
  *
  * Core\Cache Files Driver.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -48,7 +48,7 @@ class Files implements Adapter {
 
     public function delete($key){
         $cache_file_name = $this->options->cache_dir.$key.'.cache.php';
-    	if(is_file($cache_file_name)) unlink($cache_file_name);
+      if(is_file($cache_file_name)) unlink($cache_file_name);
     }
 
     public function exists($key){

@@ -4,7 +4,7 @@
  * Email
  *
  * Send messages via Email services.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -13,7 +13,7 @@
 
 class Email {
   use Module;
-  
+
   protected static $driver;
 
   protected static function instance(){
@@ -22,7 +22,7 @@ class Email {
 
   public static function using($driver, $options = null){
     $class = '\\Email\\'.ucfirst(strtolower($driver));
-    if ( ! class_exists($class) ) throw new \Exception("Email : $driver driver not found.");
+    if ( ! class_exists($class) ) throw new \Exception("[Core.Email] : $driver driver not found.");
     static::$driver = new $class($options);
   }
 
@@ -30,15 +30,15 @@ class Email {
     if(strpos($value,'<')!==false){
       $value = str_replace('>','',$value);
       $parts = explode('<',$value,2);
-      $name = trim(current($parts));
+      $name  = trim(current($parts));
       $email = trim(end($parts));
       return (object) [
-        'name' => $name,
+        'name'  => $name,
         'email' => $email,
       ];
     } else {
       return (object) [
-        'name' => '',
+        'name'  => '',
         'email' => $value,
       ];
     }
@@ -46,7 +46,7 @@ class Email {
 
   public static function send(array $options){
     $mail = static::instance();
-    
+
     $options = array_merge([
       'to'          => '',
       'from'        => '',

@@ -4,7 +4,7 @@
  * View
  *
  * View template handling class.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -58,7 +58,7 @@ class View {
       }
       return $this;
     }
- 
+
     /**
      * Render view when casted to a string
      * @return string The rendered view

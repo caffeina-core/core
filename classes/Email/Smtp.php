@@ -4,7 +4,7 @@
  * Email\SMTP
  *
  * Email\SMTP PHP driver.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -13,8 +13,8 @@
 namespace Email;
 
 class Smtp implements Driver {
-  
-  protected 
+
+  protected
     $recipients = [],
     $attachments = [],
     $from,
@@ -38,7 +38,7 @@ class Smtp implements Driver {
     $this->port     = isset($options->port)     ? $options->port     : ($this->secure ? 465 : 25);
     $this->password = isset($options->password) ? $options->password : false;
   }
-  
+
   protected function connect(){
     if ($this->socket) $this->close();
     $url = ($this->username ? 'ssl' : 'tcp') ."://{$this->host}";
@@ -47,11 +47,11 @@ class Smtp implements Driver {
     $this->lastMessage = '';
     $this->lastCode = 0;
   }
-  
+
   public function close(){
     $this->socket && @fclose($this->socket);
   }
-  
+
   protected function write($data, $nl = 1){
     $payload = $data . str_repeat("\r\n",$nl);
     fwrite($this->socket, $payload);
@@ -64,7 +64,7 @@ class Smtp implements Driver {
       $this->lastMessage = fgets($this->socket, 256);
     }
 
-    $this->lastCode = 1 * substr($this->lastMessage, 0, 3);    
+    $this->lastCode = 1 * substr($this->lastMessage, 0, 3);
     return $code == $this->lastCode;
   }
 
@@ -97,14 +97,14 @@ class Smtp implements Driver {
   public function addAttachment($file){
     $this->attachments[] = $file;
   }
-  
+
   protected function SMTPmail($to,$subject,$body,$heads=''){
     $this->connect();
     $this->expectCode(220);
-    
+
     $this->write("EHLO {$this->localhost}");
     $this->expectCode(250);
-    
+
     if ($this->username){
       $this->write("AUTH LOGIN");
       $this->expectCode(334);
@@ -113,13 +113,13 @@ class Smtp implements Driver {
       $this->write(base64_encode($this->password));
       $this->expectCode(334);
     }
-    
+
     $this->write("MAIL FROM: <{$this->from->email}>");
     $this->expectCode(250);
-    
+
     $this->write("RCPT TO: <{$to}>");
     $this->expectCode(250);
-    
+
     $this->write("DATA");
     $this->expectCode(354);
 
@@ -127,12 +127,12 @@ class Smtp implements Driver {
 
     $this->write($heads);
     $this->write($body);
-    
+
     $this->write(".");
     $success = $this->expectCode(250);
-    
+
     $this->write("QUIT");
-    
+
     $this->close();
     return $success;
   }
@@ -154,10 +154,10 @@ class Smtp implements Driver {
     $headers[] = '';
     $headers[] = quoted_printable_encode($this->message);
     $headers[] = '';
-    
-    
+
+
     foreach ($this->attachments as $file) {
-      
+
       if (is_string($file)) {
         $name = basename($file);
         $data = file_get_contents($file);
@@ -178,17 +178,17 @@ class Smtp implements Driver {
     $headers[] = "--$uid--";
 
     $success = true;
-    
+
     $body = implode("\r\n",$headers);
     foreach ($this->recipients as $to) {
-    
+
       $current_success = $this->SMTPmail(
            $to->email,
            $this->subject,
            '',
            $body
       );
-      
+
       \Event::trigger('core.email.send',$to->full,$this->from->full,$this->subject,$body,$success);
       $success = $success && $current_success;
     }
