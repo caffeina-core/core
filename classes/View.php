@@ -79,7 +79,7 @@ class View {
      * Check if a template exists
      * @return bool
      */
-    public function exists($templatePath){
+    public static function exists($templatePath){
       return static::$handler->exists($templatePath);
     }
 
