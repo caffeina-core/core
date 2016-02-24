@@ -1,5 +1,4 @@
-enabled:  
-  - short_array_syntax
+enabled:
   - ordered_use
   - ereg_to_preg
   - concat_with_spaces
