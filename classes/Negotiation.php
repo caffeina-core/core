@@ -27,7 +27,7 @@ class Negotiation {
     return array_values(iterator_to_array($list));
   }
 
-  public static function best($acceptables, $choices) {
+  public static function bestMatch($acceptables, $choices) {
     return (new self($acceptables))->match($choices);
   }
 
@@ -35,11 +35,11 @@ class Negotiation {
     $this->list = self::parse(trim($query));
   }
 
-  public function __toString(){
-    return empty($this->list[0]) ? '' : $this->list[0];
+  public function preferred(){
+    return current($this->list) ?: false;
   }
 
-  public function match($choices){
+  public function best($choices){
     $_choices  = self::parse(trim($choices));
     foreach ($this->list as $accept){
       foreach ($_choices as $choice){

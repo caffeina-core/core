@@ -13,7 +13,31 @@
 class Request {
   use Module;
 
-  protected static $body;
+  protected static $body,
+                   $accepts;
+
+  /**
+   * Handle Content Negotiation requests
+   *
+   * @param  string $key The name of the negotiation subject
+   * @param  string $choices A query string for the negotiation choices (See RFC 7231)
+   *
+   * @return Object The preferred content if $choices is empty else return best match
+   */
+  public static function accept($key='type',$choices=''){
+    if (null === static::$accepts) static::$accepts = [
+      'type'     => new Negotiation(isset($_SERVER['HTTP_ACCEPT'])          ? $_SERVER['HTTP_ACCEPT']          : ''),
+      'language' => new Negotiation(isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : ''),
+      'encoding' => new Negotiation(isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : ''),
+      'charset'  => new Negotiation(isset($_SERVER['HTTP_ACCEPT_CHARSET'])  ? $_SERVER['HTTP_ACCEPT_CHARSET']  : ''),
+    ];
+    return empty(static::$accepts[$key])
+      ? false
+      : ( empty($choices)
+           ? static::$accepts[$key]->preferred()
+           : static::$accepts[$key]->best($choices)
+      );
+  }
 
   /**
    * Retrive a value from generic input (from the $_REQUEST array)
