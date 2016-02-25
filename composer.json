@@ -21,7 +21,7 @@
         "phpunit/php-invoker": "*"
     },
     "scripts": {
-    	"test" : "vendor/bin/phpunit --bootstrap classes/Loader.php tests"
+    	"test" : "vendor/bin/phpunit --colors --bootstrap classes/Loader.php tests"
     },
     "minimum-stability": "stable",
     "autoload": {
