@@ -4,7 +4,7 @@
  * Request
  *
  * Handles the HTTP request for the current execution.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -12,7 +12,7 @@
 
 class Request {
   use Module;
-  
+
   protected static $body;
 
   /**
@@ -125,8 +125,8 @@ class Request {
   /**
    * Returns the current request URI.
    *
-   * @param  boolean $relative If true, trim the URI relative to the application index.php script. 
-   * 
+   * @param  boolean $relative If true, trim the URI relative to the application index.php script.
+   *
    * @return string
    */
   public static function URI($relative=true){
@@ -145,7 +145,7 @@ class Request {
 
     $uri = rtrim($uri,'/');
 
-    if($relative){
+    if ($relative){
       $base = rtrim(dirname($self),'/');
       $uri = str_replace($base,'',$uri);
     }
@@ -191,21 +191,28 @@ class Request {
    return Filter::with('core.request.UA',strtolower(filter_input(INPUT_SERVER,'HTTP_USER_AGENT')?:''));
   }
 
- 
+
   /**
    * Returns request body data, convert to object if content type is JSON
    * Gives you all request data if you pass `null` as $key
-   * 
+   *
    * @param  string $key The name of the key requested
    *
    * @return mixed The request body data
    */
   public static function data($key=null,$default=null){
-    if(null===static::$body){
-      $json = (false !== stripos(filter_input(INPUT_SERVER,'HTTP_CONTENT_TYPE'),'json')) 
+    if (null===static::$body){
+      $json = (false !== stripos(filter_input(INPUT_SERVER,'HTTP_CONTENT_TYPE'),'json'))
            || (false !== stripos(filter_input(INPUT_SERVER,'CONTENT_TYPE'),'json'));
-      
-      static::$body = $json ? json_decode(file_get_contents("php://input")) : file_get_contents("php://input");
+      if ($json) {
+        static::$body = json_decode(file_get_contents("php://input"));
+      } else {
+       if (empty($_POST)) {
+          static::$body = file_get_contents("php://input");
+        } else {
+          static::$body = (object)$_POST;
+        }
+      }
     }
     return $key ? (isset(static::$body->$key) ? static::$body->$key : (is_callable($default)?call_user_func($default):$default))  : static::$body;
   }
