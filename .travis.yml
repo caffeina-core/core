@@ -13,3 +13,5 @@ matrix:
         - php: '5.4'
         - php: hhvm
         - php: nightly
+
+script: phpunit tests
