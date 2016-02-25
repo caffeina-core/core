@@ -28,7 +28,7 @@ class Negotiation {
   }
 
   public static function bestMatch($acceptables, $choices) {
-    return (new self($acceptables))->match($choices);
+    return (new self($acceptables))->best($choices);
   }
 
   public function __construct($query) {
@@ -36,7 +36,16 @@ class Negotiation {
   }
 
   public function preferred(){
-    return current($this->list) ?: false;
+    return self::encodeParsedValue(current($this->list));
+  }
+
+  protected static function encodeParsedValue($parsed){
+    unset($parsed['q']);     // Hide quality key from output
+    $type = $parsed['type']; // Extract type
+    unset($parsed['type']);
+    return implode(';', array_merge([$type], array_map(function($k,$v){
+      return "$k=$v";
+    }, array_keys($parsed), $parsed)));
   }
 
   public function best($choices){
@@ -46,12 +55,7 @@ class Negotiation {
         if (preg_match('('.strtr($accept["type"],
           [ '.' => '\.', '+' => '\+', '*' => '.+' ]
         ).')', $choice["type"])){
-          unset($choice['q']);     // Hide quality key from output
-          $type = $choice['type']; // Extract type
-          unset($choice['type']);
-          return implode(';', array_merge([$type], array_map(function($k,$v){
-            return "$k=$v";
-          }, array_keys($choice), $choice)));
+          return self::encodeParsedValue($choice);
         }
       }
     }
