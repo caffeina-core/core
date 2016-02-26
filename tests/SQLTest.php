@@ -1,18 +1,42 @@
 <?php
 
 class SQLTest extends PHPUnit_Framework_TestCase {
-
     public function __construct(){
-        SQL::connect('sqlite::memory:');
+        SQL::register('database_a','sqlite::memory:');
+        SQL::register('database_b','sqlite::memory:');
     }
 
     public function testCreateTable(){
-        $results = SQL::exec("CREATE TABLE `users` (
+        $results = SQL::exec("CREATE TABLE users (
           id integer primary key,
           email text,
           password text
         );");
         $this->assertNotFalse($results);
+
+        $results = SQL::using('database_a')->exec("CREATE TABLE users (
+          id integer primary key,
+          email text,
+          password text
+        );");
+        $this->assertNotFalse($results);
+
+        $results = SQL::using('database_b')->exec("CREATE TABLE users (
+          id integer primary key,
+          email text,
+          password text
+        );");
+        $this->assertNotFalse($results);
+
+        $database_b = SQL::using('database_b');
+
+        $database_b->insert('users',[
+            'email' => 'test@other.com',
+            'password' => 'kek',
+        ]);
+
+        $this->assertEquals($database_b->value("SELECT password FROM users"),"kek");
+
     }
 
 
@@ -38,6 +62,7 @@ class SQLTest extends PHPUnit_Framework_TestCase {
         ]);
 
         $this->assertTrue(($id1 == 1) && ($id4 == 4));
+
     }
 
     public function testEachRowCallback(){
@@ -92,5 +117,5 @@ class SQLTest extends PHPUnit_Framework_TestCase {
         $this->assertNotFalse(SQL::delete('users'));
         $this->assertEquals(0,SQL::value("SELECT count(*) FROM users"));
     }
-
+/**/
 }

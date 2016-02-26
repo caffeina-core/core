@@ -10,17 +10,63 @@
  * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
+
 class SQL {
   use Module;
+  protected static $connections = [],
+                   $current     = 'default';
 
-  protected static $connection = [];
-  protected static $pdo        = null;
-  protected static $queries    = [];
-  protected static $last_exec_success = true;
+  public static function register($name, $dsn, $username=null, $password=null, $options=[]){
+    return self::$connections[$name] = new SQLConnection($dsn, $username, $password, $options);
+  }
 
   public static function connect($dsn, $username=null, $password=null, $options=[]){
-    static::$connection = [
+    return self::register('default', $dsn, $username, $password, $options);
+  }
+
+  public static function defaultTo($name){
+    if (isset(self::$connections[$name])){
+      self::$current = $name;
+      return true;
+    } else return false;
+  }
+
+  public static function close($name=null){
+    if ($name === null) {
+      foreach (self::$connections as $conn) $conn->close();
+      return true;
+    } else if (isset(self::$connections[$name])){
+      self::$connections->close();
+      return true;
+    } else return false;
+  }
+
+  public static function using($name){
+    if (empty(self::$connections[$name])) throw new \Exception("[SQL] Unknown connection named '$name'.");
+    return self::$connections[$name];
+  }
+
+  public static function __callStatic($method, $args){
+    if (empty(self::$connections[self::$current])) throw new \Exception("[SQL] No default connection defined.");
+    return call_user_func_array([self::$connections[self::$current],$method],$args);
+  }
+
+}
+
+// Default connection to in-memory ephemeral database
+SQL::connect('sqlite::memory:');
+
+
+class SQLConnection {
+
+  protected $connection        = [],
+            $queries           = [],
+            $last_exec_success = true;
+
+  public function __construct($dsn, $username=null, $password=null, $options=[]){
+    $this->connection = [
       'dsn'        => $dsn,
+      'pdo'        => null,
       'username'   => $username,
       'password'   => $password,
       'options'    => array_merge([
@@ -31,39 +77,47 @@ class SQL {
     ];
     // "The auto-commit mode cannot be changed for this driver" SQLite workaround
     if (strpos($dsn,'sqlite:') === 0) {
-      static::$connection['options'] = $options;
+      $this->connection['options'] = $options;
     }
   }
 
-  public static function & connection(){
-    if(null === static::$pdo) {
+  public function close(){
+    $this->connection['pdo'] = null;
+  }
+
+  public function onConnect($callbkack){
+    $this->connection['pdo'] = null;
+  }
+
+  public function connection(){
+    if(empty($this->connection['pdo'])) {
       try {
-        static::$pdo = new PDO(
-            static::$connection['dsn'],
-            static::$connection['username'],
-            static::$connection['password'],
-            static::$connection['options']
+        $this->connection['pdo'] = new PDO(
+            $this->connection['dsn'],
+            $this->connection['username'],
+            $this->connection['password'],
+            $this->connection['options']
 
         );
+        Event::trigger('core.sql.connect',$this);
       } catch(Exception $e) {
-        static::$pdo = null;
+        $this->connection['pdo'] = null;
       }
-      Event::triggerOnce('core.sql.connect',static::$connection,static::$pdo);
     }
-    return static::$pdo;
+    return $this->connection['pdo'];
   }
 
-  public static function prepare($query){
-    if(!static::connection()) return false;
-    return isset(static::$queries[$query]) ? static::$queries[$query] : (static::$queries[$query] = static::connection()->prepare($query));
+  public function prepare($query){
+    if(!$this->connection()) return false;
+    return isset($this->queries[$query]) ? $this->queries[$query] : ($this->queries[$query] = $this->connection()->prepare($query));
   }
 
-  public static function exec($query, $params=[]){
-    if(!static::connection()) return false;
+  public function exec($query, $params=[]){
+    if(!$this->connection()) return false;
 
     if (false==is_array($params)) $params = (array)$params;
     $query = Filter::with('core.sql.query',$query);
-    if($statement = static::prepare($query)){
+    if($statement = $this->prepare($query)){
       Event::trigger('core.sql.query',$query,$params,(bool)$statement);
 
       foreach ($params as $key => $val) {
@@ -83,23 +137,23 @@ class SQL {
       return false;
     }
 
-    static::$last_exec_success = $statement && $statement->execute();
+    $this->last_exec_success = $statement && $statement->execute();
     return $statement;
   }
 
-  public static function value($query, $params=[], $column=0){
-    if(!static::connection()) return false;
+  public function value($query, $params=[], $column=0){
+    if(!$this->connection()) return false;
 
-    $res = static::exec($query,$params);
+    $res = $this->exec($query,$params);
     return $res ? $res->fetchColumn($column) : null;
   }
 
-  public static function each($query, $params=[], callable $looper = null){
-    if(!static::connection()) return false;
+  public function each($query, $params=[], callable $looper = null){
+    if(!$this->connection()) return false;
 
     // ($query,$looper) shorthand
     if ($looper===null && is_callable($params)) {$looper = $params; $params = [];}
-    if( $res = static::exec($query,$params) ){
+    if( $res = $this->exec($query,$params) ){
       if(is_callable($looper))
         while ($row = $res->fetchObject()) $looper($row);
       else
@@ -107,12 +161,12 @@ class SQL {
     }
   }
 
-  public static function single($query, $params=[], callable $handler = null){
-    if(!static::connection()) return false;
+  public function single($query, $params=[], callable $handler = null){
+    if(!$this->connection()) return false;
 
     // ($query,$handler) shorthand
     if ($handler===null && is_callable($params)) {$handler = $params; $params = [];}
-    if( $res = static::exec($query,$params) ){
+    if( $res = $this->exec($query,$params) ){
         if (is_callable($handler))
           $handler($res->fetchObject());
         else
@@ -120,37 +174,37 @@ class SQL {
     }
   }
 
- public static function run($script){
-    if(!static::connection()) return false;
+ public function run($script){
+    if(!$this->connection()) return false;
 
     $sql_path = Options::get('database.sql.path',APP_DIR.'/sql');
     $sql_sep  = Options::get('database.sql.separator',';');
     if (is_file($f = "$sql_path/$script.sql")){
         $result = true;
         foreach(explode($sql_sep,file_get_contents($f)) as $statement) {
-            $result = SQL::exec($statement);
+            $result = $this->exec($statement);
         }
         return $result;
     } else return false;
   }
 
-  public static function all($query, $params=[], callable $looper = null){
-   if(!static::connection()) return false;
-   return static::each($query,$params,$looper);
+  public function all($query, $params=[], callable $looper = null){
+   if(!$this->connection()) return false;
+   return $this->each($query,$params,$looper);
   }
 
-  public static function delete($table, $pks=null, $pk='id', $inclusive=true){
-    if(!static::connection()) return false;
+  public function delete($table, $pks=null, $pk='id', $inclusive=true){
+    if(!$this->connection()) return false;
 
     if (null===$pks) {
-      return static::exec("DELETE FROM `$table`");
+      return $this->exec("DELETE FROM `$table`");
     } else {
-      return static::exec("DELETE FROM `$table` WHERE `$pk` ".($inclusive ? "" : "NOT " )."IN (" . implode( ',', array_fill_keys( (array)$pks, '?' ) ) . ")",(array)$pks);
+      return $this->exec("DELETE FROM `$table` WHERE `$pk` ".($inclusive ? "" : "NOT " )."IN (" . implode( ',', array_fill_keys( (array)$pks, '?' ) ) . ")",(array)$pks);
     }
   }
 
-  public static function insert($table, $data=[]){
-    if(!static::connection()) return false;
+  public function insert($table, $data=[]){
+    if(!$this->connection()) return false;
 
     if (false==is_array($data)) $data = (array)$data;
     $k = array_keys($data);
@@ -158,12 +212,12 @@ class SQL {
     $pk = $k;
     array_walk($pk,function(&$e){ $e = ':'.$e;});
     $q = "INSERT INTO `$table` (`".implode('`,`',$k)."`) VALUES (".implode(',',$pk).")";
-    static::exec($q,$data);
-    return static::$last_exec_success ? static::connection()->lastInsertId() : false;
+    $this->exec($q,$data);
+    return $this->last_exec_success ? $this->connection()->lastInsertId() : false;
   }
 
-  public static function updateWhere($table, $data=[], $where){
-    if(!static::connection()) return false;
+  public function updateWhere($table, $data=[], $where){
+    if(!$this->connection()) return false;
 
     if (false==is_array($data)) $data = (array)$data;
     if (empty($data)) return false;
@@ -171,24 +225,24 @@ class SQL {
     asort($k);
     array_walk($k,function(&$e){ $e = "`$e`=:$e";});
     $q = "UPDATE `$table` SET ".implode(', ',$k)." WHERE $where";
-    static::exec($q,$data);
-    return static::$last_exec_success;
+    $this->exec($q,$data);
+    return $this->last_exec_success;
   }
 
-  public static function update($table, $data=[], $pk='id', $extra_where=''){
-    return static::updateWhere($table, $data, "`$pk`=:$pk $extra_where");
+  public function update($table, $data=[], $pk='id', $extra_where=''){
+    return $this->updateWhere($table, $data, "`$pk`=:$pk $extra_where");
   }
 
-  public static function insertOrUpdate($table, $data=[], $pk='id', $extra_where=''){
-    if(!static::connection()) return false;
+  public function insertOrUpdate($table, $data=[], $pk='id', $extra_where=''){
+    if(!$this->connection()) return false;
 
     if (false==is_array($data)) $data = (array)$data;
-    if (empty($data[$pk])) return static::insert($table, $data);
-    if( (string) static::value("SELECT `$pk` FROM `$table` WHERE `$pk`=? LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
-        return static::update($table, $data, $pk, $extra_where);
+    if (empty($data[$pk])) return $this->insert($table, $data);
+    if( (string) $this->value("SELECT `$pk` FROM `$table` WHERE `$pk`=? LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
+        return $this->update($table, $data, $pk, $extra_where);
     } else {
-        return static::insert($table, $data);
+        return $this->insert($table, $data);
     }
   }
-
 }
+
