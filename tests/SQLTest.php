@@ -8,10 +8,10 @@ class SQLTest extends PHPUnit_Framework_TestCase {
 
     public function testCreateTable(){
         $results = SQL::exec("CREATE TABLE `users` (
-				  id integer primary key,
-				  email text,
-				  password text
-				);");
+          id integer primary key,
+          email text,
+          password text
+        );");
         $this->assertNotFalse($results);
     }
 
@@ -55,10 +55,10 @@ class SQLTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testUpdate(){
-				$results = SQL::update('users',[
-				    'id'       => 2,
-				    'password' => 'test',
-				]);
+        $results = SQL::update('users',[
+            'id'       => 2,
+            'password' => 'test',
+        ]);
         $this->assertTrue($results);
     }
 
@@ -68,7 +68,7 @@ class SQLTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testInsertOrUpdate(){
-      	$iou = SQL::insertOrUpdate('users',[
+        $iou = SQL::insertOrUpdate('users',[
           'id'       => "2",
           'password' => '2002',
         ]);
