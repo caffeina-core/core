@@ -64,6 +64,18 @@ class Request {
   }
 
   /**
+   * Retrive a value from server (from the $_SERVER array)
+   * Returns all elements if you pass `null` as $key
+   *
+   * @param  string $key The name of the input value
+   *
+   * @return Object The returned value or $default.
+   */
+  public static function server($key=null,$default=null){
+    return $key ? (filter_input(INPUT_SERVER,$key) ?: (is_callable($default)?call_user_func($default):$default))  : $_SERVER;
+  }
+
+  /**
    * Retrive a value from generic input (from the $_POST array)
    * Returns all elements if you pass `null` as $key
    *
