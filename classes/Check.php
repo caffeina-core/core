@@ -13,18 +13,18 @@
 class Check {
   use Module;
 
-  protected static $methods = [];
-  protected static $errors = [];
-  public static $data = [];
+  protected static $methods = [],
+                   $errors  = [];
+  public static    $data    = [];
 
   public static function valid($rules, $data){
     static::$errors = [];
     Event::triggerOnce('core.check.init');
     self::$data = ($data = (array)$data);
-    
+
     foreach ((array)$rules as $field_name => $rule) {
 
-      $current = isset($data[$field_name])?$data[$field_name]:null;
+      $current = isset($data[$field_name]) ? $data[$field_name] : null;
 
       if (is_callable($rule)){
         static::$errors[$field_name] = call_user_func($rule,$current);
@@ -39,37 +39,59 @@ class Check {
 
       foreach($current_rules as $method => $message) {
 
-        $meth_name = strtok($method,':');
-        $meth_opts = array_merge([$current],json_decode('['.strtok(':').']'));
+        $meth_name = strtok($method, ':');
+        $opts      = strtok(':') ?: '';
+        $opts      = $opts ? json_decode("[$opts]") : [];
+        $meth_opts = $opts ? array_merge([$current], $opts) : [$current];
 
         if ( static::$errors[$field_name] !== true ) continue 2;
-        static::$errors[$field_name] =
-            isset(static::$methods[$meth_name]) ?
-                call_user_func_array(static::$methods[$meth_name],$meth_opts) : true;
+
+        if (empty(static::$methods[$meth_name])) {
+          static::$errors[$field_name] = true;
+        } else {
+          if (call_user_func_array(static::$methods[$meth_name]->validate,$meth_opts)){
+            static::$errors[$field_name] = true;
+          } else {
+            $arg = [];
+            foreach ($meth_opts as $key => $value) {
+              $arg["arg_$key"] = $value;
+            }
+            static::$errors[$field_name] = Text::render(static::$methods[$meth_name]->message,$arg);
+          }
+        }
       }
     }
-    
+
     self::$data = [];
-    
+
     // Clean non-errors
     static::$errors = array_filter(static::$errors,function($v){
-      return $v!==true;
+      return $v !== true;
     });
 
     return empty(static::$errors);
   }
 
-  public static function method($name,callable $callback = null){
-    if (is_array($name)){
-      foreach ($name as $method_name => $method_callback){
-          static::$methods[$method_name] = $method_callback;
+  public static function method($name, $definition = null){
+    if (is_array($name)) {
+      foreach ($name as $method_name => $method_definition){
+        if (is_callable($method_definition)) $method_definition = ['validate' => $method_definition];
+        if (empty($method_definition['validate']) || !is_callable($method_definition['validate'])) continue;
+        $method_definition['key']      = "core.check.error.$method_name";
+        $method_definition['message']  = Filter::with($method_definition['key'],@$method_definition['message']?:'Field not valid.');
+        static::$methods[$method_name] = (object)$method_definition;
       }
+      ;
     } else {
-      static::$methods[$name] = $callback;
+      if (is_callable($definition)) $definition = ['validate' => $definition];
+      if (empty($definition['validate']) || !is_callable($definition['validate'])) return;
+      $methods['key']         = "core.check.error.$name";
+      $methods['message']     = Filter::with($methods['key'],@$methods['message']?:'Field not valid.');
+      static::$methods[$name] = (object)$definition;
     }
   }
 
-  public static function errors(){
+  public static function errors() {
     return static::$errors;
   }
 
@@ -79,58 +101,97 @@ Event::on('core.check.init',function(){
 
   Check::method([
 
-    'required' => function($value){
-      return (is_numeric($value) && $value==0) || empty($value)?'This value cant\' be empty.':true;
-    },
+    'required' => [
+      'validate' => function($value) {
+          return (is_numeric($value) && $value==0) || empty($value)?false:true;
+       },
+       'message' => "This value({{arg_0}}) cannot be empty.",
+    ],
 
-    'alphanumeric' => function($value){
-       return preg_match('/^\w+$/',$value)?true:'Value must be alphanumeric.';
-    },
+    'alphanumeric' => [
+      'validate' => function($value) {
+         return preg_match('/^[0-9a-zA-Z]+$/',$value) ? true : false;
+      },
+      'message' => "Value must be alphanumeric.",
+    ],
 
-    'numeric' => function($value){
-       return preg_match('/^\d+$/',$value)?true:'Value must be numeric.';
-    },
+    'numeric' => [
+      'validate' => function($value) {
+         return preg_match('/^\d+$/',$value) ? true : false;
+      },
+      'message' => "Value must be numeric.",
+    ],
 
-    'email' => function($value){
-       return filter_var($value,FILTER_VALIDATE_EMAIL)?true:'This is not a valid email.';
-    },
+    'email' => [
+      'validate' => function($value) {
+         return filter_var($value, FILTER_VALIDATE_EMAIL) ? true : false;
+      },
+      'message' => "This is not a valid email.",
+    ],
 
-    'url' => function($value){
-       return filter_var($value,FILTER_VALIDATE_URL)?true:'This is not a valid URL.';
-    },
+    'url' => [
+      'validate' => function($value) {
+         return filter_var($value, FILTER_VALIDATE_URL) ? true : false;
+      },
+      'message' => "This is not a valid URL.",
+    ],
 
-    'max' => function($value,$max){
-       return $value<=$max?true:'Value must be less than '.$max.'.';
+    'max' => [
+      'validate' => function($value,$max) {
+       return $value<=$max ? true : false;
     },
+      'message' => "Value must be less than {{arg_1}}.",
+    ],
 
-    'min' => function($value,$min){
-       return $value>=$min?true:'Value must be greater than '.$min.'.';
-    },
-    
-    'range' => function($value,$min,$max){
-       return (($value>=$min)&&($value<=$max)) ? true : "This value must be in [$min,$max] range.";
-    },
-    
-    'words' => function($value,$max){
-       return str_word_count($value)<=$max?true:'Too many words, max count is '.$max.'.';
-    },
+    'min' => [
+      'validate' => function($value,$min) {
+         return $value>=$min ? true : false;
+      },
+      'message' => "Value must be greater than {{arg_1}}.",
+    ],
 
-    'length' => function($value,$max){
-       return strlen($value)<=$max?true:'Too many characters, max count is '.$max.'.';
-    },
+    'range' => [
+      'validate' => function($value,$min,$max) {
+         return (($value>=$min)&&($value<=$max)) ? true : false;
+      },
+      'message' => "This value must be in [{{arg_1}},{{arg_2}}] range.",
+    ],
 
-    'same_as' => function($value,$fieldname){
-       $x = isset(Check::$data[$fieldname])?Check::$data[$fieldname]:'';
-       return $value==$x?true:'Field must be equal to '.$fieldname.'.';
-    },
+    'words' => [
+      'validate' => function($value,$max) {
+         return str_word_count($value)<=$max ? true : false;
+      },
+      'message' => "Too many words, max count is {{arg_1}}.",
+    ],
 
-    'true' => function($value){
-       return !$value ? 'This value must be true.' : true;
-    },
+    'length' => [
+      'validate' => function($value,$max) {
+         return strlen($value)<=$max ? true : false;
+      },
+      'message' => "Too many characters, max count is {{arg_1}}.",
+    ],
 
-    'false' => function($value){
-       return !$value ?: 'This value must be false.';
-    },
+    'true' => [
+      'validate' => function($value) {
+         return !$value ? false : true;
+      },
+      'message' => "This value must be true.",
+    ],
+
+    'false' => [
+      'validate' => function($value) {
+         return !$value ?: false;
+      },
+      'message' => "This value must be false.",
+    ],
+
+    'same_as' => [
+      'validate' => function($value,$fieldname) {
+       $x = isset(Check::$data[$fieldname]) ? Check::$data[$fieldname] : '';
+         return ($value==$x) ? true : false;
+      },
+      'message' => "Field must be equal to {{arg_1}}.",
+    ],
 
   ]);
 

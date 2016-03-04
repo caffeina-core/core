@@ -4,7 +4,7 @@
  * Message
  *
  * Pass cross-requests messages.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -17,7 +17,7 @@ class Message extends Dictionary {
 
   protected static function init(){
     if(false===static::$loaded){
-      static::load(Session::get('_messages',[]));
+      static::load(Session::get('core.messages',[]));
       static::$loaded = true;
     }
   }
@@ -26,14 +26,14 @@ class Message extends Dictionary {
     static::init();
     $value = parent::get($key,'');
     parent::delete($key,'');
-    Session::set('_messages',parent::all());
+    Session::set('core.messages',parent::all());
     return $value;
   }
 
   public static function set($key,$data=null){
     static::init();
     parent::set($key,$data);
-    return Session::set('_messages',parent::all());
+    return Session::set('core.messages',parent::all());
   }
 
   public static function add($key,$data=null){
@@ -41,7 +41,7 @@ class Message extends Dictionary {
     $d = parent::get($key,[]);
     $d[] = $data;
     parent::set($key,$d);
-    return Session::set('_messages',parent::all());
+    return Session::set('core.messages',parent::all());
   }
 
   public static function & all($key=null){
@@ -49,7 +49,7 @@ class Message extends Dictionary {
     if($key){
       $all = parent::get($key,[]);
       parent::delete($key);
-      Session::set('_messages',parent::all());
+      Session::set('core.messages',parent::all());
     } else {
       $all = parent::all();
       static::clear();
@@ -60,7 +60,7 @@ class Message extends Dictionary {
   public static function clear(){
     static::init();
     parent::clear();
-    Session::delete('_messages');
+    Session::delete('core.messages');
   }
 
 
@@ -84,7 +84,7 @@ class MessageReadOnly {
   public function __get($key){
     return Message::get($key);
   }
-  
+
   public function __isset($key){
     return true;
   }
