@@ -9,6 +9,9 @@ class CheckTest extends PHPUnit_Framework_TestCase {
       $this->assertFalse(Check::valid([
         'value' => 'required',
       ],[ 'value' => '' ]));
+      $this->assertTrue(Check::valid([
+        'value' => 'required',
+      ],[ 'value' => 0 ]));
     }
 
 
