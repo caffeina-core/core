@@ -104,11 +104,11 @@ class Route {
 
         Event::trigger('core.route.before', $this);
 
-        $callback = (is_array($this->callback) && isset($this->callback[$method]))  ?
-                        $this->callback[$method] : $this->callback;
+        $callback = (is_array($this->callback) && isset($this->callback[$method]))
+                    ? $this->callback[$method] : $this->callback;
 
         if (is_callable($callback)) {
-
+          // Capure callback output
 	        ob_start();
 	        // Silence "Cannot bind an instance to a static closure" warnings
 	        $view_results 	 = call_user_func_array(@$callback->bindTo($this), $args);
@@ -125,8 +125,10 @@ class Route {
 	        }
 
         } else if (is_a($callback,'View') || is_string($callback)) {
+          // return rendered View or direct string
         	$this->response .= (string)$callback;
         } else {
+          // JSON encode returned value
         	$this->response_is_object = true;
         	$this->response_object 		= $callback;
         }
@@ -227,11 +229,10 @@ class Route {
      * @return Route
      */
     public function & via(){
-        $methodsmap = [];
+        $this->methods = [];
         foreach (func_get_args() as $method){
-            $methodsmap[strtolower($method)] = 1;
+            $this->methods[strtolower($method)] = true;
         }
-        $this->methods = $methodsmap;
         return $this;
     }
 
@@ -292,25 +293,10 @@ class Route {
      * @param  string $pattern The URL schema.
      * @return string The compiled PREG RegEx.
      */
-    protected static function compilePatternAsRegex($pattern,$rules=[]){
-
+    protected static function compilePatternAsRegex($pattern, $rules=[]){
         return '#^'.preg_replace_callback('#:([a-zA-Z]\w*)#S',function($g) use (&$rules){
             return '(?<' . $g[1] . '>' . (isset($rules[$g[1]])?$rules[$g[1]]:'[^/]+') .')';
         },str_replace(['.',')','*'],['\.',')?','.+'],$pattern)).'$#';
-
-        /*
-        $ofs = 0; $res = '#^';
-        if ($i = strpos($pattern,':',$ofs) === false) return '#^'.$pattern.'$#';
-        $res .= substr($pattern,0,$i);
-
-        while (false !== ($i = strpos($pattern,':',$ofs))){
-            $res .= substr($pattern,$ofs,$i-$ofs);
-            $ofs  = strpos($pattern,'/',$i) ?: strlen($pattern);
-            $id   = substr($pattern,$i+1,$ofs-$i-1);
-            $res .= '(?<' . $id . '>' . (isset($rules[$id])?$rules[$id]:'[^/]+') . ')';
-        }
-        return $res . substr($pattern,$ofs) . '$#';
-        */
     }
 
     /**
@@ -320,7 +306,7 @@ class Route {
      * @param  boolean $cut If true don't limit the matching to the whole URL (used for group pattern extraction)
      * @return array The extracted variables
      */
-    protected static function extractVariablesFromURL($pattern,$URL=null,$cut=false){
+    protected static function extractVariablesFromURL($pattern, $URL=null, $cut=false){
         $URL     = $URL ?: Request::URI();
         $pattern = $cut ? str_replace('$#','',$pattern).'#' : $pattern;
         if ( !preg_match($pattern,$URL,$args) ) return false;
@@ -336,13 +322,7 @@ class Route {
      * @return boolean
      */
     protected static function isDynamic($pattern){
-        return
-            (strpos($pattern,':')!==false) ||
-            (strpos($pattern,'(')!==false) ||
-            (strpos($pattern,'?')!==false) ||
-            (strpos($pattern,'[')!==false) ||
-            (strpos($pattern,'*')!==false) ||
-            (strpos($pattern,'+')!==false) ;
+      return strlen($pattern) != strcspn($pattern,':(?[*+');
     }
 
     /**

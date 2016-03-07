@@ -103,35 +103,35 @@ Event::on('core.check.init',function(){
 
     'required' => [
       'validate' => function($value) {
-          return (is_numeric($value) && $value==0) || empty($value)?false:true;
+          return (is_numeric($value) && $value==0) || !empty($value);
        },
        'message' => "This value({{arg_0}}) cannot be empty.",
     ],
 
     'alphanumeric' => [
       'validate' => function($value) {
-         return preg_match('/^[0-9a-zA-Z]+$/',$value) ? true : false;
+         return (bool)preg_match('/^[0-9a-zA-Z]+$/',$value);
       },
       'message' => "Value must be alphanumeric.",
     ],
 
     'numeric' => [
       'validate' => function($value) {
-         return preg_match('/^\d+$/',$value) ? true : false;
+         return (bool)preg_match('/^\d+$/',$value);
       },
       'message' => "Value must be numeric.",
     ],
 
     'email' => [
       'validate' => function($value) {
-         return filter_var($value, FILTER_VALIDATE_EMAIL) ? true : false;
+         return (bool)filter_var($value, FILTER_VALIDATE_EMAIL);
       },
       'message' => "This is not a valid email.",
     ],
 
     'url' => [
       'validate' => function($value) {
-         return filter_var($value, FILTER_VALIDATE_URL) ? true : false;
+         return (bool)filter_var($value, FILTER_VALIDATE_URL);
       },
       'message' => "This is not a valid URL.",
     ],
@@ -145,42 +145,42 @@ Event::on('core.check.init',function(){
 
     'min' => [
       'validate' => function($value,$min) {
-         return $value>=$min ? true : false;
+         return $value >= $min;
       },
       'message' => "Value must be greater than {{arg_1}}.",
     ],
 
     'range' => [
       'validate' => function($value,$min,$max) {
-         return (($value>=$min)&&($value<=$max)) ? true : false;
+         return ( $value >= $min ) && ( $value <= $max );
       },
       'message' => "This value must be in [{{arg_1}},{{arg_2}}] range.",
     ],
 
     'words' => [
       'validate' => function($value,$max) {
-         return str_word_count($value)<=$max ? true : false;
+         return str_word_count($value) <= $max;
       },
       'message' => "Too many words, max count is {{arg_1}}.",
     ],
 
     'length' => [
       'validate' => function($value,$max) {
-         return strlen($value)<=$max ? true : false;
+         return strlen($value) <= $max;
       },
       'message' => "Too many characters, max count is {{arg_1}}.",
     ],
 
     'true' => [
       'validate' => function($value) {
-         return !$value ? false : true;
+         return (bool)$value;
       },
       'message' => "This value must be true.",
     ],
 
     'false' => [
       'validate' => function($value) {
-         return !$value ?: false;
+         return !$value;
       },
       'message' => "This value must be false.",
     ],
@@ -188,7 +188,7 @@ Event::on('core.check.init',function(){
     'same_as' => [
       'validate' => function($value,$fieldname) {
        $x = isset(Check::$data[$fieldname]) ? Check::$data[$fieldname] : '';
-         return ($value==$x) ? true : false;
+         return $value == $x;
       },
       'message' => "Field must be equal to {{arg_1}}.",
     ],
