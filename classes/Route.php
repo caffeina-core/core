@@ -109,6 +109,7 @@ class Route {
 
         if (is_callable($callback)) {
           // Capure callback output
+					Response::type(Response::TYPE_HTML);
 	        ob_start();
 	        // Silence "Cannot bind an instance to a static closure" warnings
 	        $view_results 	 = call_user_func_array(@$callback->bindTo($this), $args);
@@ -152,7 +153,7 @@ class Route {
         if ( $this->response_is_object ){
 					$this->response = Response::json($this->response_object);
         } else {
-					Response::html($this->response);
+					Response::add($this->response);
         }
 
         return [$this->response];
