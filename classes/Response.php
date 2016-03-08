@@ -27,6 +27,7 @@ class Response {
                      $charset     = "utf-8",
                      $headers     = ['Content-Type' => ['text/html; charset=utf-8']],
                      $buffer      = null,
+                     $force_dl    = false,
                      $link        = null;
 
 
@@ -36,6 +37,15 @@ class Response {
 
     public static function type($mime){
         static::header('Content-Type',$mime . (static::$charset ? '; charset='.static::$charset : ''));
+    }
+
+    /**
+     * Force download of Response body
+     * @param  string/bool $filename Pass a falsy value to disable download or pass a filename for exporting content
+     * @return [type]        [description]
+     */
+    public static function download($filename){
+        static::$force_dl = $filename;
     }
 
     /**
@@ -209,25 +219,26 @@ class Response {
         Event::trigger('core.response.send');
         if (false === headers_sent()) foreach (static::$headers as $name => $value_code) {
             if (is_array($value_code)) {
-                list($value,$code) = count($value_code) >1 ? $value_code : [current($value_code),200];
+                list($value, $code) = (count($value_code) > 1) ? $value_code : [current($value_code), 200];
             } else {
                 $value = $value_code;
-                $code = null;
+                $code  = null;
             }
 
             if ($value == 'Status'){
               if (function_exists('http_response_code')){
                 http_response_code($code);
               } else {
-                header('Status: '.$code,true,$code);
+                header("Status: $code", true, $code);
               }
 
             } else {
                 $code
-                ? header($name.': '.$value,true,$code)
-                : header($name.': '.$value,true);
+                ? header("$name: $value", true, $code)
+                : header("$name: $value", true);
             }
         }
+        if (!static::$force_dl) header('Content-Disposition: attachment; filename="'.static::$force_dl.'"');
         echo static::body();
     }
 
