@@ -165,6 +165,20 @@ Event::on('core.check.init',function(){
     ],
 
     'length' => [
+      'validate' => function($value,$length) {
+         return strlen($value) == $length;
+      },
+      'message' => "This value must be {{arg_1}} characters.",
+    ],
+
+    'min_length' => [
+      'validate' => function($value,$min) {
+         return strlen($value) >= $min;
+      },
+      'message' => "Too few characters, min count is {{arg_1}}.",
+    ],
+
+    'max_length' => [
       'validate' => function($value,$max) {
          return strlen($value) <= $max;
       },
