@@ -238,7 +238,7 @@ class Response {
                 : header("$name: $value", true);
             }
         }
-        if (!static::$force_dl) header('Content-Disposition: attachment; filename="'.static::$force_dl.'"');
+        if (static::$force_dl) header('Content-Disposition: attachment; filename="'.static::$force_dl.'"');
         echo static::body();
     }
 
