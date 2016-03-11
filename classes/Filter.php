@@ -4,7 +4,7 @@
  * Filter
  *
  * Permits users to override data via callback hooks.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -14,7 +14,7 @@ class Filter {
     use Module;
 
     protected static $_modders = [];
-    
+
     public static function add($name,callable $modder){
         static::$_modders[$name][] = $modder;
     }
@@ -34,7 +34,7 @@ class Filter {
 
     public static function with($names, $default){
       foreach ((array)$names as $name) {
-        if (!empty(static::$_modders[$name])) { 
+        if (!empty(static::$_modders[$name])) {
             $value = $default;
             $args = func_get_args();
             array_shift($args);

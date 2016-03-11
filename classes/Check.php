@@ -81,7 +81,6 @@ class Check {
         $method_definition['message']  = Filter::with($method_definition['key'],@$method_definition['message']?:'Field not valid.');
         static::$methods[$method_name] = (object)$method_definition;
       }
-      ;
     } else {
       if (is_callable($definition)) $definition = ['validate' => $definition];
       if (empty($definition['validate']) || !is_callable($definition['validate'])) return;
@@ -105,7 +104,7 @@ Event::on('core.check.init',function(){
       'validate' => function($value) {
           return (is_numeric($value) && $value==0) || !empty($value);
        },
-       'message' => "This value({{arg_0}}) cannot be empty.",
+       'message' => "This value cannot be empty.",
     ],
 
     'alphanumeric' => [
