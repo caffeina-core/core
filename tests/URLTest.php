@@ -24,17 +24,7 @@ class URLTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testParseQuery(){
-      $url = new URL('https://user:pass@www.alpha.beta.com:9080/path/to/resource.html?foo=bar&another[]=2&another[]=3#frag_link');
-
-$url = new URL("ftps://test.com:9000/index.php");
-
-$url->scheme = 'https';
-$url->port = false;
-
-echo $url;
-
-
-die;
+      $url = new URL('https://user:pass@www.alpha.beta.com:9080/path/to/resource.html?query=string&another[]=2&another[]=3#fragment');
       $this->assertEquals('string', $url->query['query']);
     }
 

@@ -36,13 +36,13 @@ class URL {
 
   public function __toString(){
     $d = [];
-    if ($this->scheme)     $d[] = "{$this->scheme}://";
-    if ($this->user)       $d[] = "{$this->user}" . (empty($this->pass)?'':":{$this->pass}") . "@";
-    if ($this->host)       $d[] = "{$this->host}";
-    if ($this->port)       $d[] = ":{$this->port}";
-    if ($this->path)       $d[] = "/" . ltrim($this->path,"/");
-    if ($this->query)      $d[] = "?" . http_build_query($this->query);
-    if ($this->fragment)   $d[] = "#{$this->fragment}";
+    if ($this->scheme)         $d[] = "{$this->scheme}://";
+    if ($this->user)           $d[] = "{$this->user}" . (empty($this->pass)?'':":{$this->pass}") . "@";
+    if ($this->host)           $d[] = "{$this->host}";
+    if ($this->port)           $d[] = ":{$this->port}";
+    if ($this->path)           $d[] = "/" . ltrim($this->path,"/");
+    if (!empty($this->query))  $d[] = "?" . http_build_query($this->query);
+    if ($this->fragment)       $d[] = "#{$this->fragment}";
     return implode('', $d);
   }
 
