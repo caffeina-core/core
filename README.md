@@ -1,4 +1,4 @@
-<img src="https://github.com/caffeina-core/core/blob/master/core-logo.png?raw=true" height="130">
+<img src="https://github.com/caffeina-core/core/blob/master/docs/assets/core-logo.png?raw=true" height="130">
 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/caffeina-core/core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -36,7 +36,6 @@ How to get involved:
 2. Answer questions that come through [GitHub issues](https://github.com/caffeina-core/core/issues?state=open)
 3. [Report a bug](https://github.com/caffeina-core/core/issues/new) that you find
 
-
 Core follows the [GitFlow branching model](http://nvie.com/posts/a-successful-git-branching-model). The ```master``` branch always reflects a production-ready state while the latest development is taking place in the ```develop``` branch.
 
 Each time you want to work on a fix or a new feature, create a new branch based on the ```develop``` branch: ```git checkout -b BRANCH_NAME develop```. Only pull requests to the ```develop``` branch will be merged.
@@ -52,6 +51,5 @@ Core is maintained by using the [Semantic Versioning Specification (SemVer)](htt
 
 ## Copyright and license
 
-Copyright 2014 [Caffeina](http://caffeina.co) srl under the [MIT license](LICENSE.md).
+Copyright 2014-2016 [Caffeina](http://caffeina.com) srl under the [MIT license](LICENSE.md).
 
-<p align="center"><a href="http://caffeina.co" target="_blank" title="Caffeina - Ideas Never Sleep"><img src="https://github.com/CaffeinaLab/BrandResources/blob/master/caffeina-handmade.png?raw=true" align="center" height="65"></a></p>
