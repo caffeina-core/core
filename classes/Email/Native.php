@@ -56,7 +56,7 @@ class Native implements Driver {
     $head[] = "Content-Type: multipart/mixed; boundary=\"".$uid."\"";
 
     $body[] = "--$uid";
-    $body[] = "Content-type: text/html; charset=UTF-8";
+    $body[] = "Content-Type: text/html; charset=UTF-8";
     $body[] = "Content-Transfer-Encoding: quoted-printable";
     $body[] = '';
     $body[] = quoted_printable_encode($this->message);
@@ -73,7 +73,7 @@ class Native implements Driver {
       }
 
       $body[] = "--$uid";
-      $body[] = "Content-type: application/octet-stream; name=\"".$name."\"";
+      $body[] = "Content-Type: application/octet-stream; name=\"".$name."\"";
       $body[] = "Content-Transfer-Encoding: base64";
       $body[] = "Content-Disposition: attachment; filename=\"".$name."\"";
       $body[] = '';
@@ -81,7 +81,7 @@ class Native implements Driver {
       $body[] = '';
     }
 
-    $body[] = "--$uid--";
+    $body[] = "--$uid";
 
     $success = true;
     $head    = implode("\r\n",$head);

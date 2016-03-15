@@ -41,7 +41,7 @@ class Smtp implements Driver {
 
   protected function connect(){
     if ($this->socket) $this->close();
-    $url = ($this->username ? 'ssl' : 'tcp') ."://{$this->host}";
+    $url = ($this->secure ? 'tls' : 'tcp') ."://{$this->host}";
     $this->socket = fsockopen( $url, $this->port, $errno, $errstr, 30 );
     if ( ! $this->socket ) throw new \Exception("Unable to connect to $url on port {$this->port}.");
     $this->lastMessage = '';
@@ -139,7 +139,7 @@ class Smtp implements Driver {
 
 
   public function send(){
-    $uid = md5(uniqid(time()));
+    $uid = '_CORE_'.md5(uniqid(time()));
     $headers = [];
 
     if($this->from)     $headers[] = 'From: '.$this->from->full;
@@ -147,9 +147,9 @@ class Smtp implements Driver {
 
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = "Content-Type: multipart/mixed; boundary=\"".$uid."\"";
-    $headers[] = "This is a multi-part message in MIME format.";
+    $headers[] = "";
     $headers[] = "--$uid";
-    $headers[] = "Content-type: text/html; charset=UTF-8";
+    $headers[] = "Content-Type: text/html; charset=UTF-8";
     $headers[] = "Content-Transfer-Encoding: quoted-printable";
     $headers[] = '';
     $headers[] = quoted_printable_encode($this->message);
@@ -167,7 +167,7 @@ class Smtp implements Driver {
       }
 
       $headers[] = "--$uid";
-      $headers[] = "Content-type: application/octet-stream; name=\"".$name."\"";
+      $headers[] = "Content-Type: application/octet-stream; name=\"".$name."\"";
       $headers[] = "Content-Transfer-Encoding: base64";
       $headers[] = "Content-Disposition: attachment; filename=\"".$name."\"";
       $headers[] = '';
@@ -175,11 +175,12 @@ class Smtp implements Driver {
       $headers[] = '';
     }
 
-    $headers[] = "--$uid--";
+    $headers[] = "--$uid";
 
     $success = true;
 
     $body = implode("\r\n",$headers);
+
     foreach ($this->recipients as $to) {
 
       $current_success = $this->SMTPmail(
