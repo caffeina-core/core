@@ -175,7 +175,7 @@ class Smtp implements Driver {
       $headers[] = '';
     }
 
-    $headers[] = "--$uid";
+    $headers[] = "--$uid--";
 
     $success = true;
 
