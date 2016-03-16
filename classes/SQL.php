@@ -250,7 +250,7 @@ class SQLConnection {
     return $this->last_exec_success ? $this->connection()->lastInsertId() : false;
   }
 
-  protected function updateWhere($table, $data=[], $where, $pk='id'){
+  public function updateWhere($table, $data=[], $where, $pk='id'){
     if(!$this->connection()) return false;
 
     if (false==is_array($data)) $data = (array)$data;
