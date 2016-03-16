@@ -250,21 +250,26 @@ class SQLConnection {
     return $this->last_exec_success ? $this->connection()->lastInsertId() : false;
   }
 
-  public function updateWhere($table, $data=[], $where){
+  protected function updateWhere($table, $data=[], $where, $pk='id'){
     if(!$this->connection()) return false;
 
     if (false==is_array($data)) $data = (array)$data;
     if (empty($data)) return false;
     $k = array_keys($data);
     asort($k);
-    array_walk($k,function(&$e){ $e = "`$e`=:$e";});
-    $q = "UPDATE `$table` SET ".implode(', ',$k)." WHERE $where";
+
+    // Remove primary key from SET
+    array_walk($k,function(&$e) use ($pk) {
+      $e = ($e==$pk) ? null : "`$e`=:$e";
+    });
+
+    $q = "UPDATE `$table` SET ".implode(', ',array_filter($k))." WHERE $where";
     $this->exec($q,$data);
     return $this->last_exec_success;
   }
 
   public function update($table, $data=[], $pk='id', $extra_where=''){
-    return $this->updateWhere($table, $data, "`$pk`=:$pk $extra_where");
+    return $this->updateWhere($table, $data, "`$pk`=:$pk $extra_where", $pk);
   }
 
   public function insertOrUpdate($table, $data=[], $pk='id', $extra_where=''){
