@@ -15,6 +15,8 @@ class Email {
   use Module;
 
   protected static $driver;
+  protected static $options;
+  protected static $driver_name;
 
   protected static function instance(){
     return static::$driver;
@@ -23,7 +25,13 @@ class Email {
   public static function using($driver, $options = null){
     $class = '\\Email\\'.ucfirst(strtolower($driver));
     if ( ! class_exists($class) ) throw new \Exception("[Core.Email] : $driver driver not found.");
+    static::$driver_name = $driver;
+    static::$options = $options;
     static::$driver = new $class($options);
+  }
+
+  public static function clear(){
+    static::using( static::$driver_name, static::$options );
   }
 
   protected static function get_email_parts($value){
