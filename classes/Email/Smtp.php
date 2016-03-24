@@ -102,7 +102,7 @@ class Smtp implements Driver {
     $this->connect();
     $this->expectCode(220);
 
-    $this->write("EHLO {$this->localhost}");
+    $this->write("EHLO {$this->host}");
     $this->expectCode(250);
 
     if ($this->username){
