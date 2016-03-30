@@ -28,5 +28,10 @@ class HashTest extends PHPUnit_Framework_TestCase {
     $this->assertNotEquals(Hash::uuid(5,Hash::uuid(),'123'),Hash::uuid(5,$namespace,'123'));
   }
 
+  public function testMurmur(){
+    $this->assertNotEquals(Hash::murmurhash3("Hello World",0),Hash::uuid("Hello World",1));
+    $this->assertEquals("cnd0ue",Hash::murmurhash3("Hello World",0));
+  }
+
 }
 

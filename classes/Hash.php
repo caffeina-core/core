@@ -21,7 +21,7 @@ class Hash {
      * @return string          The hash string
      */
     public static function make($payload,$method='md5'){
-        return hash($method,serialize($payload));
+      return hash($method,serialize($payload));
     }
 
     /**
@@ -32,7 +32,7 @@ class Hash {
      * @return bool            Returns `true` if payload matches hash
      */
     public static function verify($payload,$hash,$method='md5'){
-        return static::make($payload,$method) == $hash;
+      return static::make($payload,$method) == $hash;
     }
 
     /**
@@ -43,7 +43,7 @@ class Hash {
      * @return array   Array containing the list of supported hashing algorithms.
      */
     public static function methods(){
-        return hash_algos();
+      return hash_algos();
     }
 
 
@@ -57,7 +57,7 @@ class Hash {
      * @return bool
      */
     public static function can($algo){
-        return in_array($algo,hash_algos());
+      return in_array($algo,hash_algos());
     }
 
     /**
@@ -66,7 +66,7 @@ class Hash {
      * See [hash-algos](http://php.net/manual/it/function.hash-algos.php) for a list of algorithms
      */
     public static function __callStatic($method,$params){
-        return self::make(current($params),$method);
+      return self::make(current($params),$method);
     }
 
     public static function uuid($type=4, $namespace='', $name=''){
@@ -100,5 +100,54 @@ class Hash {
       }
     }
 
+    public static function murmurhash3_int($key, $seed=0){
+      $key  = (string) $key;
+      $klen = strlen($key);
+      $h1   = $seed;
+      for ($i=0,$bytes=$klen-($remainder=$klen&3) ; $i<$bytes ; ) {
+        $k1 = ((ord($key[$i]) & 0xff))
+          | ((ord($key[++$i]) & 0xff) << 8)
+          | ((ord($key[++$i]) & 0xff) << 16)
+          | ((ord($key[++$i]) & 0xff) << 24);
+        ++$i;
+        $k1  = (((($k1 & 0xffff) * 0xcc9e2d51)
+             + ((((($k1 >= 0 ? $k1 >> 16 : (($k1 & 0x7fffffff) >> 16) | 0x8000)) * 0xcc9e2d51) & 0xffff) << 16)))
+             & 0xffffffff;
+        $k1  = $k1 << 15 | ($k1 >= 0 ? $k1 >> 17 : (($k1 & 0x7fffffff) >> 17) | 0x4000);
+        $k1  = (((($k1 & 0xffff) * 0x1b873593) + ((((($k1 >= 0 ? $k1 >> 16 : (($k1 & 0x7fffffff) >> 16) | 0x8000))
+             * 0x1b873593) & 0xffff) << 16))) & 0xffffffff;
+        $h1 ^= $k1;
+        $h1  = $h1 << 13 | ($h1 >= 0 ? $h1 >> 19 : (($h1 & 0x7fffffff) >> 19) | 0x1000);
+        $h1b = (((($h1 & 0xffff) * 5) + ((((($h1 >= 0 ? $h1 >> 16 : (($h1 & 0x7fffffff) >> 16) | 0x8000)) * 5)
+             & 0xffff) << 16))) & 0xffffffff;
+        $h1  = ((($h1b & 0xffff) + 0x6b64) + ((((($h1b >= 0 ? $h1b >> 16 : (($h1b & 0x7fffffff) >> 16) | 0x8000))
+             + 0xe654) & 0xffff) << 16));
+      }
+      $k1 = 0;
+      switch ($remainder) {
+        case 3: $k1 ^= (ord($key[$i + 2]) & 0xff) << 16;
+        case 2: $k1 ^= (ord($key[$i + 1]) & 0xff) << 8;
+        case 1: $k1 ^= (ord($key[$i]) & 0xff);
+        $k1  = ((($k1 & 0xffff) * 0xcc9e2d51) + ((((($k1 >= 0 ? $k1 >> 16 : (($k1 & 0x7fffffff) >> 16) | 0x8000))
+             * 0xcc9e2d51) & 0xffff) << 16)) & 0xffffffff;
+        $k1  = $k1 << 15 | ($k1 >= 0 ? $k1 >> 17 : (($k1 & 0x7fffffff) >> 17) | 0x4000);
+        $k1  = ((($k1 & 0xffff) * 0x1b873593) + ((((($k1 >= 0 ? $k1 >> 16 : (($k1 & 0x7fffffff) >> 16) | 0x8000))
+             * 0x1b873593) & 0xffff) << 16)) & 0xffffffff;
+        $h1 ^= $k1;
+      }
+      $h1 ^= $klen;
+      $h1 ^= ($h1 >= 0 ? $h1 >> 16 : (($h1 & 0x7fffffff) >> 16) | 0x8000);
+      $h1  = ((($h1 & 0xffff) * 0x85ebca6b) + ((((($h1 >= 0 ? $h1 >> 16 : (($h1 & 0x7fffffff) >> 16) | 0x8000))
+           * 0x85ebca6b) & 0xffff) << 16)) & 0xffffffff;
+      $h1 ^= ($h1 >= 0 ? $h1 >> 13 : (($h1 & 0x7fffffff) >> 13) | 0x40000);
+      $h1  = (((($h1 & 0xffff) * 0xc2b2ae35) + ((((($h1 >= 0 ? $h1 >> 16 : (($h1 & 0x7fffffff) >> 16) | 0x8000))
+           * 0xc2b2ae35) & 0xffff) << 16))) & 0xffffffff;
+      $h1 ^= ($h1 >= 0 ? $h1 >> 16 : (($h1 & 0x7fffffff) >> 16) | 0x8000);
+      return $h1;
+    }
+
+    public static function murmurhash3($key, $seed=0){
+      return base_convert(static::murmurhash3_int($key, $seed),10,32);
+    }
 
 }
