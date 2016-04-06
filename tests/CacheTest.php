@@ -17,10 +17,6 @@ class CacheTest extends PHPUnit_Framework_TestCase {
       $this->assertEquals('BETA',Cache::get('test2'));
     }
 
-    public function testSetDefault(){
-      Cache::set('test','ALPHA');
-    }
-
     public function testGetDefaultFromClosure(){
       $this->assertEquals('SLOW_DATA :)',Cache::get('test3',function(){
         return "SLOW_DATA :)";

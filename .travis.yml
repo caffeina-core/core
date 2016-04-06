@@ -14,4 +14,4 @@ matrix:
         - php: hhvm
         - php: nightly
 
-script: phpunit --bootstrap classes/Loader.php tests
+script: phpunit --color=always

@@ -12,7 +12,7 @@
 
 [![Coverage Status](https://coveralls.io/repos/CaffeinaLab/core/badge.svg)](https://coveralls.io/r/CaffeinaLab/core)
 
-> Core is a collection of components for rapid application development. It doesn't make decisions for you; it gives you tools to build your own solutions.
+> Core is a platform, a collection of components for rapid application development. It doesn't make decisions for you; it gives you tools to build your own solutions.
 
 
 ## Installation
