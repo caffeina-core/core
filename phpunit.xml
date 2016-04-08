@@ -9,6 +9,7 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="true"
+         bootstrap="./classes/Loader.php"
 >
     <testsuites>
         <testsuite name="Core Test Suite">
@@ -17,7 +18,7 @@
     </testsuites>
     <filter>
         <whitelist>
-            <directory>./src</directory>
+            <directory>./classes</directory>
         </whitelist>
     </filter>
 </phpunit>

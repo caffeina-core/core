@@ -31,6 +31,6 @@
         "classmap": [ "classes/" ]
     },
     "autoload-dev": {
-        "classmap": [ "tests/" ]
+        "classmap": [ "classes/", "tests/" ]
     }
 }
