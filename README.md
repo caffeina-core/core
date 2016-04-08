@@ -1,6 +1,6 @@
 <img src="https://github.com/caffeina-core/core/blob/master/docs/assets/core-logo.png?raw=true" height="130">
 
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/caffeina-core/core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+----
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/caffeina-core/core/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/caffeina-core/core/?branch=master)
 [![Build Status](https://travis-ci.org/caffeina-core/core.svg)](https://travis-ci.org/caffeina-core/core)
@@ -8,9 +8,8 @@
 [![Latest Stable Version](https://poser.pugx.org/caffeina-core/core/v/stable.svg)](https://packagist.org/packages/caffeina-core/core)
 [![Latest Unstable Version](https://poser.pugx.org/caffeina-core/core/v/unstable.svg)](https://packagist.org/packages/caffeina-core/core)
 [![License](https://poser.pugx.org/caffeina-core/core/license.svg)](https://packagist.org/packages/caffeina-core/core)
-[![HHVM Status](http://hhvm.h4cc.de/badge/caffeina-core/core.svg)](http://hhvm.h4cc.de/package/caffeina-core/core)
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/caffeina-core/core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Coverage Status](https://coveralls.io/repos/CaffeinaLab/core/badge.svg)](https://coveralls.io/r/CaffeinaLab/core)
 
 > Core is a platform, a collection of components for rapid application development. It doesn't make decisions for you; it gives you tools to build your own solutions.
 
