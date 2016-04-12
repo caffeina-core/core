@@ -34,7 +34,7 @@ class Ses extends Smtp {
   public function onSend(Envelope $envelope){
     if (!$envelope->from())
        throw new \Exception("[core.email.ses] Amazon SES needs a registered `from` address", 1);
-    return Smtp::send($envelope);
+    return Smtp::onSend($envelope);
   }
 
 }
