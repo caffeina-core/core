@@ -36,10 +36,9 @@ class Filter {
       foreach ((array)$names as $name) {
         if (!empty(static::$_modders[$name])) {
             $value = $default;
-            $args = func_get_args();
-            array_shift($args);
+            $args = array_slice( func_get_args(), 2 );
             foreach (static::$_modders[$name] as $modder) {
-                $value = call_user_func($modder,$value);
+                $value = call_user_func( $modder,$value,$args );
             }
             return $value;
         }
