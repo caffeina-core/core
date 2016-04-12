@@ -23,7 +23,7 @@ class Email {
 
   public static function using($driver, $options = null){
     $class = '\\Email\\'.ucfirst(strtolower($driver));
-    if ( ! class_exists($class) ) throw new \Exception("[Core.Email] : $driver driver not found.");
+    if ( ! class_exists($class) ) throw new \Exception("[core.email] : $driver driver not found.");
     static::$driver_name = $driver;
     static::$options = $options;
     static::$driver = new $class($options);
@@ -39,6 +39,8 @@ class Email {
     $options = array_merge([
       'to'          => false,
       'from'        => false,
+      'cc'          => false,
+      'bcc'         => false,
       'replyTo'     => false,
       'subject'     => false,
       'message'     => false,
