@@ -179,7 +179,7 @@ class Smtp implements Driver {
 
     $success = true;
 
-    $body = implode("\r\n",$headers);
+    $body = implode( "\r\n", \Filter::with( 'core.email.headers', $headers ) );
 
     foreach ($this->recipients as $to) {
 
@@ -187,7 +187,7 @@ class Smtp implements Driver {
            $to->email,
            $this->subject,
            '',
-           $body
+           \Filter::with( 'core.email.body', $body, $to )
       );
 
       \Event::trigger('core.email.send',$to->full,$this->from->full,$this->subject,$body,$success);
