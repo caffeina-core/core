@@ -15,12 +15,6 @@ namespace Email;
 class Smtp implements Driver {
 
   protected
-    $recipients = [],
-    $attachments = [],
-    $from,
-    $replyTo,
-    $subject,
-    $message,
     $socket,
     $host,
     $secure,
@@ -68,37 +62,7 @@ class Smtp implements Driver {
     return $code == $this->lastCode;
   }
 
-  public function addAddress($email,$name=''){
-    if (!$email) return;
-    if (empty($name) ) $name = strtok($email,'@');
-    $this->recipients[] = (object)['name'=>$name,'email'=>$email,'full'=>"$name <{$email}>"];
-  }
-
-  public function from($email,$name=''){
-    if (!$email) return;
-    if (empty($name) ) $name = strtok($email,'@');
-    $this->from = (object)['name'=>$name,'email'=>$email,'full'=>"$name <{$email}>"];
-  }
-
-  public function replyTo($email,$name=''){
-    if (!$email) return;
-    if (empty($name) ) $name = strtok($email,'@');
-    $this->replyTo = (object)['name'=>$name,'email'=>$email,'full'=>"$name <{$email}>"];
-  }
-
-  public function subject($text){
-    $this->subject = $text;
-  }
-
-  public function message($text){
-    $this->message = $text;
-  }
-
-  public function addAttachment($file){
-    $this->attachments[] = $file;
-  }
-
-  protected function SMTPmail($to,$subject,$body,$heads=''){
+  protected function SMTPmail($from,$to,$body){
     $this->connect();
     $this->expectCode(220);
 
@@ -114,7 +78,7 @@ class Smtp implements Driver {
       $this->expectCode(334);
     }
 
-    $this->write("MAIL FROM: <{$this->from->email}>");
+    $this->write("MAIL FROM: <{$from}>");
     $this->expectCode(250);
 
     $this->write("RCPT TO: <{$to}>");
@@ -123,9 +87,6 @@ class Smtp implements Driver {
     $this->write("DATA");
     $this->expectCode(354);
 
-    $this->write("Subject: {$subject}");
-
-    $this->write($heads);
     $this->write($body);
 
     $this->write(".");
@@ -137,60 +98,16 @@ class Smtp implements Driver {
     return $success;
   }
 
-
-  public function send(){
-    $uid = '_CORE_'.md5(uniqid(time()));
-    $headers = [];
-
-    if($this->from)     $headers[] = 'From: '.$this->from->full;
-    if($this->replyTo)  $headers[] = 'Reply-To: '.$this->replyTo->full;
-
-    $headers[] = 'MIME-Version: 1.0';
-    $headers[] = "Content-Type: multipart/mixed; boundary=\"".$uid."\"";
-    $headers[] = "";
-    $headers[] = "--$uid";
-    $headers[] = "Content-Type: text/html; charset=UTF-8";
-    $headers[] = "Content-Transfer-Encoding: quoted-printable";
-    $headers[] = '';
-    $headers[] = quoted_printable_encode($this->message);
-    $headers[] = '';
-
-
-    foreach ($this->attachments as $file) {
-
-      if (is_string($file)) {
-        $name = basename($file);
-        $data = file_get_contents($file);
-      } else {
-        $name = $file['name'];
-        $data = $file['content'];
-      }
-
-      $headers[] = "--$uid";
-      $headers[] = "Content-Type: application/octet-stream; name=\"".$name."\"";
-      $headers[] = "Content-Transfer-Encoding: base64";
-      $headers[] = "Content-Disposition: attachment; filename=\"".$name."\"";
-      $headers[] = '';
-      $headers[] = chunk_split(base64_encode($data));
-      $headers[] = '';
-    }
-
-    $headers[] = "--$uid--";
-
-    $success = true;
-
-    $body = implode( "\r\n", \Filter::with( 'core.email.headers', $headers ) );
-
-    foreach ($this->recipients as $to) {
-
-      $current_success = $this->SMTPmail(
-           $to->email,
-           $this->subject,
-           '',
-           \Filter::with( 'core.email.body', $body, $to )
-      );
-
-      \Event::trigger('core.email.send',$to->full,$this->from->full,$this->subject,$body,$success);
+  public function send(Envelope $envelope){
+    // PHP requires direct handling of To and Subject Headers.
+    $success     = true;
+    $recipients  = $envelope->to();
+    $from        = $envelope->from();
+    $envelope->to(false);
+    $envelope->from(false);
+    foreach ($recipients as $to) {
+      $current_success = $this->SMTPmail($from, $to, $envelope->build());
+      \Event::trigger('core.email.send',$to,$envelope,'native');
       $success = $success && $current_success;
     }
     return $success;

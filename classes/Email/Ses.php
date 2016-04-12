@@ -6,8 +6,8 @@
  * Email\SES SMTP driver.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2016 - http://caffeina.com
  */
 
 namespace Email;
@@ -18,7 +18,7 @@ class Ses extends Smtp {
     $options  = (object)$options;
     $region   = isset($options->region) ? $options->region : 'eu-west-1';
     if (empty($options->username) || empty($options->password))
-       throw new \Exception("[Core.Email.SES] You must provide Amazon SES SMTP username and password", 1);
+       throw new \Exception("[core.email.ses] You must provide an Amazon SES SMTP username and password", 1);
 
     Smtp::__construct([
       'host'     => "email-smtp.{$region}.amazonaws.com",
@@ -31,10 +31,10 @@ class Ses extends Smtp {
     if (!empty($options->from)) $this->from($options->from);
   }
 
-  public function send(){
-    if (empty($this->from->full))
-       throw new \Exception("[Core.Email.SES] Amazon SES needs a registered `from` address", 1);
-    return Smtp::send();
+  public function send(Envelope $envelope){
+    if (!$envelope->from())
+       throw new \Exception("[core.email.ses] Amazon SES needs a registered `from` address", 1);
+    return Smtp::send($envelope);
   }
 
 }
