@@ -23,47 +23,47 @@ abstract class Dictionary implements JsonSerializable {
     protected static $fields = null;
 
     public static function & all(){
-        if (static::$fields === null) static::$fields = new Map();
+        if (!static::$fields) static::$fields = new Map();
         return static::$fields->all();
     }
 
     public static function get($key, $default=null){
-        if (static::$fields === null) static::$fields = new Map();
+        if (!static::$fields) static::$fields = new Map();
         return static::$fields->get($key, $default);
     }
 
     public static function set($key, $value=null){
-        if (static::$fields === null) static::$fields = new Map();
+        if (!static::$fields) static::$fields = new Map();
         return static::$fields->set($key, $value);
     }
 
     public static function delete($key, $compact=true){
-        if (static::$fields === null) static::$fields = new Map();
+        if (!static::$fields) static::$fields = new Map();
         static::$fields->delete($key, $compact);
     }
 
     public static function exists($key){
-        if (static::$fields === null) static::$fields = new Map();
+        if (!static::$fields) static::$fields = new Map();
         return static::$fields->exists($key);
     }
 
     public static function clear(){
-        if (static::$fields === null) static::$fields = new Map();
+        if (!static::$fields) static::$fields = new Map();
         static::$fields->clear();
     }
     
     public static function load($fields){
-        if (static::$fields === null) static::$fields = new Map();
+        if (!static::$fields) static::$fields = new Map();
         static::$fields->load($fields);
     }
 
     public static function merge(array $array, $merge_back=false){
-        if (static::$fields === null) static::$fields = new Map();
+        if (!static::$fields) static::$fields = new Map();
         static::$fields->merge($array, $merge_back);
     }
 
     protected static function compact(){
-        if (static::$fields === null) static::$fields = new Map();
+        if (!static::$fields) static::$fields = new Map();
         static::$fields->compact();
     }
 
@@ -72,7 +72,7 @@ abstract class Dictionary implements JsonSerializable {
     }
 
     public function jsonSerialize(){
-      if (static::$fields === null) static::$fields = new Map();
+      if (!static::$fields) static::$fields = new Map();
       return static::$fields->jsonSerialize();
     }
 

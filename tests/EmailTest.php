@@ -82,6 +82,50 @@ class EmailTest extends PHPUnit_Framework_TestCase {
 
   }
 
+  public function testUnknownEmailDriver(){
+    try {
+      Email::using("fak3_driver");
+    } catch (Exception $e) {
+      return true;
+    }
+    $this->fail("Expecting exception, fak3_driver is fake.");
+  }
+
+  public function testEmailFacade(){
+    $self = $this;
+    Email::using('proxy',[
+      'hook' => 'test.proxy',
+    ]);
+
+    $success = true;
+    Event::on('test.proxy',function($envelope) use ($self, &$success) {
+      $success = count($envelope->to()) == 3;
+    });
+
+    Email::send([
+      'to' => 'me,you,other',
+    ]);
+
+    if (!$success) $this->fail("Email.Send(array) failed.");
+
+    Event::off('test.proxy');
+
+    $success = true;
+    Event::on('test.proxy',function($envelope) use ($self, &$success) {
+      $success = $envelope->from() == 'test';
+    });
+
+    $mail = Email::create([
+      'from' => 'test',
+    ]);
+
+    Email::send($mail);
+
+    if (!$success) $this->fail("Email.Send(envelope) failed.");
+
+  }
+
 }
+
 
 

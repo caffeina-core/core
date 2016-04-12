@@ -13,8 +13,10 @@
 namespace Email;
 
 class Native implements Driver {
+  
+  public function onInit($options){}
 
-  public function send(Envelope $envelope){
+  public function onSend(Envelope $envelope){
     // PHP requires direct handling of To and Subject Headers.
     $success     = true;
     $recipients  = $envelope->to();

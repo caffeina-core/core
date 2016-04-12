@@ -13,5 +13,6 @@
 namespace Email;
 
 interface Driver {
-  public function send(Envelope $envelope);
+  public function onInit($options);
+  public function onSend(Envelope $envelope);
 }

@@ -24,7 +24,7 @@ class Smtp implements Driver {
     $username,
     $password;
 
-  public function __construct($options = null) {
+  public function onInit($options) {
     $options        = (object)$options;
     $this->host     = isset($options->host)     ? $options->host     : 'localhost';
     $this->username = isset($options->username) ? $options->username : false;
@@ -98,7 +98,7 @@ class Smtp implements Driver {
     return $success;
   }
 
-  public function send(Envelope $envelope){
+  public function onSend(Envelope $envelope){
     // PHP requires direct handling of To and Subject Headers.
     $success     = true;
     $recipients  = $envelope->to();
