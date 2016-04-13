@@ -142,7 +142,7 @@ class Envelope {
       $head[] = "Content-Type: multipart/mixed; boundary=\"{$this->uid}\"";
       $this->compiled_head = implode("\r\n", $head);
     }
-    return $this->compiled_head;
+    return \Filter::with( 'core.email.source.head', $this->compiled_head);
   }
 
   public function body($recompile = false){
@@ -177,7 +177,7 @@ class Envelope {
 
       $this->compiled_body = implode("\r\n", $body);
     }
-    return $this->compiled_body;
+    return \Filter::with( 'core.email.source.body', $this->compiled_body);
   }
 
   public function build(){

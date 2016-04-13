@@ -3,7 +3,7 @@
 /**
  * Email\SES
  *
- * Email\SES SMTP driver.
+ * Amazon AWS Simple Email Service SMTP driver.
  *
  * @package core
  * @author stefano.azzolini@caffeina.com

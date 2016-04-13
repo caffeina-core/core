@@ -107,7 +107,7 @@ class Smtp implements Driver {
     $envelope->from(false);
     foreach ($recipients as $to) {
       $current_success = $this->SMTPmail($from, $to, $envelope->build());
-      \Event::trigger('core.email.send',$to,$envelope,'native');
+      \Event::trigger('core.email.send',$to,$envelope,'smtp');
       $success = $success && $current_success;
     }
     return $success;

@@ -21,6 +21,7 @@ class Proxy implements Driver {
   }
 
   public function onSend(Envelope $envelope){
+    \Event::trigger('core.email.send',$to,$envelope,'proxy');
     \Event::trigger($this->listener, $envelope);
     return true;
   }

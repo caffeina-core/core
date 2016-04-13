@@ -19,7 +19,7 @@ class Email {
 
   public static function using($driver, $options = null){
     $class = 'Email\\'.ucfirst(strtolower($driver));
-    if ( ! class_exists($class) ) throw new \Exception("[core.email] : $driver driver not found.");
+    if ( ! class_exists($class) ) throw new Exception("[core.email] : $driver driver not found.");
     static::$driver_name = $driver;
     static::$options     = $options;
     static::$driver      = new $class;
@@ -40,7 +40,7 @@ class Email {
         'message'     => false,
         'attachments' => [],
       ], $mail));
-    }    
+    }
   }
 
   public static function send($mail){
