@@ -64,7 +64,7 @@ class Envelope {
   public function from($value=null){
     if ($value!==null && $value) {
       $this->add_emails($this->from, $value, false);
-    } else if ($value===false) $this->from = false;
+    } else if ($value===false) $this->from = '';
     return $this->from;
   }
 
@@ -92,7 +92,7 @@ class Envelope {
   public function replyTo($value=null){
     if ($value!==null && $value) {
       $this->add_emails($this->replyTo, $value, false);
-    } else if ($value===false) $this->replyTo = false;
+    } else if ($value===false) $this->replyTo = '';
     return $this->replyTo;
   }
 
@@ -100,7 +100,7 @@ class Envelope {
     if ($value!==null && $value) {
       $this->compiled_head = null;
       $this->subject = $value;
-    } else if ($value===false) $this->subject = false;
+    } else if ($value===false) $this->subject = '';
     return $this->subject;
   }
 
@@ -108,7 +108,7 @@ class Envelope {
     if ($value!==null && $value) {
       $this->compiled_body = null;
       $this->contentType = $value;
-    } else if ($value===false) $this->contentType = false;
+    } else if ($value===false) $this->contentType = '';
     return $this->contentType;
   }
 
@@ -116,7 +116,7 @@ class Envelope {
     if ($value!==null && $value) {
       $this->compiled_body = null;
       $this->message = $value;
-    } else if ($value===false) $this->message = false;
+    } else if ($value===false) $this->message = '';
     return $this->message;
   }
 
@@ -134,9 +134,9 @@ class Envelope {
       $head   = [];
       $head[] = "Subject: {$this->subject}";
       if($this->from)                        $head[] = "From: {$this->from}";
-      if(is_array($this->to)  && $this->to)  $head[] = "To: "  . implode(', ',$this->to);
-      if(is_array($this->cc)  && $this->cc)  $head[] = "Cc: "  . implode(', ',$this->cc);
-      if(is_array($this->bcc) && $this->bcc) $head[] = "Bcc: " . implode(', ',$this->bcc);
+      if(is_array($this->to)  && !empty($this->to))  $head[] = "To: "  . implode(', ',$this->to);
+      if(is_array($this->cc)  && !empty($this->cc))  $head[] = "Cc: "  . implode(', ',$this->cc);
+      if(is_array($this->bcc) && !empty($this->bcc)) $head[] = "Bcc: " . implode(', ',$this->bcc);
       if($this->replyTo)                     $head[] = "Reply-To: {$this->replyTo}";
       $head[] = 'MIME-Version: 1.0';
       $head[] = "Content-Type: multipart/mixed; boundary=\"{$this->uid}\"";
@@ -154,7 +154,7 @@ class Envelope {
       $body[] = quoted_printable_encode($this->message);
       $body[] = '';
 
-      if ($this->attachments) foreach ((array)$this->attachments as $file) {
+      if (!empty($this->attachments)) foreach ((array)$this->attachments as $file) {
 
         if (is_string($file)) {
           $name = basename($file);

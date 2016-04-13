@@ -108,7 +108,7 @@ class Map implements JsonSerializable {
     /**
      * Compact map removing empty paths
      */
-    protected function compact(){
+    public function compact(){
         function array_filter_rec($input, $callback = null) {
             foreach ($input as &$value) {
                 if (is_array($value)) {
@@ -128,7 +128,7 @@ class Map implements JsonSerializable {
      * @param  callable  If passed this callback will be applied to the founded value.
      * @return mixed The founded value.
      */
-    protected function & find($path, $create=false, callable $operation=null) {
+    public function & find($path, $create=false, callable $operation=null) {
         $tok = strtok($path,'.');
         if($create){
             $value =& $this->fields;

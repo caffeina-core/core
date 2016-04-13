@@ -28,7 +28,6 @@ class Ses extends Smtp {
       'password' => $options->password,
     ]);
 
-    if (!empty($options->from)) $this->from($options->from);
   }
 
   public function onSend(Envelope $envelope){

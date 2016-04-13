@@ -5,14 +5,14 @@
  *
  * The dictionary class allow to handle a repository of key-values data
  * Values are accessibles via a dot notation key path.
- * 
+ *
  * Example:
  * <code>
  *  class MyConfig extends Dictionary {}
  *  MyConfig::set('user',[ 'name' => 'Frank', 'surname' => 'Castle' ]);
  *  echo "Hello, my name is ",MyConfig::get('user.name'),' ',MyConfig::get('user.surname');
  * </code>
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeina.com
  * @copyright Caffeina srl - 2016 - http://caffeina.com
@@ -51,7 +51,7 @@ abstract class Dictionary implements JsonSerializable {
         if (!static::$fields) static::$fields = new Map();
         static::$fields->clear();
     }
-    
+
     public static function load($fields){
         if (!static::$fields) static::$fields = new Map();
         static::$fields->load($fields);
@@ -68,7 +68,7 @@ abstract class Dictionary implements JsonSerializable {
     }
 
     protected static function & find($path, $create=false, callable $operation=null) {
-        return Map::find($path, $create, $operation);
+        return static::$fields->find($path, $create, $operation);
     }
 
     public function jsonSerialize(){

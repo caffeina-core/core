@@ -4,14 +4,13 @@
  * File
  *
  * Filesystem utilities.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
 class File {
-    
     use Module;
 
     protected static $mount_points = [];
@@ -21,13 +20,13 @@ class File {
         if (!class_exists($driver_class)) throw new \Exception('Filesystem adapter '.$driver.' not found.');
         static::$mount_points[$alias] = new $driver_class($options);
     }
-    
+
     public static function unmount($alias) {
-       unset(static::$mount_points[$alias]); 
+       unset(static::$mount_points[$alias]);
     }
 
     public static function mounts() {
-       return array_keys(static::$mount_points); 
+       return array_keys(static::$mount_points);
     }
 
     public static function __callStatic($name, $params) {
@@ -36,7 +35,7 @@ class File {
             list($mount, $path) = $file_location;
             array_unshift($params, static::resolvePath($path));
             if (empty(static::$mount_points[$mount])) return false;
-            return call_user_func_array([static::$mount_points[$mount],$name],$params);           
+            return call_user_func_array([static::$mount_points[$mount],$name],$params);
         } else return false;
     }
 
@@ -53,7 +52,7 @@ class File {
             return false;
         }
     }
-    
+
     public static function resolvePath($path) {
         $path = str_replace(['/', '\\'], '/', $path);
         $parts = array_filter(explode('/', $path), 'strlen');
@@ -67,7 +66,7 @@ class File {
             }
         }
         return trim(implode('/', $absolutes),'/');
-    }    
+    }
 
     public static function search($pattern, $recursive=true){
         $results = [];
@@ -88,13 +87,13 @@ class File {
             $_dfs = static::$mount_points[$dest[0]];
             if ($src[0] == $dest[0]) {
                 // Same filesystem
-                return $_sfs->move($src[1],$dest[1]);           
+                return $_sfs->move($src[1],$dest[1]);
             } else {
                 return $_dfs->write($dest[1],$_sfs->read($src[1])) && $_sfs->delete($src[1]);
             }
         } else return false;
     }
 
-    
+
 }
 
