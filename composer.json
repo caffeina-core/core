@@ -9,6 +9,10 @@
         {
             "name": "Stefano Azzolini",
             "email": "stefano.azzolini@caffeina.com"
+        },
+        {
+            "name": "Gabriele Diener",
+            "email": "gabriele.diener@caffeina.com"
         }
     ],
     "minimum-stability": "stable",
