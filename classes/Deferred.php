@@ -25,6 +25,6 @@ class Deferred {
 	}
 
 	public function __destruct() {
-		call_user_func( $this->callback, $this->$args );
+		call_user_func( $this->callback, $this->args );
 	}
 }
