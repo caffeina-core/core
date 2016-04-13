@@ -237,7 +237,7 @@ class SQLConnection {
     }
   }
 
-  public function insert($table, $data=[]){
+  public function insert($table, $data){
     if(!$this->connection()) return false;
 
     if (false==is_array($data)) $data = (array)$data;
@@ -250,7 +250,7 @@ class SQLConnection {
     return $this->last_exec_success ? $this->connection()->lastInsertId() : false;
   }
 
-  public function updateWhere($table, $data=[], $where, $pk='id'){
+  public function updateWhere($table, $data, $where, $pk='id'){
     if(!$this->connection()) return false;
 
     if (false==is_array($data)) $data = (array)$data;
@@ -268,7 +268,7 @@ class SQLConnection {
     return $this->last_exec_success;
   }
 
-  public function update($table, $data=[], $pk='id', $extra_where=''){
+  public function update($table, $data, $pk='id', $extra_where=''){
     return $this->updateWhere($table, $data, "`$pk`=:$pk $extra_where", $pk);
   }
 
