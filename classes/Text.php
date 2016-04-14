@@ -28,11 +28,18 @@ class Text {
    * @return string
    */
    public static function render($t,$v=null){
-     for($r=$ox=$x=false;false!==($x=$y=strpos($t,'{{',$x));
-       $r.=substr($t,$ox,$x-$ox),
-       $c=substr($t,$x+=2,$l=($y=strpos($t,'}}',$x))-$x),
-       $ox=$x+=$l+2,$r.=Object::fetch($c,$v)
-     ); return $r===false?$t:$r.substr($t,$ox);
+     if (empty($v)) return preg_replace('/{{[^}]+}}/','',$t);
+     for(  // Init
+           $r = $ox = $x = false;
+           // While
+           false !== ($x = $y = strpos($t,'{{',$x));
+           // Do
+           $r .= substr($t, $ox, $x-$ox),
+           $c  = substr($t, $x += 2, $l = ( $y = strpos($t,'}}', $x) ) - $x),
+           $ox = $x += $l + 2,
+           $r .= Object::fetch(trim($c),$v)?:''
+     );
+     return $r===false ? $t : $r.substr($t,$ox);
    }
 
 } /* End of class */

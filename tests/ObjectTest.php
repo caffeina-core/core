@@ -51,4 +51,22 @@ class ObjectTest extends PHPUnit_Framework_TestCase {
       $this->assertEquals($test->c->b         ,'#00f'); // Deep access as DoubleObject from Object
     }
 
+
+    public function testFetch(){
+      $data = [
+        'a' => [
+          'x' => [
+            'y' => 1
+          ]
+        ],
+        'b' => [
+          'x' => 2
+        ],
+      ];
+      $this->assertEquals(1,Object::fetch('a.x.y',$data),"Deep fetch");
+
+      $this->assertEquals('{"y":1}',json_encode(Object::fetch('a.x',$data),JSON_NUMERIC_CHECK));
+      $this->assertEquals('{"y":1}',json_encode(Object::fetch('a.x',$data),JSON_NUMERIC_CHECK),"Protect \$data reference");
+    }
+
 }

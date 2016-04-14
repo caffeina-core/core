@@ -82,25 +82,21 @@ class Object extends ArrayObject {
      * @param  array $root The array to navigate
      * @return mixed The pointed value
      */
-    public static function fetch($path, & $root) {
-      $frag = strtok($path,'.');
-      $ptr = $root;
 
-      if (is_array($root)) {
-        while (
-          ( $ptr = isset($ptr[$frag]) ? $ptr[$frag] : '' )
-          &&
-          ( $frag = strtok('.') )
-        );
-      } else if (is_object($root)) {
-        while (
-          ( $ptr = isset($ptr->$frag) ? $ptr->$frag : '' )
-          &&
-          ( $frag = strtok('.') )
-        );
+    public static function fetch($path, $root) {
+      $_ = (array)$root;
+      if (strpos($path,'.') === false) {
+        return isset($_[$path]) ? $_[$path] : null;
+      } else {
+        list($frag,$rest) = explode('.', $path, 2);
+        if ($rest) {
+          return isset($_[$frag]) ? self::fetch($rest, $_[$frag]) : null;
+        } elseif ($frag) {
+          return (array)$_[$frag];
+        } else {
+          return null;
+        }
       }
-
-      return $frag ? '' : $ptr;
     }
 
     public static function create($class, $args = null){
