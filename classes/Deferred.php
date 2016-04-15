@@ -12,20 +12,14 @@
 
 class Deferred {
 
-  protected   $callback,
-              $args;
+	protected $callback;
 
-  public function __construct( callable $callback ) {
-    $this->args     = array_slice( func_get_args(), 1 );
-    $this->callback = $callback;
-  }
+	public function __construct( callable $callback ) {
+		$this->callback = $callback;
+	}
 
-  public function setArgs() {
-    $this->args = func_get_args();
-  }
-
-  public function __destruct() {
-    call_user_func( $this->callback, $this->args );
-  }
+	public function __destruct() {
+		call_user_func( $this->callback );
+	}
 
 }
