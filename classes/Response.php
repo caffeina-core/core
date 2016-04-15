@@ -28,7 +28,8 @@ class Response {
                      $headers     = ['Content-Type' => ['text/html; charset=utf-8']],
                      $buffer      = null,
                      $force_dl    = false,
-                     $link        = null;
+                     $link        = null,
+                     $sent        = false;
 
 
     public static function charset($charset){
@@ -82,6 +83,10 @@ class Response {
             static::send();
             exit;
         }
+    }
+
+    public static function sent() {
+        return static::$sent;
     }
 
     /**
@@ -216,6 +221,7 @@ class Response {
     }
 
     public static function send(){
+        static::$sent = true;
         Event::trigger('core.response.send');
         if (false === headers_sent()) foreach (static::$headers as $name => $value_code) {
             if (is_array($value_code)) {
