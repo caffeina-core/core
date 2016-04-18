@@ -13,6 +13,7 @@
 namespace FileSystem;
 
 class Memory implements Adapter {
+
   protected $storage = [];
 
   public function exists($path){

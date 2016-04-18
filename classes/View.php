@@ -98,5 +98,4 @@ class View {
       return forward_static_call_array([static::$handler,$n],$p);
     }
 
-
 }
