@@ -220,10 +220,12 @@ class Response {
       if (isset($data->body)) static::body($data->body);
     }
 
-    public static function send(){
+    public static function send($force = false){
+      if (!static::$sent || $force) {
         static::$sent = true;
         Event::trigger('core.response.send');
         if (false === headers_sent()) foreach (static::$headers as $name => $value_code) {
+
             if (is_array($value_code)) {
                 list($value, $code) = (count($value_code) > 1) ? $value_code : [current($value_code), 200];
             } else {
@@ -246,6 +248,7 @@ class Response {
         }
         if (static::$force_dl) header('Content-Disposition: attachment; filename="'.static::$force_dl.'"');
         echo static::body();
+      }
     }
 
 }
