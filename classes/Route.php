@@ -156,7 +156,9 @@ class Route {
 					Response::add($this->response);
         }
 
-        return [$this->response];
+        Event::trigger('core.route.end', $this);
+
+        return [Filter::with('core.route.response', $this->response)];
     }
 
     /**
@@ -399,6 +401,9 @@ class Route {
     public static function dispatch($URL=null,$method=null){
         if (!$URL)     $URL     = Request::URI();
         if (!$method)  $method  = Request::method();
+
+        $__deferred_send = new Deferred('Response::send');
+
         foreach ((array)static::$routes as $group => $routes){
             foreach ($routes as $route) {
                 if (is_a($route, 'Route') && false !== ($args = $route->match($URL,$method))){
