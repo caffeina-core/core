@@ -2,6 +2,10 @@
 
 class RouteTest extends PHPUnit_Framework_TestCase {
 
+  public function __construct(){
+    Options::set('core.response.autosend', false);
+  }
+
 	private function mock_request($uri, $method) {
 		Filter::remove('core.request.method');
 		Filter::remove('core.request.URI');

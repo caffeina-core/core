@@ -402,7 +402,9 @@ class Route {
         if (!$URL)     $URL     = Request::URI();
         if (!$method)  $method  = Request::method();
 
-        $__deferred_send = new Deferred('Response::send');
+        if (Options::get('core.response.autosend',true)){
+          $__deferred_send = new Deferred('Response::send');
+        }
 
         foreach ((array)static::$routes as $group => $routes){
             foreach ($routes as $route) {
@@ -412,6 +414,7 @@ class Route {
                 }
             }
         }
+
         Response::status(404, '404 Resource not found.');
         Event::trigger(404);
         return false;
