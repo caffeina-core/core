@@ -15,8 +15,14 @@ class Filter {
 
     protected static $_modders = [];
 
-    public static function add($name,callable $modder){
-        static::$_modders[$name][] = $modder;
+    public static function add($name,callable $modder = null){
+        if( is_array($name) ) {
+            foreach ($name as $key => $value) {
+                static::$_modders[$key][] = $value;
+            }
+        } else {
+            static::$_modders[$name][] = $modder;
+        }
     }
 
     public static function single($name,callable $modder){
