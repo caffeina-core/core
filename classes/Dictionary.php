@@ -18,7 +18,7 @@
  * @copyright Caffeina srl - 2016 - http://caffeina.com
  */
 
-abstract class Dictionary implements JsonSerializable {
+abstract class Dictionary {
 
     protected static $fields = null;
 

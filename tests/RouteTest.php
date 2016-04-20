@@ -15,7 +15,9 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 
 	public function testBasicRouting() {
 		Response::clean();
-		Route::on('/', function () {return "index";});
+		Route::on('/', function () {
+      return "index";
+    });
 		Route::dispatch('/', 'get');
 		$this->assertEquals(Response::body(), 'index');
 	}

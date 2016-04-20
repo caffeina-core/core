@@ -1,6 +1,8 @@
 <?php
 
-class TestDict extends Dictionary {}
+class TestDict extends Dictionary {
+      protected static $fields = null;
+}
 
 class DictionaryTest extends PHPUnit_Framework_TestCase {
 

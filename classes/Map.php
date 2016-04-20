@@ -30,11 +30,11 @@ class Map implements JsonSerializable {
      * @return mixed The value of the key or the default (resolved) value if the key not existed.
      */
     public function get($key, $default=null){
-        if ($ptr =& static::find($key,false)){
+        if ($ptr =& $this->find($key,false)){
             return $ptr;
         } else {
             if ($default !== null){
-                return static::set($key, is_callable($default) ? call_user_func($default) : $default);
+                return $this->set($key, is_callable($default) ? call_user_func($default) : $default);
             } else {
                 return null;
             }
@@ -49,9 +49,9 @@ class Map implements JsonSerializable {
      */
     public function set($key, $value=null){
         if (is_array($key)) {
-            return static::merge($key);
+            return $this->merge($key);
         } else {
-            $ptr = & static::find($key,true);
+            $ptr =& $this->find($key, true);
             return $ptr = $value;
         }
     }
@@ -62,8 +62,8 @@ class Map implements JsonSerializable {
      * @param  boolean $compact (optional) Compact map removing empty paths.
      */
     public function delete($key, $compact=true){
-        static::set($key,null);
-        if ($compact) static::compact();
+        $this->set($key, null);
+        if ($compact) $this->compact();
     }
 
     /**
@@ -72,7 +72,7 @@ class Map implements JsonSerializable {
      * @return boolean
      */
     public function exists($key){
-        return null !== static::find($key,false);
+        return null !== $this->find($key, false);
     }
 
     /**
@@ -99,26 +99,28 @@ class Map implements JsonSerializable {
      * @param  array   $array The array to merge
      * @param  boolean $merge_back If `true` merge the map over the $array, if `false` (default) the reverse.
      */
-    public function merge(array $array, $merge_back=false){
+    public function merge($array, $merge_back=false){
         $this->fields = $merge_back
-            ? array_replace_recursive($array, $this->fields)
-            : array_replace_recursive($this->fields, $array);
+            ? array_replace_recursive((array)$array, $this->fields)
+            : array_replace_recursive($this->fields, (array)$array);
     }
 
     /**
      * Compact map removing empty paths
      */
+
     public function compact(){
-        function array_filter_rec($input, $callback = null) {
+
+        $array_filter_rec = function($input, $callback = null) use (&$array_filter_rec) {
             foreach ($input as &$value) {
                 if (is_array($value)) {
-                    $value = array_filter_rec($value, $callback);
+                    $value = $array_filter_rec($value, $callback);
                 }
             }
             return array_filter($input, $callback);
-        }
+        };
 
-        $this->fields = array_filter_rec($this->fields,function($a){ return $a !== null; });
+        $this->fields = $array_filter_rec($this->fields,function($a){ return $a !== null; });
     }
 
     /**
@@ -130,11 +132,13 @@ class Map implements JsonSerializable {
      */
     public function & find($path, $create=false, callable $operation=null) {
         $tok = strtok($path,'.');
+
         if($create){
             $value =& $this->fields;
         } else {
             $value = $this->fields;
         }
+
         while($tok !== false){
             $value =& $value[$tok];
             $tok = strtok('.');
