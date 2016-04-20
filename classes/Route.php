@@ -81,7 +81,7 @@ class Route {
      * @param  string $method The HTTP Method requested.
      * @return array The callback response.
      */
-    public function run(array $args,$method='get'){
+    public function run(array $args, $method='get'){
         $method = strtolower($method);
         $this->response 			 		= '';
         $this->response_object 		= null;
@@ -402,9 +402,11 @@ class Route {
         if (!$URL)     $URL     = Request::URI();
         if (!$method)  $method  = Request::method();
 
-        if (Options::get('core.response.autosend',true)){
-          $__deferred_send = new Deferred('Response::send');
-        }
+        $__deferred_send = new Deferred(function(){
+          if (Options::get('core.response.autosend',false)){
+            Response::send();
+          }
+        });
 
         foreach ((array)static::$routes as $group => $routes){
             foreach ($routes as $route) {

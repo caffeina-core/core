@@ -4,14 +4,14 @@
  * Options
  *
  * A dictionary to handle application-wide options.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
 class Options extends Dictionary {
-  protected static $fields = [];
+    protected static $fields = null;
 
 	/**
 	 * Load a PHP configuration file (script must return array)

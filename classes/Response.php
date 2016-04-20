@@ -185,7 +185,9 @@ class Response {
 
     public static function body($setBody=null){
       if ($setBody) static::$payload = [$setBody];
-      return Filter::with('core.response.body',is_array(static::$payload)?implode('',static::$payload):static::$payload);
+      return Filter::with('core.response.body',
+                is_array(static::$payload) ? implode('',static::$payload) : static::$payload
+             );
     }
 
     public static function headers($setHeaders=null){
