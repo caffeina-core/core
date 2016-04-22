@@ -27,4 +27,14 @@ class TextTest extends PHPUnit_Framework_TestCase {
 		]));
 	}
 
+  public function testRemoveAccents() {
+    $results = Text::removeAccents("àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ");
+    $this->assertEquals("aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY", $results);
+  }
+
+  public function testSlugify() {
+    $results = Text::slugify("Thîs îs --- à vêry wrong séntènce!");
+    $this->assertEquals("this-is-a-very-wrong-sentence", $results);
+  }
+
 }
