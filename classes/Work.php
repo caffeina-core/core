@@ -21,7 +21,7 @@ class Work {
   protected static $workers;
   protected static $lastID = 0;
 
-  public static function add($id,$job=null){
+  public static function add($id, $job=null){
     self::$pool or ( self::$pool = new \SplQueue() );
     if(is_callable($id) && $job===null){
       $job = $id;
@@ -50,6 +50,42 @@ class Work {
     }
   }
 
+  /**
+   * Defer callback execution after script execution
+   * @param callable $callback The deferred callback
+   */ d
+  public static function after(callable $callback){
+    static::$inited_shutdown || static::install_shutdown();
+    Event::on('core.shutdown', $callback);
+  }
+
+  /**
+   * Single shot defer handeler install
+   */
+  protected static function install_shutdown(){
+    if (static::$inited_shutdown) return;
+    
+    // Disable time limit
+    set_time_limit(0);
+    
+    // HHVM support
+    if(function_exists('register_postsend_function')){
+      register_postsend_function(function(){
+        Event::trigger('core.shutdown');
+      });
+    } else if(function_exists('fastcgi_finish_request')) {
+      register_shutdown_function(function(){
+        fastcgi_finish_request();
+        Event::trigger('core.shutdown');
+      });       
+    } else {
+      register_shutdown_function(function(){
+        Event::trigger('core.shutdown');
+      });
+    }
+
+    static::$inited_shutdown = true;
+  }
 }
 
 class TaskCoroutine {
@@ -58,6 +94,7 @@ class TaskCoroutine {
     protected $coroutine;
     protected $passValue = null;
     protected $beforeFirstYield = true;
+    protected static $inited_shutdown = false;
 
     public function __construct($id, \Generator $coroutine) {
         $this->id = $id;

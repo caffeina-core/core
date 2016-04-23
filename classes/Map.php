@@ -132,18 +132,16 @@ class Map implements JsonSerializable {
      */
     public function & find($path, $create=false, callable $operation=null) {
         $tok = strtok($path,'.');
-
-        if($create){
+        if ( $create ) {
             $value =& $this->fields;
         } else {
             $value = $this->fields;
         }
-
-        while($tok !== false){
+        while ( $tok !== false ){
             $value =& $value[$tok];
             $tok = strtok('.');
         }
-        if (is_callable($operation)) $operation($value);
+        if ( is_callable($operation) ) $operation($value);
         return $value;
     }
 
