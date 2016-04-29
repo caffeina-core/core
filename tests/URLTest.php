@@ -35,4 +35,11 @@ class URLTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('?alpha=123&beta[a]=1&beta[b]=2', urldecode($url));
 	}
 
+	public function testBuildQueryArray() {
+		$url = new URL();
+		$url->query['alpha'] = 123;
+		$url->query['gamma'] = [ 'a' => [ 'aa' => 1, 'bb' => 2 ], 'b' => 1 ];
+		$this->assertEquals('?alpha=123&gamma[a][aa]=1&gamma[a][bb]=2&gamma[b]=1', urldecode($url));
+	}
+
 }
