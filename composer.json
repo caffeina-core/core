@@ -26,6 +26,7 @@
         "mybuilder/phpunit-accelerator": ">=1"
     },
     "scripts": {
+        "test-lint" : "find classes -type f -name '*.php' -exec php -l {} \\;",
     	"test" : "vendor/bin/phpunit --colors=always"
     },
     "config": {

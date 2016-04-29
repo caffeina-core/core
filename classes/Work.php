@@ -53,7 +53,7 @@ class Work {
   /**
    * Defer callback execution after script execution
    * @param callable $callback The deferred callback
-   */ d
+   */
   public static function after(callable $callback){
     static::$inited_shutdown || static::install_shutdown();
     Event::on('core.shutdown', $callback);
