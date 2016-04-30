@@ -14,7 +14,7 @@ namespace View;
 
 class PHP implements Adapter {
 
-  const EXTENSION = 'php';
+  const EXTENSION = '.php';
 
   protected static $templatePath,
                    $globals = [];
@@ -24,7 +24,7 @@ class PHP implements Adapter {
   }
 
   public static function exists($path){
-      return is_file(self::$templatePath.$path.'.php');
+      return is_file(self::$templatePath . $path . static::EXTENSION);
   }
 
   public static function addGlobal($key,$val){
@@ -38,7 +38,7 @@ class PHP implements Adapter {
   }
 
   public function render($template, $data=[]){
-      $template_path = self::$templatePath . trim($template,'/') . '.php';
+      $template_path = self::$templatePath . trim($template,'/') . static::EXTENSION;
       $sandbox = function() use ($template_path){
           ob_start();
           include($template_path);
