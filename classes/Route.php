@@ -182,13 +182,13 @@ class Route {
     }
 
     /**
-     * Alias of on method.
+     * Start a route definition with HTTP Method via GET.
      * @param  string $URLPattern The URL to match against, you can define named segments to be extracted and passed to the callback.
      * @param  $callback The callback to be invoked (with variables extracted from the route if present) when the route match the request URI.
      * @return Route
      */
     public static function get($URLPattern, $callback = null){
-        return static::on($URLPattern, $callback);
+        return (new Route($URLPattern,$callback))->via('get');
     }
 
     /**
