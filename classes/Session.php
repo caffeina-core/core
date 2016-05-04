@@ -4,7 +4,7 @@
  * Session
  *
  * Manage PHP sessions.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -23,6 +23,8 @@ class Session {
 	static public function start($name=null){
 		if (isset($_SESSION)) return;
 		static::name($name);
+    // Obfuscate IDs
+    ini_set('session.hash_function', 'whirlpool');
 		session_cache_limiter('must-revalidate');
 		@session_start();
 	}
