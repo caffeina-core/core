@@ -29,8 +29,16 @@ class HashTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testMurmur() {
-		$this->assertNotEquals(Hash::murmurhash3("Hello World", 0), Hash::uuid("Hello World", 1));
-		$this->assertEquals("cnd0ue", Hash::murmurhash3("Hello World", 0));
+    $this->assertTrue(Hash::can("murmur"));
+
+		$this->assertNotEquals(Hash::murmur("Hello World", 0), Hash::uuid("Hello World", 1));
+
+		$this->assertEquals("cnd0ue", Hash::murmur("Hello World", 0));
+
+    $this->assertEquals(427197390, Hash::murmur("Hello World", 0, true));
+
+    $this->assertNotEmpty(Hash::random());
+    $this->assertNotEquals(Hash::random(),Hash::random());
 	}
 
 }

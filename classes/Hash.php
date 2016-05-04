@@ -20,7 +20,7 @@ class Hash {
 	 * @return string          The hash string
 	 */
 	public static function make($payload, $method = 'md5') {
-		return hash($method, serialize($payload));
+		return $method == 'murmur' ? static::murmur(serialize($payload)) : hash($method, serialize($payload));
 	}
 
 	/**
@@ -42,7 +42,8 @@ class Hash {
 	 * @return array   Array containing the list of supported hashing algorithms.
 	 */
 	public static function methods() {
-		return hash_algos();
+    // Merge PHP provided algos with ours (murmur)
+		return array_merge(hash_algos(), ['murmur','murmurhash3']);
 	}
 
 	/**
@@ -55,7 +56,8 @@ class Hash {
 	 * @return bool
 	 */
 	public static function can($algo) {
-		return in_array($algo, hash_algos());
+    // Faster than : in_array(explode(',',implode(',',static::methods())))
+		return strpos(implode(',',static::methods()).',', "$algo,") !== false;
 	}
 
 	/**
@@ -108,7 +110,7 @@ class Hash {
 		}
 	}
 
-	public static function murmurhash3_int($key, $seed = 0) {
+  public static function murmur($key, $seed = 0, $as_integer=false) {
 		$key = (string) $key;
 		$klen = strlen($key);
 		$h1 = $seed;
@@ -151,11 +153,12 @@ class Hash {
 		$h1 = (((($h1 & 0xffff) * 0xc2b2ae35) + ((((($h1 >= 0 ? $h1 >> 16 : (($h1 & 0x7fffffff) >> 16) | 0x8000))
 			 * 0xc2b2ae35) & 0xffff) << 16))) & 0xffffffff;
 		$h1 ^= ($h1 >= 0 ? $h1 >> 16 : (($h1 & 0x7fffffff) >> 16) | 0x8000);
-		return $h1;
+
+		return $as_integer ? $h1 : base_convert($h1 ,10, 32);
 	}
 
-	public static function murmurhash3($key, $seed = 0) {
-		return base_convert(static::murmurhash3_int($key, $seed), 10, 32);
-	}
+  public static function random($bytes=9){
+    return strtr(base64_encode(random_bytes($bytes)),'+/=','-_');
+  }
 
 }
