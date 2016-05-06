@@ -67,4 +67,24 @@ class DictionaryTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(TestDict::get('a.b.c.d', 0), 1);
 	}
 
+  public function testSetFromObjectMap() {
+    TestDict::clear();
+    TestDict::load([
+       'a' => [
+         'a' => 'AA',
+         'b' => 'AB',
+       ],
+       'b' => 'B',
+    ]);
+
+    $res = TestDict::get([
+      'a.a' => 'X',
+      'b'   => 'Y',
+      'a.b' => 'Z',
+      'a'   => 'W',
+    ]);
+
+    $this->assertEquals('{"X":"AA","Y":"B","Z":"AB","W":{"a":"AA","b":"AB"}}', json_encode($res));
+  }
+
 }

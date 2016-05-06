@@ -29,7 +29,14 @@ abstract class Dictionary {
 
     public static function get($key, $default=null){
         if (!static::$fields) static::$fields = new Map();
-        return static::$fields->get($key, $default);
+        if (is_array($key)){
+          $results = [];
+          foreach ($key as $_src_key => $_dst_key)
+            $results[$_dst_key] = static::$fields->get($_src_key);
+          return $results;
+        } else {
+          return static::$fields->get($key, $default);
+        }
     }
 
     public static function set($key, $value=null){
