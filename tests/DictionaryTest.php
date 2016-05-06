@@ -78,10 +78,10 @@ class DictionaryTest extends PHPUnit_Framework_TestCase {
     ]);
 
     $res = TestDict::get([
-      'a.a' => 'X',
-      'b'   => 'Y',
-      'a.b' => 'Z',
-      'a'   => 'W',
+      'X' => 'a.a',
+      'Y' => 'b',
+      'Z' => 'a.b',
+      'W' => 'a',
     ]);
 
     $this->assertEquals('{"X":"AA","Y":"B","Z":"AB","W":{"a":"AA","b":"AB"}}', json_encode($res));

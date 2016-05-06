@@ -31,7 +31,7 @@ abstract class Dictionary {
         if (!static::$fields) static::$fields = new Map();
         if (is_array($key)){
           $results = [];
-          foreach ($key as $_src_key => $_dst_key)
+          foreach ($key as $_dst_key => $_src_key)
             $results[$_dst_key] = static::$fields->get($_src_key);
           return $results;
         } else {
