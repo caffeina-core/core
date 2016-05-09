@@ -99,14 +99,9 @@ class Smtp implements Driver {
   }
 
   public function onSend(Envelope $envelope){
-    // PHP requires direct handling of To and Subject Headers.
-    $success     = true;
-    $recipients  = $envelope->to();
-    $from        = $envelope->from();
-    $envelope->to(false);
-    $envelope->from(false);
-    foreach ($recipients as $to) {
-      $current_success = $this->SMTPmail($from, $to, $envelope->build());
+    $success = true;
+    foreach ($envelope->to() as $to) {
+      $current_success = $this->SMTPmail($envelope->from(), $to, $envelope->build());
       \Event::trigger('core.email.send',$to,$envelope,'smtp');
       $success = $success && $current_success;
     }

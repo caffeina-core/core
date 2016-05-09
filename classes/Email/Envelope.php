@@ -139,7 +139,7 @@ class Envelope {
       if(is_array($this->bcc) && !empty($this->bcc)) $head[] = "Bcc: " . implode(', ',$this->bcc);
       if($this->replyTo)                     $head[] = "Reply-To: {$this->replyTo}";
       $head[] = 'MIME-Version: 1.0';
-      $head[] = "Content-Type: multipart/mixed; boundary=\"{$this->uid}\"";
+      if (!empty($this->attachments)) $head[] = "Content-Type: multipart/mixed; boundary=\"{$this->uid}\"";
       $this->compiled_head = implode("\r\n", $head);
     }
     return \Filter::with( 'core.email.source.head', $this->compiled_head);
@@ -147,7 +147,7 @@ class Envelope {
 
   public function body($recompile = false){
     if ($recompile || (null === $this->compiled_body)){
-      $body[] = "--{$this->uid}";
+      if (!empty($this->attachments)) $body[] = "--{$this->uid}";
       $body[] = "Content-Type: {$this->contentType}";
       $body[] = "Content-Transfer-Encoding: quoted-printable";
       $body[] = '';
@@ -171,9 +171,8 @@ class Envelope {
         $body[] = '';
         $body[] = chunk_split(base64_encode($data));
         $body[] = '';
+        $body[] = "--{$this->uid}--";
       }
-
-      $body[] = "--{$this->uid}--";
 
       $this->compiled_body = implode("\r\n", $body);
     }
