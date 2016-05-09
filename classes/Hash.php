@@ -158,7 +158,48 @@ class Hash {
 	}
 
   public static function random($bytes=9){
-    return strtr(base64_encode(random_bytes($bytes)),'+/=','-_');
+    return strtr(base64_encode(static::random_bytes($bytes)),'+/=','-_');
+  }
+
+  public static function random_bytes($bytes){
+    static $randf = null;
+    if (function_exists('random_bytes')) {
+      return \random_bytes($bytes);
+    } else if (function_exists('mcrypt_create_iv')) {
+      return @\mcrypt_create_iv($bytes, MCRYPT_DEV_URANDOM);
+    } else {
+      if (null === $randf) {
+        if ($randf = fopen('/dev/urandom', 'rb')) {
+          $st = fstat($randf);
+          function_exists('stream_set_read_buffer')
+            && stream_set_read_buffer($randf, 8);
+          function_exists('stream_set_chunk_size')
+            && stream_set_chunk_size($randf, 8);
+          if (($st['mode'] & 0170000) !== 020000) {
+            fclose($randf);
+            $randf = false;
+          }
+        }
+      }
+      if ($randf) {
+        $remaining = $bytes;
+        $buf = '';
+        do {
+          $read = fread($randf, $remaining);
+          if ($read === false) {
+            $buf = false;
+            break;
+          }
+          $remaining -= strlen($read);
+          $buf .= $read;
+        } while ($remaining > 0);
+        if ($buf !== false) {
+          if (strlen($buf) === $bytes) {
+            return $buf;
+          }
+        }
+      }
+    }
   }
 
 }
