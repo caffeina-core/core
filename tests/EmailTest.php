@@ -47,7 +47,7 @@ class EmailTest extends PHPUnit_Framework_TestCase {
 		$this->assertNotNull($mail);
 		$email_src = $mail->build();
 		$this->assertNotFalse(strpos($email_src, "Subject: HELLOSUBJECT\r\n"), "SUBJECT not found");
-		$this->assertNotFalse(strpos($email_src, "\r\n\r\nHELLOBODY\r\n\r\n"), "BODY not found");
+		$this->assertNotFalse(strpos($email_src, "\r\nHELLOBODY\r\n"), "BODY not found");
 		$this->assertNotFalse(strpos($email_src, "To: Stefano <stefano@caffeina.com>, test@email.it\r\n"), "TO not found");
 		$this->assertNotFalse(strpos($email_src, "From: tester@php.test\r\n"), "FROM not found");
 		$this->assertNotFalse(strpos($email_src, "Bcc: bcc1@test.com, bcc2@test.com\r\n"), "BCC not found");
