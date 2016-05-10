@@ -13,14 +13,14 @@
 class HTTP {
   use Module;
 
-  protected static $UA = "Mozilla/4.0 (compatible; Core::HTTP; Windows NT 6.1)";
-  protected static $json_data   = false;
-  protected static $headers     = [];
-  protected static $last_info   = null;
+  protected static $UA          = "Mozilla/4.0 (compatible; Core::HTTP; Windows NT 6.1)",
+                   $json_data   = false,
+                   $headers     = [],
+                   $last_info   = null;
 
   protected static function request($method, $url, $data=[], array $headers=[], $data_as_json=false, $username=null, $password = null){
     $http_method = strtoupper($method);
-    $ch = curl_init($url);
+    $ch  = curl_init($url);
     $opt = [
       CURLOPT_CUSTOMREQUEST   => $http_method,
       CURLOPT_SSL_VERIFYHOST  => false,
@@ -34,7 +34,7 @@ class HTTP {
     ];
 
     if($username && $password) {
-      $opt[CURLOPT_USERPWD]   =  "$username:$password";
+      $opt[CURLOPT_USERPWD] = "$username:$password";
     }
 
     $headers = array_merge($headers,static::$headers);
@@ -44,22 +44,21 @@ class HTTP {
           $tmp                       = [];
           $queried_url               = $url;
           foreach($data as $key=>$val) $tmp[] = $key.'='.$val;
-          $queried_url               .= (strpos($queried_url,'?')===false)?'?':'&';
+          $queried_url               .= (strpos($queried_url,'?') === false) ? '?' : '&';
           $queried_url               .= implode('&',$tmp);
           $opt[CURLOPT_URL]          = $queried_url;
-          unset($opt[CURLOPT_CUSTOMREQUEST]);
           $opt[CURLOPT_HTTPGET]      = true;
-        } 
+          unset($opt[CURLOPT_CUSTOMREQUEST]);
+        }
     } else {
-        $opt[CURLOPT_CUSTOMREQUEST]   = $http_method;
+        $opt[CURLOPT_CUSTOMREQUEST]  = $http_method;
         if($data_as_json or is_object($data)){
-          $headers['Content-Type']    = 'application/json';
-          $opt[CURLOPT_POSTFIELDS]    = json_encode($data);     
+          $headers['Content-Type']   = 'application/json';
+          $opt[CURLOPT_POSTFIELDS]   = json_encode($data);
         } else {
-          $opt[CURLOPT_POSTFIELDS]    = http_build_query($data);
+          $opt[CURLOPT_POSTFIELDS]   = http_build_query($data);
         }
     }
-
 
     curl_setopt_array($ch,$opt);
     $_harr = [];
@@ -72,9 +71,9 @@ class HTTP {
     curl_close($ch);
     return $result;
   }
-  
+
   public static function useJSON($value=null){
-    return static::$json_data = ($value===null?static::$json_data:$value);
+    return $value===null ? static::$json_data : static::$json_data = $value;
   }
 
   public static function addHeader($name,$value){
@@ -86,33 +85,35 @@ class HTTP {
   }
 
   public static function headers($name=null){
-    return null===$name?static::$headers:(isset(static::$headers[$name])?static::$headers[$name]:'');
+    // null === $name ?? static::$headers ?? static::$headers[$name]
+    return null === $name
+           ? static::$headers
+           : ( isset(static::$headers[$name]) ? static::$headers[$name] : '' );
   }
 
   public static function userAgent($value=null){
-    return static::$UA = ($value===null?static::$UA:$value);
+    return $value===null ? static::$UA : static::$UA = $value;
   }
 
-  public static function get($url,$data=null,array $headers=[], $username = null, $password = null){
+  public static function get($url, $data=null, array $headers=[], $username = null, $password = null){
     return static::request('get',$url,$data,$headers,false,$username,$password);
   }
 
-  public static function post($url,$data=null,array $headers=[], $username = null, $password = null){
+  public static function post($url, $data=null, array $headers=[], $username = null, $password = null){
     return static::request('post',$url,$data,$headers,static::$json_data,$username,$password);
   }
 
-  public static function put($url,$data=null,array $headers=[], $username = null, $password = null){
+  public static function put($url, $data=null, array $headers=[], $username = null, $password = null){
     return static::request('put',$url,$data,$headers,static::$json_data,$username,$password);
   }
 
-  public static function delete($url,$data=null,array $headers=[], $username = null, $password = null){
+  public static function delete($url, $data=null, array $headers=[], $username = null, $password = null){
     return static::request('delete',$url,$data,$headers,static::$json_data,$username,$password);
   }
 
-  public static function info($url=null){
+  public static function info($url = null){
     if ($url){
-      $ch = curl_init($url);
-      curl_setopt_array($ch, [
+      curl_setopt_array($ch = curl_init($url), [
         CURLOPT_SSL_VERIFYHOST  => false,
         CURLOPT_CONNECTTIMEOUT  => 10,
         CURLOPT_RETURNTRANSFER  => true,
@@ -122,7 +123,6 @@ class HTTP {
         CURLOPT_FILETIME        => true,
         CURLOPT_NOBODY          => true,
       ]);
-  
       curl_exec($ch);
       $info = curl_getinfo($ch);
       curl_close($ch);
