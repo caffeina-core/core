@@ -62,6 +62,10 @@ class Smtp implements Driver {
     return $code == $this->lastCode;
   }
 
+  protected function cleanAddr($email){
+    return preg_replace('((.*?)<([\w.@-]+)>(.*?))','$2',$email);
+  }
+
   protected function SMTPmail($from,$to,$body){
     $this->connect();
     $this->expectCode(220);
@@ -78,8 +82,12 @@ class Smtp implements Driver {
       $this->expectCode(334);
     }
 
+    $from = $this->cleanAddr($from);
+
     $this->write("MAIL FROM: <{$from}>");
     $this->expectCode(250);
+
+    $to = $this->cleanAddr($to);
 
     $this->write("RCPT TO: <{$to}>");
     $this->expectCode(250);
