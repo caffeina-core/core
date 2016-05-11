@@ -99,13 +99,11 @@ class Smtp implements Driver {
   }
 
   public function onSend(Envelope $envelope){
-    $success = true;
+    $results = [];
     foreach ($envelope->to() as $to) {
-      $current_success = $this->SMTPmail($envelope->from(), $to, $envelope->build());
-      \Event::trigger('core.email.send',$to,$envelope,'smtp');
-      $success = $success && $current_success;
+      $results[$to] = $this->SMTPmail($envelope->from(), $to, $envelope->build());
     }
-    return $success;
+    return $results;
   }
 
 }

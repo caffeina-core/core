@@ -44,7 +44,12 @@ class Email {
   }
 
   public static function send($mail){
-    return static::$driver->onSend(static::create($mail));
+    $envelope = static::create($mail);
+    $results = static::$driver->onSend($envelope);
+    Event::trigger('core.email.send', $envelope->to(), $envelope, static::$driver, $results);
+    return array_reduce( $results, function($carry, $item) {
+      return $carry && $item;
+    }, true );
   }
 
 }
