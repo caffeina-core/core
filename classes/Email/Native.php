@@ -17,8 +17,10 @@ class Native implements Driver {
   public function onInit($options){}
 
   public function onSend(Envelope $envelope){
-    $results = [];
-    foreach ($envelope->to() as $to) {
+    $results 		= [];
+    $recipients 	= $envelope->to();
+    $envelope->to(false);
+    foreach ($recipients as $to) {
       $results[$to] = mail($to,$envelope->subject(),$envelope->body(),$envelope->head());
     }
     return $results;
