@@ -106,6 +106,7 @@ class Envelope {
 
   public function contentType($value=null){
     if ($value!==null && $value) {
+      if (empty($this->attachments)) $this->compiled_head = null;
       $this->compiled_body = null;
       $this->contentType = $value;
     } else if ($value===false) $this->contentType = '';
