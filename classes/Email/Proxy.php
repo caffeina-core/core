@@ -21,8 +21,10 @@ class Proxy implements Driver {
   }
 
   public function onSend(Envelope $envelope){
-    \Event::trigger($this->listener, $envelope);
-    return true;
+    return array_reduce( (array) \Event::trigger($this->listener, $envelope), function($carry, $item) {
+    	 if (is_bool($item)) $carry[] = $item;
+    	 return $carry;
+    }, []);
   }
 
 }
