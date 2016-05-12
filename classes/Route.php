@@ -151,9 +151,9 @@ class Route {
         Event::trigger('core.route.after', $this);
 
         if ( $this->response_is_object ){
-					$this->response = Response::json($this->response_object);
+			$this->response = Response::json($this->response_object);
         } else {
-					Response::add($this->response);
+			Response::add($this->response);
         }
 
         Event::trigger('core.route.end', $this);
@@ -423,7 +423,7 @@ class Route {
         if (!$method)  $method  = Request::method();
 
         $__deferred_send = new Deferred(function(){
-          if (Options::get('core.response.autosend',false)){
+          if (Options::get('core.response.autosend',true)){
             Response::send();
           }
         });
