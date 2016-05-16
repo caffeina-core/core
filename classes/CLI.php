@@ -167,7 +167,7 @@ class CLI {
    public static function write($message){
       if( preg_match('~<[^>]+>~',$message)) {
          // Use preg_replace_callback for fast regex matches navigation
-         preg_replace_callback('~^(.*)<([^>]+)>(.+)</\2>(.*)$~USm',function($m){
+         echo strtr(preg_replace_callback('~^(.*)<([^>]+)>(.+)</\2>(.*)$~USm',function($m){
             static::write($m[1]);
             $color = strtoupper(trim($m[2]));
             if( isset(static::$shell_colors[$color]) ) echo static::$shell_colors[$color];
@@ -177,9 +177,9 @@ class CLI {
             $back_color = array_pop(static::$color_stack) ?: static::$color_stack[]='NORMAL';
             if( isset(static::$shell_colors[$back_color]) ) echo static::$shell_colors[$back_color];
             static::write($m[4]);
-         },$message);
+         },strtr($message,["\n"=>"&BR;"])),["&BR;"=>PHP_EOL]);
       } else {
-         echo $message;
+         echo strtr($message,["&BR;"=>PHP_EOL]);
       }
    }
    
