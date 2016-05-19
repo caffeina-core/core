@@ -7,6 +7,10 @@ class TextTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("TEST:::", $results);
 	}
 
+  public function testMalformedRender() {
+    $this->assertEquals("TEST:{{c}:SETS", Text::render("TEST:{{c}:SETS",["c"=>1]));
+  }
+
 	public function testRenderWithData() {
 		$this->assertEquals("TEST:1:2:", Text::render("TEST:{{ a}}:{{ b   }}:{{c}}", [
 			'a' => 1,
