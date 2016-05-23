@@ -15,6 +15,7 @@ class DictionaryTest extends PHPUnit_Framework_TestCase {
 				'g' => '#0f0',
 				'b' => '#00f',
 			],
+      'this' => [ 'must' => [ 'be' => false ] ]
 		];
 	}
 
@@ -34,26 +35,26 @@ class DictionaryTest extends PHPUnit_Framework_TestCase {
 
 	public function testSetGet() {
 		TestDict::set('a', 999);
-		$this->assertEquals(TestDict::all()['a'], 999);
-		$this->assertEquals(TestDict::get('a'), 999);
+		$this->assertEquals(999,TestDict::all()['a'],"From all()");
+		$this->assertEquals(999,TestDict::get('a'), "From getter");
 	}
 
 	public function testExists() {
 		TestDict::set('a', 999);
-		$this->assertTrue(TestDict::exists('a'));
-		$this->assertFalse(TestDict::exists('not-a'));
+		$this->assertTrue(TestDict::exists('a'),"Must Exists");
+		$this->assertFalse(TestDict::exists('not-a'),"Must NOT Exists");
 	}
 
 	public function testLeftMerge() {
 		TestDict::merge($this->data, true);
-		$this->assertEquals(TestDict::all()['a'], 999);
+		$this->assertEquals(999,TestDict::all()['a']);
 	}
 
 	public function testRightMerge() {
 		TestDict::clear();
 		TestDict::set('a', 999);
 		TestDict::merge($this->data);
-		$this->assertEquals(TestDict::all()['a'], 123);
+		$this->assertEquals($this->data['a'], TestDict::all()['a']);
 	}
 
 	public function testDefaultOnGetFail() {
@@ -66,6 +67,12 @@ class DictionaryTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(TestDict::set('a.b.c.d', 1), 1);
 		$this->assertEquals(TestDict::get('a.b.c.d', 0), 1);
 	}
+
+  public function testGetFalsy() {
+    TestDict::clear();
+    TestDict::load($this->data);
+    $this->assertTrue(TestDict::all()['this']['must']['be'] === TestDict::get('this.must.be'));
+  }
 
   public function testSetFromObjectMap() {
     TestDict::clear();

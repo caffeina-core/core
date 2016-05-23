@@ -30,7 +30,7 @@ class Map implements JsonSerializable {
      * @return mixed The value of the key or the default (resolved) value if the key not existed.
      */
     public function get($key, $default=null){
-        if ($ptr =& $this->find($key,false)){
+        if (null !== ($ptr =& $this->find($key,false))){
             return $ptr;
         } else {
             if ($default !== null){
@@ -131,15 +131,11 @@ class Map implements JsonSerializable {
      * @return mixed The founded value.
      */
     public function & find($path, $create=false, callable $operation=null) {
-        $tok = strtok($path,'.');
-        if ( $create ) {
-            $value =& $this->fields;
+        $create ? $value =& $this->fields : $value = $this->fields;
+        foreach (explode('.',$path) as $tok) if ($create || isset($value[$tok])) {
+          $value =& $value[$tok];
         } else {
-            $value = $this->fields;
-        }
-        while ( $tok !== false ){
-            $value =& $value[$tok];
-            $tok = strtok('.');
+          $value = $create ? $value :  null;  break;
         }
         if ( is_callable($operation) ) $operation($value);
         return $value;
