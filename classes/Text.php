@@ -28,9 +28,17 @@ class Text {
    * @return string
   */
   public static function render($t,$v=null){
-    return preg_replace_callback("(\{\{([^}]+)\}\})S",function($c) use ($v){
-      return Object::fetch(trim($c[1]),$v);
-    },$t);
+    if (Options::get('core.text.replace_empties', true)) {
+      $replacer = function($c) use ($v){
+        return Object::fetch(trim($c[1]), $v);
+      };
+    } else {
+      $replacer = function($c) use ($v){
+        return Object::fetch(trim($c[1]), $v) ?: $c[0];
+      };
+    }
+
+    return preg_replace_callback("(\{\{([^}]+)\}\})S",$replacer,$t);
   }
 
   /**
