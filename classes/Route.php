@@ -13,7 +13,7 @@
 class Route {
     use Module;
 
-    protected static $routes,
+    public static $routes,
                      $base    = '',
                      $prefix  = [],
                      $group   = [];
@@ -39,8 +39,12 @@ class Route {
      * @return Route
      */
     public function __construct($URLPattern, $callback = null, $method='get'){
-        $this->URLPattern = rtrim(implode('',static::$prefix),'/') . '/' . trim($URLPattern,'/')?:'/';
-        $this->URLPattern = $this->URLPattern != '/' ? rtrim($this->URLPattern,'/') : $this->URLPattern;
+        $prefix  = static::$prefix ? rtrim(implode('',static::$prefix),'/') : '';
+        $pattern = "/" . trim($URLPattern, "/");
+        // Adjust / optionality with dynamic patterns
+        // Ex:  /test/(:a) ===> /test(/:a)
+        $this->URLPattern = str_replace('//','/',str_replace('/(','(/', rtrim("{$prefix}{$pattern}","/")));
+
         $this->dynamic    = $this->isDynamic($this->URLPattern);
         $this->pattern    = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern, $this->rules) : $this->URLPattern;
         $this->callback   = $callback;
@@ -385,6 +389,7 @@ class Route {
             array_shift(static::$group);
             array_pop(static::$prefix);
             if (empty(static::$prefix)) static::$prefix=[''];
+
             return $group;
 
         } else if ( 0 === strpos(Request::URI(), $prefix_complete) ){
@@ -398,6 +403,7 @@ class Route {
             array_shift(static::$group);
             array_pop(static::$prefix);
             if (empty(static::$prefix)) static::$prefix=[''];
+
             return $group;
         } else {
 

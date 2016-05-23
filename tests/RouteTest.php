@@ -97,6 +97,16 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(Response::body(), 'API-V1-INFO');
 	}
 
+  public function testNullParamerGroupIndex() {
+    Response::clean();
+    $this->mock_request('/aaaaaa', 'get');
+    $api = Route::group('/aaaaaa', function (){
+      Route::on('/(:id)', function ($test=0) {echo "$test-API-INFO";});
+    });
+    Route::dispatch('/aaaaaa', 'get');
+    $this->assertEquals(Response::body(), '0-API-INFO');
+  }
+
 	public function testGroupsMiddlewares() {
 		Response::clean();
 		$this->mock_request('/api2/v1/info', 'get');
