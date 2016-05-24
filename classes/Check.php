@@ -206,6 +206,13 @@ Event::on('core.check.init',function(){
       'message' => "Field must be equal to {{arg_1}}.",
     ],
 
+    'in_array' => [
+      'validate' => function($value,$array_values) {
+         return  in_array($value, $array_values);
+      },
+      'message' => "This value is forbidden.",
+    ],
+
   ]);
 
 });

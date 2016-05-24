@@ -98,6 +98,21 @@ class CheckTest extends PHPUnit_Framework_TestCase {
 		], ['value' => -12]));
 	}
 
+  public function testInArray() {
+    $this->assertTrue(Check::valid([
+      'value' => 'in_array:[10,50,"beta"]',
+    ], ['value' => 10]));
+    $this->assertTrue(Check::valid([
+      'value' => 'in_array:[10,50,"beta"]',
+    ], ['value' => 50]));
+    $this->assertFalse(Check::valid([
+      'value' => 'in_array:[10,50,"beta"]',
+    ], ['value' => 4]));
+    $this->assertTrue(Check::valid([
+      'value' => 'in_array:[10,50,"beta"]',
+    ], ['value' => "beta"]));
+  }
+
 	public function testWords() {
 		$this->assertTrue(Check::valid([
 			'value' => 'words:3',
