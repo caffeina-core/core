@@ -11,11 +11,13 @@ class FilterTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testAddMultiple() {
-		Filter::add('test', function ($text) {
+		Filter::add(['test','bbb'], function ($text) {
 			return '_' . $text . '_';
 		});
 		$results = Filter::with('test', 'alpha');
 		$this->assertEquals('_ALPHA_', $results);
+    $results = Filter::with('bbb', 'alpha');
+    $this->assertEquals('_alpha_', $results);
 	}
 
 	public function testAddArray() {
