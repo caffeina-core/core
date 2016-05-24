@@ -182,6 +182,20 @@ class SQLConnection {
     return $res ? $res->fetchColumn($column) : null;
   }
 
+  public function column($query, $params=[], $column=0){
+    if(!$this->connection()) return false;
+
+    $results = [];
+    $res     = $this->exec($query,$params);
+
+    if (is_string($column))
+      while ($x = $res->fetch(PDO::FETCH_OBJ)) $results[] = $x->$column;
+    else
+      while ($x = $res->fetchColumn($column)) $results[] = $x;
+
+    return $results;
+  }
+
   public function each($query, $params=[], callable $looper = null){
     if(!$this->connection()) return false;
 

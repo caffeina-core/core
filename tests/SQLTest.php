@@ -72,6 +72,14 @@ class SQLTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(10, $cc);
 	}
 
+  public function testColumn() {
+    $ids = SQL::column('SELECT id FROM users',[],0);
+    $this->assertEquals('1,2,3,4', implode(',',$ids), "Numeric Column");
+
+    $ids = SQL::column('SELECT id FROM users',[],'id');
+    $this->assertEquals('1,2,3,4', implode(',',$ids), "Label Column");
+  }
+
 	public function testEachRetrievingAll() {
 		$results = SQL::each('SELECT id FROM users');
 		$espect = '[{"id":"1"},{"id":"2"},{"id":"3"},{"id":"4"}]';
