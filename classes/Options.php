@@ -61,4 +61,28 @@ class Options extends Dictionary {
 		}
 	}
 
+  /**
+   * Load an ENV file
+   * @param  string $dir The directory of the ENV file
+   * @param  string $envname The filename for the ENV file (Default to `.env`)
+   * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
+   */
+  public static function loadENV($dir,$envname='.env',$prefix_path=null){
+    $dir = rtrim($dir,'/');
+    $results = [];
+    foreach(file("$dir/$envname", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line){
+      $line = trim($line);
+      if ($line[0]=='#' || strpos($line,'=')===false) continue;
+      list($key,$value) = explode('=',$line,2);
+      $key   = trim(str_replace(['export ', "'", '"'], '', $key));
+      $value = stripslashes(trim($value,'"'));
+      $results[$key] = preg_replace_callback('/\${([a-zA-Z0-9_]+)}/',function($m) use (&$results){
+        return isset($results[$m[1]]) ? $results[$m[1]] : '';
+      },$value);
+      putenv("$key={$results[$key]}");
+      $_ENV[$key] = $results[$key];
+    }
+    if($results) static::loadArray($results,$prefix_path);
+  }
+
 }

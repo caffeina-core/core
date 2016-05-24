@@ -3,12 +3,12 @@
 class RequestTest extends PHPUnit_Framework_TestCase {
 
 	function request_set_clear_data() {
-		$_GET = [];
-		$_POST = [];
-		$_COOKIE = [];
-		$_FILES = [];
+		$_GET     = [];
+		$_POST    = [];
+		$_COOKIE  = [];
+		$_FILES   = [];
 		$_REQUEST = [];
-		$_ENV = [];
+		$_ENV     = [];
 	}
 
 	function request_set_get_data($data) {
