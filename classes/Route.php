@@ -334,13 +334,13 @@ class Route {
      * @param Route $r
      * @return Route
      */
-    public static function add($r){
-      if ( isset(static::$group[0]) ) static::$group[0]->add($r);
-      return static::$routes[implode('', static::$prefix)][] = $r;
+    public static function add($route){
+      if ( isset(static::$group[0]) ) static::$group[0]->add($route);
+      return static::$routes[implode('', static::$prefix)][] = $route;
     }
 
     /**
-     * Define a route group, if not immediatly matched internal code will not be invoked.
+     * Define a route group, if not immediately matched internal code will not be invoked.
      * @param  string $prefix The url prefix for the internal route definitions.
      * @param  string $callback This callback is invoked on $prefix match of the current request URI.
      */
@@ -411,7 +411,7 @@ class Route {
 
         Response::status(404, '404 Resource not found.');
         foreach (array_filter(Event::trigger(404)) as $res){
-
+           Response::add($res);
         }
         return false;
     }

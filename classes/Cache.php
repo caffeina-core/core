@@ -4,7 +4,7 @@
  * Cache
  *
  * Multi-strategy cache store.
- * 
+ *
  * @package core
  * @author stefano.azzolini@caffeinalab.com
  * @copyright Caffeina srl - 2015 - http://caffeina.it
@@ -12,11 +12,11 @@
 
 class Cache {
    use Module;
-   
-   protected static $driver = null;
-   protected static $enabled = true;
 
-    public static function get($key,$default='',$expire=0){
+   protected static $driver  = null,
+                    $enabled = true;
+
+    public static function get($key, $default='', $expire=0){
       if (static::$enabled){
         $hash = static::hash($key);
         if(static::$driver->exists($hash) && $results = static::$driver->get($hash)){
@@ -39,7 +39,7 @@ class Cache {
      * @param  mixed $driver can be a single driver name string, an array of driver names or a map [ driver_name => driver_options array ]
      * @return bool   true if a driver was loaded
      * @example
-     *   
+     *
      *   Cache::using('redis');
      *   Cache::using(['redis','files','memory']); // Prefer "redis" over "files" over "memory" caching
      *   Cache::using([
@@ -52,7 +52,7 @@ class Cache {
      *         ],
      *         'memory'
      *   ]);
-     * 
+     *
      */
     public static function using($driver){
       foreach((array)$driver as $key => $value){
@@ -85,8 +85,7 @@ class Cache {
         return $enabled ? static::$enabled : static::$enabled = $enabled;
     }
 
-
-    public static function set($key,$value,$expire=0){
+    public static function set($key, $value, $expire=0){
         return static::$driver->set(static::hash($key),$value,$expire);
     }
 
@@ -102,15 +101,15 @@ class Cache {
         return static::$driver->flush();
     }
 
-    public static function inc($key,$value=1){
+    public static function inc($key, $value=1){
         return static::$driver->inc(static::hash($key),$value);
     }
 
-    public static function dec($key,$value=1){
+    public static function dec($key, $value=1){
         return static::$driver->dec(static::hash($key),$value);
     }
 
-    public static function hash($key,$group=null){
+    public static function hash($key, $group=null){
         static $hashes = [];
         if (false === isset($hashes[$group][$key])){
             $k = $key;
