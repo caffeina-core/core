@@ -163,11 +163,28 @@ class Response {
     }
 
     /**
-     * Append a raw string to the buffer.
+     * Append data to the buffer.
+     *  Rules :
+     *  - Callables will be called and their results added (recursive)
+     *  - Views will be rendered
+     *  - Objects, arrays and bools will be JSON encoded
+     *  - Strings and numbers will be appendend to the response
+     *
      * @param  mixed $payload Data to append to the response buffer
      */
     public static function add(){
-        static::$payload[] = implode('',func_get_args());
+      foreach(func_get_args() as $data){
+        switch (true) {
+          case is_callable($data) :
+            return static::add($data());
+          case is_a($data, 'View') :
+            return static::$payload[] = "$data";
+          case is_object($data) || is_array($data) || is_bool($data):
+            return static::json($data);
+          default:
+            return static::$payload[] = $data;
+        }
+      }
     }
 
     public static function status($code,$message=''){

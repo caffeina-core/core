@@ -21,11 +21,14 @@ trait Persistence {
    * @return mixed          All options array or a single value
    */
   protected static function persistenceOptions($options=null){
-    static $_options = [];
-
+    static $_options = ['table'=>null,'key'=>'id'];
     if ($options === null) return $_options;
+
     if (is_array($options)) {
-      return $_options = $options;
+      foreach ($_options as $key => &$value) {
+        if (isset($options[$key])) $value = $options[$key];
+      }
+      return $_options;
     } else {
       if (empty($_options['table'])) {
         $self = get_called_class();
@@ -90,9 +93,6 @@ trait Persistence {
    * @return void
    */
   public static function persistOn($table, array $options=[]){
-    $options = array_merge($options,[
-      'key' => 'id'
-    ]);
     $options['table'] = $table;
     static::persistenceOptions($options);
   }

@@ -14,38 +14,38 @@ abstract class Model {
     use Module, Persistence;
 
     public static function where($where_sql = false){
-        // Forward persistence calls to caller class, not Model
-        $self    = get_called_class();
-        $table   = $self::persistenceOptions('table');
-        $key     = $self::persistenceOptions('key');
+      // Forward persistence calls to caller class, not Model
+      $self  = get_called_class();
+      $table = $self::persistenceOptions('table');
+      $key   = $self::persistenceOptions('key');
 
-        $sql = "select $key from $table" . ($where_sql ? " where $where_sql" : '');
+      $sql   = "select $key from $table" . ($where_sql ? " where $where_sql" : '');
 
-        $results = [];
-        SQL::each($sql, function($row) use ($self,&$results,$key){
-            $results[] = $self::load($row->$key);
-        });
-        return $results;
+      $results = [];
+      SQL::each($sql, function($row) use ($self, &$results, $key){
+          $results[] = $self::load($row->$key);
+      });
+      return $results;
     }
 
-    public static function all($page=1,$limit=-1){
-    		$offset = max(1,$page)-1;
-        return static::where($limit < 1 ? "" : "1 limit $limit offset $offset");
+    public static function all($page=1, $limit=-1){
+      $offset = max(1,$page)-1;
+      return static::where($limit < 1 ? "" : "1 limit $limit offset $offset");
     }
 
     public function primaryKey(){
-    	$self    = get_called_class();
-      $key     = $self::persistenceOptions('key');
+      $self = get_called_class();
+      $key  = $self::persistenceOptions('key');
       return $this->$key;
     }
 
-    public static function create(array $data){
-        $tmp = new static;
-        foreach ($data as $key => $value) {
-           $tmp->$key = $value;
-        }
-        $tmp->save();
-        return $tmp;
+    public static function create($data){
+      $tmp = new static;
+      foreach ((array)$data as $key => $value) {
+         $tmp->$key = $value;
+      }
+      $tmp->save();
+      return $tmp;
     }
 
 }

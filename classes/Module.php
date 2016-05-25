@@ -4,56 +4,36 @@
  * Module trait
  *
  * Provides a way to extend static classes with new methods.
- * 
+ *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015/2016 - http://caffeina.com
  */
 
 trait Module {
-    static protected $__classMethods = array();
-    
-    public function __call($name, $args){
-        if (isset(static::$__classMethods[$name]) && static::$__classMethods[$name] instanceof \Closure) {
-            return call_user_func_array(static::$__classMethods[$name]->bindTo($this, $this), $args);
-        }
-        
-        if (get_parent_class()) {
-            return parent::__call($name, $args);
-        }
-        
-        throw new \BadMethodCallException;
-    }
-    
-    public static function __prototypeAdd($name, \Closure $method){
-        static::$__classMethods[$name] = $method;
+    static protected $__PROTOTYPE = array();
+
+    final public function __call($name, $args){
+      if (isset(static::$__PROTOTYPE[$name]) && static::$__PROTOTYPE[$name] instanceof \Closure)
+        return call_user_func_array(static::$__PROTOTYPE[$name]->bindTo($this, $this), $args);
+      if (get_parent_class())
+        return parent::__call($name, $args);
+      else throw new \BadMethodCallException;
     }
 
-    public static function __prototypeGet($name){
-        return isset(static::$__classMethods[$name])?static::$__classMethods[$name]:null;
+    final public static function __callStatic($name, $args){
+      if (isset(static::$__PROTOTYPE[$name]) && static::$__PROTOTYPE[$name] instanceof \Closure)
+        return forward_static_call_array(static::$__PROTOTYPE[$name], $args);
+      if (get_parent_class()) return parent::__callStatic($name, $args);
+      else throw new \BadMethodCallException;
     }
-    
-    public static function __prototypeRemove($name){
-        unset(static::$__classMethods[$name]);
+
+    public static function extend($methods = []){
+      if ($methods) foreach ($methods as $name => $method) {
+        if ($method && $method instanceof \Closure)
+          static::$__PROTOTYPE[$name] = $method;
+        else throw new \BadMethodCallException;
+      }
     }
-    
-    public static function __callStatic($name, $args){
-        if (isset(static::$__classMethods[$name]) && static::$__classMethods[$name] instanceof \Closure) {
-            return forward_static_call_array(static::$__classMethods[$name], $args);
-        }
-        
-        if (get_parent_class()) {
-            return parent::__call($name, $args);
-        }
-        
-        throw new \BadMethodCallException;
-    }
-    
-    public static function extend($methodMap=[]){
-        if ($methodMap) foreach ($methodMap as $name => $method) {
-            if($method && $method instanceof \Closure) {
-                static::__prototypeAdd($name,$method);
-            } else throw new \BadMethodCallException;
-        }
-    }
+
 }

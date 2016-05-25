@@ -14,9 +14,9 @@ class Route {
     use Module;
 
     public static $routes,
-                     $base    = '',
-                     $prefix  = [],
-                     $group   = [];
+                  $base       = '',
+                  $prefix     = [],
+                  $group      = [];
 
     protected $URLPattern     = '',
               $pattern        = '',
@@ -87,85 +87,60 @@ class Route {
      */
     public function run(array $args, $method='get'){
         $method = strtolower($method);
-        $this->response 			 		= '';
-        $this->response_object 		= null;
-       	$this->response_is_object = false;
+        $append_echoed_text = Options::get('core.route.append_echoed_text',true);
 
         // Call direct befores
         if ( $this->befores ) {
           // Reverse befores order
           foreach (array_reverse($this->befores) as $mw) {
-	        	ob_start();
-            // Silence "Cannot bind an instance to a static closure" warnings
-            $mw_result = call_user_func(@$mw->bindTo($this));
-          	$this->response .= ob_get_clean();
+            Event::trigger('core.route.before', $this, $mw);
+            ob_start();
+            $mw_result  = call_user_func($mw);
+            $raw_echoed = ob_get_clean();
+            if ($append_echoed_text) Response::add($raw_echoed);
             if ( false  === $mw_result ) {
-            	return [''];
-            } else if (is_a($mw_result,'View') || is_string($mw_result)) {
-              $this->response .= (string)$mw_result;
-          	}
+              return [''];
+            } else {
+              Response::add($mw_result);
+            }
           }
         }
 
-        Event::trigger('core.route.before', $this);
-
         $callback = (is_array($this->callback) && isset($this->callback[$method]))
-                    ? $this->callback[$method] : $this->callback;
+                    ? $this->callback[$method]
+                    : $this->callback;
 
         if (is_callable($callback)) {
-          // Capure callback output
-					Response::type(Response::TYPE_HTML);
-	        ob_start();
-	        // Silence "Cannot bind an instance to a static closure" warnings
-	        $view_results 	 = call_user_func_array(@$callback->bindTo($this), $args);
-	        $this->response .= ob_get_clean();
+          Response::type(Options::get('core.route.response_default_type', Response::TYPE_HTML));
 
-	        // Render View if returned, else echo string or encode json response
-	        if ( null !== $view_results ) {
-	          if (is_a($view_results,'View') || is_string($view_results)) {
-	              $this->response .= (string)$view_results;
-	          } else {
-			        	$this->response_is_object = true;
-	              $this->response_object 		= $view_results;
-	          }
-	        }
+          ob_start();
+          $view_results  = call_user_func_array($callback, $args);
+          $raw_echoed    = ob_get_clean();
 
-        } else if (is_a($callback,'View') || is_string($callback)) {
-          // return rendered View or direct string
-        	$this->response .= (string)$callback;
-        } else {
-          // JSON encode returned value
-        	$this->response_is_object = true;
-        	$this->response_object 		= $callback;
+          if ($append_echoed_text) Response::add($raw_echoed);
+          Response::add($view_results);
         }
 
         // Apply afters
         if ( $this->afters ) {
           foreach ($this->afters as $mw) {
-	        	ob_start();
-            // Silence "Cannot bind an instance to a static closure" warnings
-            $mw_result = call_user_func(@$mw->bindTo($this));
-          	$this->response .= ob_get_clean();
+            Event::trigger('core.route.after', $this, $mw);
+            ob_start();
+            $mw_result  = call_user_func($mw);
+            $raw_echoed = ob_get_clean();
+            if ($append_echoed_text) Response::add($raw_echoed);
             if ( false  === $mw_result ) {
-            	return [''];
-            } else if (is_a($mw_result,'View') || is_string($mw_result)) {
-              $this->response .= (string)$mw_result;
-          	}
+              return [''];
+            } else {
+              Response::add($mw_result);
+            }
           }
-        }
-
-        Event::trigger('core.route.after', $this);
-
-        if ( $this->response_is_object ){
-			$this->response = Response::json($this->response_object);
-        } else {
-			Response::add($this->response);
         }
 
         Event::trigger('core.route.end', $this);
 
-        return [Filter::with('core.route.response', $this->response)];
-    }
+        return [Filter::with('core.route.response', Response::body())];
+     }
 
     /**
      * Check if route match URL and HTTP Method and run if it is valid.
@@ -361,7 +336,7 @@ class Route {
      */
     public static function add($r){
         if ( isset(static::$group[0]) ) static::$group[0]->add($r);
-        return static::$routes[implode('',static::$prefix)][] = $r;
+        return static::$routes[implode('', static::$prefix)][] = $r;
     }
 
     /**
@@ -369,7 +344,7 @@ class Route {
      * @param  string $prefix The url prefix for the internal route definitions.
      * @param  string $callback This callback is invoked on $prefix match of the current request URI.
      */
-    public static function group($prefix,$callback=null){
+    public static function group($prefix, $callback=null){
 
         // Skip definition if current request doesn't match group.
 
@@ -416,9 +391,9 @@ class Route {
     }
 
     public static function exitWithError($code,$message="Application Error"){
-    	Response::error($code,$message);
-    	Response::send();
-    	exit;
+      Response::error($code,$message);
+      Response::send();
+      exit;
     }
 
     /**
@@ -446,7 +421,9 @@ class Route {
         }
 
         Response::status(404, '404 Resource not found.');
-        Event::trigger(404);
+        foreach (array_filter(Event::trigger(404)) as $res){
+
+        }
         return false;
     }
 }
