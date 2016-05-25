@@ -96,7 +96,8 @@ class Route {
           // Reverse befores order
           foreach (array_reverse($this->befores) as $mw) {
 	        	ob_start();
-            $mw_result = call_user_func($mw->bindTo($this));
+            // Silence "Cannot bind an instance to a static closure" warnings
+            $mw_result = call_user_func(@$mw->bindTo($this));
           	$this->response .= ob_get_clean();
             if ( false  === $mw_result ) {
             	return [''];
@@ -142,7 +143,8 @@ class Route {
         if ( $this->afters ) {
           foreach ($this->afters as $mw) {
 	        	ob_start();
-            $mw_result = call_user_func($mw->bindTo($this));
+            // Silence "Cannot bind an instance to a static closure" warnings
+            $mw_result = call_user_func(@$mw->bindTo($this));
           	$this->response .= ob_get_clean();
             if ( false  === $mw_result ) {
             	return [''];
