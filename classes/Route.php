@@ -6,8 +6,8 @@
  * URL Router and action dispatcher.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2016 - http://caffeina.com
  */
 
 class Route {
@@ -39,19 +39,19 @@ class Route {
      * @return Route
      */
     public function __construct($URLPattern, $callback = null, $method='get'){
-        $prefix  = static::$prefix ? rtrim(implode('',static::$prefix),'/') : '';
-        $pattern = "/" . trim($URLPattern, "/");
-        // Adjust / optionality with dynamic patterns
-        // Ex:  /test/(:a) ===> /test(/:a)
-        $this->URLPattern = str_replace('//','/',str_replace('/(','(/', rtrim("{$prefix}{$pattern}","/")));
+      $prefix  = static::$prefix ? rtrim(implode('',static::$prefix),'/') : '';
+      $pattern = "/" . trim($URLPattern, "/");
+      // Adjust / optionality with dynamic patterns
+      // Ex:  /test/(:a) ===> /test(/:a)
+      $this->URLPattern = str_replace('//','/',str_replace('/(','(/', rtrim("{$prefix}{$pattern}","/")));
 
-        $this->dynamic    = $this->isDynamic($this->URLPattern);
-        $this->pattern    = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern, $this->rules) : $this->URLPattern;
-        $this->callback   = $callback;
+      $this->dynamic    = $this->isDynamic($this->URLPattern);
+      $this->pattern    = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern, $this->rules) : $this->URLPattern;
+      $this->callback   = $callback;
 
-        // We will use hash-checks, for O(1) complexity vs O(n)
-        $this->methods[$method] = 1;
-        return static::add($this);
+      // We will use hash-checks, for O(1) complexity vs O(n)
+      $this->methods[$method] = 1;
+      return static::add($this);
     }
 
     /**
@@ -61,22 +61,22 @@ class Route {
      * @return boolean
      */
     public function match($URL,$method='get'){
-        $method = strtolower($method);
+      $method = strtolower($method);
 
-        // * is an http method wildcard
-        if (empty($this->methods[$method]) && empty($this->methods['*'])) return false;
-        $URL = rtrim($URL,'/');
-        $args = [];
-        if ( $this->dynamic
-               ? preg_match($this->pattern,$URL,$args)
-               : $URL == rtrim($this->pattern,'/')
-        ){
-            foreach ($args as $key => $value) {
-              if ( false === is_string($key) ) unset($args[$key]);
-            }
-            return $args;
+      // * is an http method wildcard
+      if (empty($this->methods[$method]) && empty($this->methods['*'])) return false;
+      $URL  = rtrim($URL,'/');
+      $args = [];
+      if ( $this->dynamic
+           ? preg_match($this->pattern,$URL,$args)
+           : $URL == rtrim($this->pattern,'/')
+      ){
+        foreach ( $args as $key => $value ) {
+          if ( false === is_string($key) ) unset($args[$key]);
         }
-        return false;
+        return $args;
+      }
+      return false;
     }
 
     /**
@@ -86,60 +86,60 @@ class Route {
      * @return array The callback response.
      */
     public function run(array $args, $method='get'){
-        $method = strtolower($method);
-        $append_echoed_text = Options::get('core.route.append_echoed_text',true);
+      $method = strtolower($method);
+      $append_echoed_text = Options::get('core.route.append_echoed_text',true);
 
-        // Call direct befores
-        if ( $this->befores ) {
-          // Reverse befores order
-          foreach (array_reverse($this->befores) as $mw) {
-            Event::trigger('core.route.before', $this, $mw);
-            ob_start();
-            $mw_result  = call_user_func($mw);
-            $raw_echoed = ob_get_clean();
-            if ($append_echoed_text) Response::add($raw_echoed);
-            if ( false  === $mw_result ) {
-              return [''];
-            } else {
-              Response::add($mw_result);
-            }
-          }
-        }
-
-        $callback = (is_array($this->callback) && isset($this->callback[$method]))
-                    ? $this->callback[$method]
-                    : $this->callback;
-
-        if (is_callable($callback)) {
-          Response::type(Options::get('core.route.response_default_type', Response::TYPE_HTML));
-
+      // Call direct befores
+      if ( $this->befores ) {
+        // Reverse befores order
+        foreach (array_reverse($this->befores) as $mw) {
+          Event::trigger('core.route.before', $this, $mw);
           ob_start();
-          $view_results  = call_user_func_array($callback, $args);
-          $raw_echoed    = ob_get_clean();
-
+          $mw_result  = call_user_func($mw);
+          $raw_echoed = ob_get_clean();
           if ($append_echoed_text) Response::add($raw_echoed);
-          Response::add($view_results);
-        }
-
-        // Apply afters
-        if ( $this->afters ) {
-          foreach ($this->afters as $mw) {
-            Event::trigger('core.route.after', $this, $mw);
-            ob_start();
-            $mw_result  = call_user_func($mw);
-            $raw_echoed = ob_get_clean();
-            if ($append_echoed_text) Response::add($raw_echoed);
-            if ( false  === $mw_result ) {
-              return [''];
-            } else {
-              Response::add($mw_result);
-            }
+          if ( false  === $mw_result ) {
+            return [''];
+          } else {
+            Response::add($mw_result);
           }
         }
+      }
 
-        Event::trigger('core.route.end', $this);
+      $callback = (is_array($this->callback) && isset($this->callback[$method]))
+                  ? $this->callback[$method]
+                  : $this->callback;
 
-        return [Filter::with('core.route.response', Response::body())];
+      if (is_callable($callback)) {
+        Response::type( Options::get('core.route.response_default_type', Response::TYPE_HTML) );
+
+        ob_start();
+        $view_results = call_user_func_array($callback, $args);
+        $raw_echoed   = ob_get_clean();
+
+        if ($append_echoed_text) Response::add($raw_echoed);
+        Response::add($view_results);
+      }
+
+      // Apply afters
+      if ( $this->afters ) {
+        foreach ($this->afters as $mw) {
+          Event::trigger('core.route.after', $this, $mw);
+          ob_start();
+          $mw_result  = call_user_func($mw);
+          $raw_echoed = ob_get_clean();
+          if ($append_echoed_text) Response::add($raw_echoed);
+          if ( false  === $mw_result ) {
+            return [''];
+          } else {
+            Response::add($mw_result);
+          }
+        }
+      }
+
+      Event::trigger('core.route.end', $this);
+
+      return [Filter::with('core.route.response', Response::body())];
      }
 
     /**
@@ -149,7 +149,7 @@ class Route {
      * @return array The callback response.
      */
     public function runIfMatch($URL, $method='get'){
-        return ($args = $this->match($URL,$method)) ? $this->run($args,$method) : null;
+      return ($args = $this->match($URL,$method)) ? $this->run($args,$method) : null;
     }
 
     /**
@@ -159,7 +159,7 @@ class Route {
      * @return Route
      */
     public static function on($URLPattern, $callback = null){
-        return new Route($URLPattern,$callback);
+      return new Route($URLPattern,$callback);
     }
 
     /**
@@ -169,7 +169,7 @@ class Route {
      * @return Route
      */
     public static function get($URLPattern, $callback = null){
-        return (new Route($URLPattern,$callback))->via('get');
+      return (new Route($URLPattern,$callback))->via('get');
     }
 
     /**
@@ -179,7 +179,7 @@ class Route {
      * @return Route
      */
     public static function post($URLPattern, $callback = null){
-        return (new Route($URLPattern,$callback))->via('post');
+      return (new Route($URLPattern,$callback))->via('post');
     }
 
     /**
@@ -189,7 +189,7 @@ class Route {
      * @return Route
      */
     public static function any($URLPattern, $callback = null){
-        return (new Route($URLPattern,$callback))->via('*');
+      return (new Route($URLPattern,$callback))->via('*');
     }
 
     /**
@@ -198,8 +198,8 @@ class Route {
      * @return Route
      */
     public function & with($callback){
-        $this->callback = $callback;
-        return $this;
+      $this->callback = $callback;
+      return $this;
     }
 
     /**
@@ -208,8 +208,8 @@ class Route {
      * @return Route
      */
     public function & before($callback){
-        $this->befores[] = $callback;
-        return $this;
+      $this->befores[] = $callback;
+      return $this;
     }
 
     /**
@@ -218,8 +218,8 @@ class Route {
      * @return Route
      */
     public function & after($callback){
-        $this->afters[] = $callback;
-        return $this;
+      $this->afters[] = $callback;
+      return $this;
     }
 
     /**
@@ -233,11 +233,11 @@ class Route {
      * @return Route
      */
     public function & via(){
-        $this->methods = [];
-        foreach (func_get_args() as $method){
-            $this->methods[strtolower($method)] = true;
-        }
-        return $this;
+      $this->methods = [];
+      foreach (func_get_args() as $method){
+        $this->methods[strtolower($method)] = true;
+      }
+      return $this;
     }
 
     /**
@@ -256,11 +256,11 @@ class Route {
      * @return Route
      */
     public function & rules(array $rules){
-        foreach ((array)$rules as $varname => $rule){
-            $this->rules[$varname] = $rule;
-        }
-        $this->pattern = $this->compilePatternAsRegex($this->URLPattern,$this->rules);
-        return $this;
+      foreach ((array)$rules as $varname => $rule){
+        $this->rules[$varname] = $rule;
+      }
+      $this->pattern = $this->compilePatternAsRegex( $this->URLPattern, $this->rules );
+      return $this;
     }
 
     /**
@@ -281,15 +281,15 @@ class Route {
      * @return Route
      */
     public static function & map($URLPattern, $callbacks = []){
-        $route           = new static($URLPattern);
-        $route->callback = [];
-        foreach ($callbacks as $method => $callback) {
-           $method = strtolower($method);
-           if (Request::method() !== $method) continue;
-           $route->callback[$method] = $callback;
-           $route->methods[$method]  = 1;
-        }
-        return $route;
+      $route           = new static($URLPattern);
+      $route->callback = [];
+      foreach ($callbacks as $method => $callback) {
+        $method = strtolower($method);
+        if (Request::method() !== $method) continue;
+        $route->callback[$method] = $callback;
+        $route->methods[$method]  = 1;
+      }
+      return $route;
     }
 
     /**
@@ -298,9 +298,9 @@ class Route {
      * @return string The compiled PREG RegEx.
      */
     protected static function compilePatternAsRegex($pattern, $rules=[]){
-        return '#^'.preg_replace_callback('#:([a-zA-Z]\w*)#S',function($g) use (&$rules){
-            return '(?<' . $g[1] . '>' . (isset($rules[$g[1]])?$rules[$g[1]]:'[^/]+') .')';
-        },str_replace(['.',')','*'],['\.',')?','.+'],$pattern)).'$#';
+      return '#^'.preg_replace_callback('#:([a-zA-Z]\w*)#S',function($g) use (&$rules){
+        return '(?<' . $g[1] . '>' . (isset($rules[$g[1]])?$rules[$g[1]]:'[^/]+') .')';
+      },str_replace(['.',')','*'],['\.',')?','.+'],$pattern)).'$#';
     }
 
     /**
@@ -311,13 +311,13 @@ class Route {
      * @return array The extracted variables
      */
     protected static function extractVariablesFromURL($pattern, $URL=null, $cut=false){
-        $URL     = $URL ?: Request::URI();
-        $pattern = $cut ? str_replace('$#','',$pattern).'#' : $pattern;
-        if ( !preg_match($pattern,$URL,$args) ) return false;
-        foreach ($args as $key => $value) {
-            if (false === is_string($key)) unset($args[$key]);
-        }
-        return $args;
+      $URL     = $URL ?: Request::URI();
+      $pattern = $cut ? str_replace('$#','',$pattern).'#' : $pattern;
+      if ( !preg_match($pattern,$URL,$args) ) return false;
+      foreach ($args as $key => $value) {
+        if (false === is_string($key)) unset($args[$key]);
+      }
+      return $args;
     }
 
     /**
@@ -335,8 +335,8 @@ class Route {
      * @return Route
      */
     public static function add($r){
-        if ( isset(static::$group[0]) ) static::$group[0]->add($r);
-        return static::$routes[implode('', static::$prefix)][] = $r;
+      if ( isset(static::$group[0]) ) static::$group[0]->add($r);
+      return static::$routes[implode('', static::$prefix)][] = $r;
     }
 
     /**
@@ -346,47 +346,36 @@ class Route {
      */
     public static function group($prefix, $callback=null){
 
-        // Skip definition if current request doesn't match group.
+      // Skip definition if current request doesn't match group.
+      $prefix_complete = rtrim(implode('',static::$prefix),'/') . $prefix;
 
-        $prefix_complete = rtrim(implode('',static::$prefix),'/') . $prefix;
+      static::$prefix[] = $prefix;
+      if (empty(static::$group)) static::$group = [];
+      array_unshift(static::$group, new RouteGroup());
 
-        if ( static::isDynamic($prefix) ){
+      switch (true) {
 
-            // Dynamic group, capture vars
-            $vars = static::extractVariablesFromURL(static::compilePatternAsRegex($prefix_complete),null,true);
+        // Dynamic group
+        case static::isDynamic($prefix) :
+          // Capture vars
+          $vars = static::extractVariablesFromURL(static::compilePatternAsRegex($prefix_complete), null, true);
+          // Errors in compile pattern or variable extraction, aborting.
+          if (false === $vars) return false;
+          if ($callback) call_user_func_array($callback,$vars);
+        break;
 
-            // Errors in compile pattern or variable extraction, aborting.
-            if (false === $vars) return;
+        // Static group
+        case 0 === strpos(Request::URI(), $prefix_complete) :
+          if ($callback) call_user_func($callback);
+        break;
 
-            static::$prefix[] = $prefix;
-            if (empty(static::$group)) static::$group = [];
-            array_unshift(static::$group, new RouteGroup());
-            if ($callback) call_user_func_array($callback,$vars);
-            $group = static::$group[0];
-            array_shift(static::$group);
-            array_pop(static::$prefix);
-            if (empty(static::$prefix)) static::$prefix=[''];
+      }
 
-            return $group;
-
-        } else if ( 0 === strpos(Request::URI(), $prefix_complete) ){
-
-            // Static group
-            static::$prefix[] = $prefix;
-            if (empty(static::$group)) static::$group = [];
-            array_unshift(static::$group, new RouteGroup());
-            if ($callback) call_user_func($callback);
-            $group = static::$group[0];
-            array_shift(static::$group);
-            array_pop(static::$prefix);
-            if (empty(static::$prefix)) static::$prefix=[''];
-
-            return $group;
-        } else {
-
-            // Null Object
-            return new RouteGroup();
-        }
+      $group = static::$group[0];
+      array_shift(static::$group);
+      array_pop(static::$prefix);
+      if (empty(static::$prefix)) static::$prefix = [''];
+      return $group;
 
     }
 
