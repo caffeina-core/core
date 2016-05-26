@@ -20,7 +20,7 @@ trait Persistence {
    * @param  mixed $options The options passed to the persistence layer.
    * @return mixed          All options array or a single value
    */
-  protected static function persistenceOptions($options=null){
+  public static function persistenceOptions($options=null){
     static $_options = ['table'=>null,'key'=>'id'];
     if ($options === null) return $_options;
 
