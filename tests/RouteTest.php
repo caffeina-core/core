@@ -14,6 +14,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testBasicRouting() {
+    Options::set('core.response.autosend', false);
 		Response::clean();
 		Route::on('/', function () {
 			return "index";
@@ -23,6 +24,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testAliasGet() {
+    Options::set('core.response.autosend', false);
 		Response::clean();
 		Route::get('/', function () {
 			return "index";
@@ -32,6 +34,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testAliasPost() {
+    Options::set('core.response.autosend', false);
 		Response::clean();
 		Route::post('/', function () {
 			return "index";
@@ -41,6 +44,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testRouteNotFound() {
+    Options::set('core.response.autosend', false);
 		Response::clean();
 		$test = $this;
 		Event::on(404, function () use (&$test) {
@@ -51,6 +55,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testWildcardMethod() {
+    Options::set('core.response.autosend', false);
 		Route::any('/any', function () {return "ANY";});
 		Response::clean();
 		Route::dispatch('/any', 'patch');
@@ -64,6 +69,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testParameterExtraction() {
+    Options::set('core.response.autosend', false);
 		Response::clean();
 		Route::on('/post/:a/:b', function ($a, $b) {return "$b-$a";});
 		Route::dispatch('/post/1324/fefifo', 'get');
@@ -71,6 +77,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testMiddlewares() {
+    Options::set('core.response.autosend', false);
 		Response::clean();
 		Route::on('/middle', function () {return "-Test-";})
 			->before(function () {echo 'AA';})
@@ -83,6 +90,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testGroups() {
+    Options::set('core.response.autosend', false);
 		Response::clean();
 		$this->mock_request('/api1/v1/info', 'get');
 		$api = Route::group('/api1', function () {
@@ -98,6 +106,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
   public function testNullParamerGroupIndex() {
+    Options::set('core.response.autosend', false);
     Response::clean();
     $this->mock_request('/aaaaaa', 'get');
     $api = Route::group('/aaaaaa', function (){
@@ -108,6 +117,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
   }
 
 	public function testGroupsMiddlewares() {
+    Options::set('core.response.autosend', false);
 		Response::clean();
 		$this->mock_request('/api2/v1/info', 'get');
 		Route::group('/api2', function () {
