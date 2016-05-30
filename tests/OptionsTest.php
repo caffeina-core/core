@@ -58,8 +58,27 @@ EOENV
   }
 
   public function testGetDefaultFromPath() {
-    $this->assertEquals('567',Options::get('test.d', '567'));
-    $this->assertEquals('567',Options::get('test.d'));
+    $this->assertEquals('567', Options::get('test.d', '567'));
+    $this->assertEquals('567', Options::get('test.d'));
+  }
+
+  public function testEmptyOverride() {
+    Options::clear();
+    Options::loadArray([
+      "base"     => true,
+      "elements" => [1,2,3,4],
+      "tree"     => [
+        "type"   => "SIMPLE",
+        "child"  => [
+          "A","B","C"
+        ],
+      ],
+    ]);
+    Options::loadArray([
+      "base"     => false,
+      "elements" => null, // But don't use [] ! see array_replace_recursive for an explanation.
+    ]);
+    $this->assertEquals(0, count(Options::get('elements',[])));
   }
 
 }
