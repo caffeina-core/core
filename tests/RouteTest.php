@@ -116,6 +116,19 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals(Response::body(), '0-API-INFO');
   }
 
+  public function testGroupsSkipping() {
+    Event::off(404);
+    Options::set('core.response.autosend', false);
+    Response::clean();
+    $this->mock_request('/not_right', 'get');
+    $self = $this;
+    $api = Route::group('/not', function () use ($self) {
+      $self->assertTrue(false,"This assert must be skipped to be ok."); // This is an error!
+    });
+    Route::dispatch('/not_right', 'get');
+    $this->assertTrue(true); // Good.
+  }
+
 	public function testGroupsMiddlewares() {
     Options::set('core.response.autosend', false);
 		Response::clean();

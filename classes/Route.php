@@ -353,6 +353,8 @@ class Route {
       if (empty(static::$group)) static::$group = [];
       array_unshift(static::$group, new RouteGroup());
 
+      $URI = Request::URI();
+
       switch (true) {
 
         // Dynamic group
@@ -365,7 +367,7 @@ class Route {
         break;
 
         // Static group
-        case 0 === strpos(Request::URI(), $prefix_complete) :
+        case 0 === strpos("$URI/", "$prefix_complete/") :
           if ($callback) call_user_func($callback);
         break;
 
@@ -410,7 +412,7 @@ class Route {
         }
 
         Response::status(404, '404 Resource not found.');
-        foreach (array_filter(Event::trigger(404)) as $res){
+        foreach (array_filter(Event::trigger(404)?:[]) as $res){
            Response::add($res);
         }
         return false;
