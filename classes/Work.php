@@ -64,10 +64,10 @@ class Work {
    */
   protected static function install_shutdown(){
     if (static::$inited_shutdown) return;
-    
+
     // Disable time limit
     set_time_limit(0);
-    
+
     // HHVM support
     if(function_exists('register_postsend_function')){
       register_postsend_function(function(){
@@ -77,7 +77,7 @@ class Work {
       register_shutdown_function(function(){
         fastcgi_finish_request();
         Event::trigger('core.shutdown');
-      });       
+      });
     } else {
       register_shutdown_function(function(){
         Event::trigger('core.shutdown');
@@ -86,6 +86,7 @@ class Work {
 
     static::$inited_shutdown = true;
   }
+
 }
 
 class TaskCoroutine {
