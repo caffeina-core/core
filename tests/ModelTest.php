@@ -10,17 +10,17 @@ class ModelTest extends PHPUnit_Framework_TestCase {
 	public function __construct() {
 		SQL::connect('sqlite::memory:');
 		SQL::exec("CREATE TABLE books (
-			  id integer primary key,
-			  title text
-			);");
+		  id integer primary key,
+		  title text
+		);");
 
 		$this->b1 = Book::create([
-			'id' => 1,
+			'id'    => 1,
 			'title' => 'My book',
 		]);
 
 		$this->b2 = Book::create([
-			'id' => 2,
+			'id'    => 2,
 			'title' => 'Necronomicon',
 		]);
 	}

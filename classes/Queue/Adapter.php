@@ -13,10 +13,12 @@
 namespace Queue;
 
 interface Adapter  {
-  public function start();
-  public function add($type, $payload, $priority=0, $enable_at=0);
+  public function __construct($options=[]);
+  public function add($type, $payload, $priority=0, $live_from=0);
   public function get($id);
   public function del($id);
   public function update($id, $status);
-  public function list();
+  public function next();
+  public function all();
+  public function valid();
 }
