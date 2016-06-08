@@ -232,9 +232,9 @@ class Route {
      *
      * @return Route
      */
-    public function & via(){
+    public function & via(...$methods){
       $this->methods = [];
-      foreach (func_get_args() as $method){
+      foreach ($methods as $method){
         $this->methods[strtolower($method)] = true;
       }
       return $this;

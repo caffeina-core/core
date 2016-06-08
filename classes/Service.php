@@ -16,23 +16,24 @@ class Service {
     private static $services = [];
 
     public static function register($serviceName, $serviceFactory){
-      static::$services[$serviceName] = function() use ($serviceName, $serviceFactory) {
-        return static::$services[$serviceName] = call_user_func_array($serviceFactory, func_get_args());
+      static::$services[$serviceName] = function(...$args) use ($serviceName, $serviceFactory) {
+        return static::$services[$serviceName] = $serviceFactory(...$args);
       };
     }
 
     public static function registerFactory($serviceName, $serviceFactory){
-        static::$services[$serviceName] = function() use ($serviceName, $serviceFactory) {
-            return call_user_func_array($serviceFactory, func_get_args());
+        static::$services[$serviceName] = function(...$args) use ($serviceName, $serviceFactory) {
+            return $serviceFactory(...$args);
         };
     }
 
     public static function __callStatic($serviceName, $serviceParameters){
-    	return empty(static::$services[$serviceName])
+      $servs = static::$services;
+    	return empty($servs[$serviceName])
                    ? null
-                   : (is_callable(static::$services[$serviceName])
-                       ? call_user_func_array( static::$services[$serviceName], $serviceParameters)
-                       : static::$services[$serviceName]
+                   : (is_callable($servs[$serviceName])
+                       ? $servs[$serviceName](...$serviceParameters)
+                       : $servs[$serviceName]
                    );
     }
 

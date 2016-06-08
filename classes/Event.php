@@ -36,13 +36,11 @@ class Event {
         static::$_listeners[$alias] =& static::$_listeners[$source];
     }
 
-    public static function trigger($name){
+    public static function trigger($name, ...$args){
         if (false === empty(static::$_listeners[$name])){
-            $args = func_get_args();
-            array_shift($args);
             $results = [];
             foreach (static::$_listeners[$name] as $listener) {
-                $results[] = call_user_func_array($listener,$args);
+                $results[] = $listener(...$args);
             }
             return $results;
         };

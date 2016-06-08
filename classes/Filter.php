@@ -36,13 +36,12 @@ class Filter {
       }
     }
 
-    public static function with($names, $default){
+    public static function with($names, $default, ...$args){
       foreach ((array)$names as $name) {
         if (!empty(static::$_modders[$name])) {
           $value = $default;
-          $args  = array_slice( func_get_args(), 2 );
           foreach (static::$_modders[$name] as $modder) {
-            $value = call_user_func( $modder,$value,$args );
+            $value = $modder($value, $args);
           }
           return $value;
         }

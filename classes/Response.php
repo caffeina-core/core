@@ -130,36 +130,36 @@ class Response {
      * Append a text to the buffer.
      * @param  mixed $payload Text to append to the response buffer
      */
-    public static function text(){
+    public static function text(...$args){
         static::type(static::TYPE_TEXT);
-        static::$payload[] = implode('',func_get_args());
+        static::$payload[] = implode('',$args);
     }
 
     /**
      * Append an XML string to the buffer.
      * @param  mixed $payload Data to append to the response buffer
      */
-    public static function xml(){
+    public static function xml(...$args){
         static::type(static::TYPE_XML);
-        static::$payload[] = implode('',func_get_args());
+        static::$payload[] = implode('', $args);
     }
 
     /**
      * Append a SVG string to the buffer.
      * @param  mixed $payload Data to append to the response buffer
      */
-    public static function svg(){
+    public static function svg(...$args){
         static::type(static::TYPE_SVG);
-        static::$payload[] = implode('',func_get_args());
+        static::$payload[] = implode('', $args);
     }
 
     /**
      * Append an HTML string to the buffer.
      * @param  mixed $payload Data to append to the response buffer
      */
-    public static function html(){
+    public static function html(...$args){
         static::type(static::TYPE_HTML);
-        static::$payload[] = implode('',func_get_args());
+        static::$payload[] = implode('', $args);
     }
 
     /**
