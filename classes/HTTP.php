@@ -133,3 +133,23 @@ class HTTP {
   }
 
 }
+
+namespace HTTP {
+  class Response {
+    public $status   = 200,
+           $headers  = [],
+           $contents = '';
+
+    public function __construct($contents, $status, $headers){
+      $this->status   = $status;
+      $this->contents = $contents;
+      $this->headers  = (array)$headers;
+    }
+
+    public function __toString(){
+      return $this->content;
+    }
+
+  }
+}
+

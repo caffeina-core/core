@@ -142,12 +142,12 @@ class SQLConnection {
     return $this->connection['pdo'];
   }
 
-  public function prepare($query){
+  public function prepare($query, $pdo_params=[]){
     if(!$this->connection()) return false;
-    return isset($this->queries[$query]) ? $this->queries[$query] : ($this->queries[$query] = $this->connection()->prepare($query));
+    return isset($this->queries[$query]) ? $this->queries[$query] : ($this->queries[$query] = $this->connection()->prepare($query, $pdo_params));
   }
 
-  public function exec($query, $params=[], $pdo_params=null){
+  public function exec($query, $params=[], $pdo_params=[]){
     if(!$this->connection()) return false;
 
     if (false==is_array($params)) $params = (array)$params;
