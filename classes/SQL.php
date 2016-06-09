@@ -108,10 +108,11 @@ class SQLConnection {
       'username'   => $username,
       'password'   => $password,
       'options'    => array_merge([
-        PDO::ATTR_ERRMODE              => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE   => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES     => true,
-      ],$options),
+        PDO::ATTR_ERRMODE                => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE     => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES       => true,
+        PDO::MYSQL_ATTR_MULTI_STATEMENTS => true,
+      ], $options),
     ];
     // "The auto-commit mode cannot be changed for this driver" SQLite workaround
     if (strpos($dsn,'sqlite:') === 0) {
@@ -146,12 +147,12 @@ class SQLConnection {
     return isset($this->queries[$query]) ? $this->queries[$query] : ($this->queries[$query] = $this->connection()->prepare($query));
   }
 
-  public function exec($query, $params=[]){
+  public function exec($query, $params=[], $pdo_params=null){
     if(!$this->connection()) return false;
 
     if (false==is_array($params)) $params = (array)$params;
     $query = Filter::with('core.sql.query',$query);
-    if($statement = $this->prepare($query)){
+    if($statement = $this->prepare($query, $pdo_params)){
       Event::trigger('core.sql.query',$query,$params,(bool)$statement);
 
       foreach ($params as $key => $val) {
@@ -163,6 +164,7 @@ class SQLConnection {
         } elseif (is_int($val)) {
           $type = PDO::PARAM_INT;
         }
+
         // bindValue need a 1-based numeric parameter
         $statement->bindValue(is_numeric($key)?$key+1:':'.$key, $val, $type);
       }
@@ -201,7 +203,7 @@ class SQLConnection {
 
     // ($query,$looper) shorthand
     if ($looper===null && is_callable($params)) {$looper = $params; $params = [];}
-    if( $res = $this->exec($query,$params) ){
+    if( $res = $this->exec($query,$params, [PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ){
       if(is_callable($looper))
         while ($row = $res->fetchObject()) $looper($row);
       else
@@ -214,7 +216,7 @@ class SQLConnection {
 
     // ($query,$handler) shorthand
     if ($handler===null && is_callable($params)) {$handler = $params; $params = [];}
-    if( $res = $this->exec($query,$params) ){
+    if( $res = $this->exec($query,$params, [PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ){
         if (is_callable($handler))
           $handler($res->fetchObject());
         else
