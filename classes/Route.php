@@ -344,41 +344,34 @@ class Route {
      * @param  string $prefix The url prefix for the internal route definitions.
      * @param  string $callback This callback is invoked on $prefix match of the current request URI.
      */
-    public static function group($prefix, $callback=null){
+    public static function group($prefix, $callback){
 
       // Skip definition if current request doesn't match group.
       $prefix_complete = rtrim(implode('',static::$prefix),'/') . $prefix;
-
-      static::$prefix[] = $prefix;
-      if (empty(static::$group)) static::$group = [];
-      array_unshift(static::$group, new RouteGroup());
-
       $URI = Request::URI();
-
+      $vars = $args = [];
+      $group = false;
       switch (true) {
-
-        // Dynamic group
+        // Dynamic group, capture vars
         case static::isDynamic($prefix) :
-          // Capture vars
-          $vars = static::extractVariablesFromURL(static::compilePatternAsRegex($prefix_complete), null, true);
-          // Errors in compile pattern or variable extraction, aborting.
-          if (false === $vars) return false;
-          if ($callback) call_user_func_array($callback,$vars);
-        break;
-
+          $vars = static::extractVariablesFromURL($prx=static::compilePatternAsRegex($prefix_complete), null, true);
+          // Burn-in $prefix
+          preg_match(str_replace('$#','#',$prx), $URI ,$prefix);
+          $prefix = $prefix[0];
         // Static group
         case 0 === strpos("$URI/", "$prefix_complete/") :
-          if ($callback) call_user_func($callback);
+          static::$prefix[] = $prefix;
+          if (empty(static::$group)) static::$group = [];
+          array_unshift(static::$group, new RouteGroup());
+          $args = array_values($vars);
+          $callback(...$args);
+          $group = static::$group[0];
+          array_shift(static::$group);
+          array_pop(static::$prefix);
+          if (empty(static::$prefix)) static::$prefix = [''];
         break;
-
       }
-
-      $group = static::$group[0];
-      array_shift(static::$group);
-      array_pop(static::$prefix);
-      if (empty(static::$prefix)) static::$prefix = [''];
-      return $group;
-
+      return $group ?: new RouteGroup();
     }
 
     public static function exitWithError($code,$message="Application Error"){

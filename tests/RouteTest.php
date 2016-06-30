@@ -147,4 +147,46 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(Response::body(), 'AA-API-V1-INFO-BB');
 	}
 
+
+  public function testGroupsExtraction() {
+    Options::set('core.response.autosend', false);
+    Response::clean();
+    $this->mock_request('/item/1/info', 'get');
+
+    Route::group("/item/:id",function($id){
+     
+      Route::on("/",function() use ($id){
+        return "$id";
+      });
+
+      Route::on("/:field",function($field) use ($id){
+        return "{$id}->{$field}";
+      });
+
+    });
+
+    Route::dispatch('/item/1/info', 'get');
+    $this->assertEquals('1->info', Response::body());
+
+    Response::clean();
+    $this->mock_request('/ritem/1/', 'get');
+
+    Route::group("/ritem(/:id)",function($id){
+     
+      Route::on("/",function() use ($id){
+        return "$id";
+      });
+
+      Route::on("/:field",function($field) use ($id){
+        return "{$id}->{$field}";
+      });
+
+    });
+
+    Route::dispatch('/ritem/1/', 'get');
+    $this->assertEquals('1', Response::body());
+  }
+
+
+
 }
