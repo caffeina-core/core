@@ -6,8 +6,8 @@
  * A module of string related utility.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015 - http://caffeina.com
  */
 
 class Text {

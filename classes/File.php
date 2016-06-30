@@ -11,7 +11,7 @@
  */
 
 class File {
-    use Module;
+    use Module, Events;
 
     protected static $mount_points = [];
 
@@ -19,10 +19,12 @@ class File {
         $driver_class = '\\FileSystem\\'.ucfirst(strtolower($driver));
         if (!class_exists($driver_class)) throw new \Exception('Filesystem adapter '.$driver.' not found.');
         static::$mount_points[$alias] = new $driver_class($options);
+        static::trigger("mount",$alias, $driver_class, static::$mount_points[$alias]);
     }
 
     public static function unmount($alias) {
        unset(static::$mount_points[$alias]);
+       static::trigger("unmount",$alias);
     }
 
     public static function mounts() {

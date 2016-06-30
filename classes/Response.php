@@ -11,7 +11,7 @@
  */
 
 class Response {
-    use Module;
+    use Module, Events;
 
     const TYPE_JSON               = 'application/json',
           TYPE_HTML               = 'text/html',
@@ -196,6 +196,7 @@ class Response {
     }
 
     public static function error($code=500,$message='Application Error'){
+        static::trigger('error',$code,$message);
         Event::trigger('core.response.error',$code,$message);
         static::status($code,$message);
     }
@@ -242,6 +243,7 @@ class Response {
     public static function send($force = false){
       if (!static::$sent || $force) {
         static::$sent = true;
+        static::trigger('send');
         Event::trigger('core.response.send');
         if (false === headers_sent()) foreach (static::$headers as $name => $value_code) {
 

@@ -6,13 +6,10 @@
  * Cooperative multitasking via coroutines.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
+ * @author stefano.azzolini@caffeina.com
  * @reference http://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @copyright Caffeina srl - 2015 - http://caffeina.com
  */
-
-// version_compare(PHP_VERSION, '5.5.0', '>=')
-//  or trigger_error('Work module need PHP 5.5 or later.',E_USER_ERROR);
 
 class Work {
   use Module;

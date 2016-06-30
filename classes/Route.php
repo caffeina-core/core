@@ -11,7 +11,7 @@
  */
 
 class Route {
-    use Module;
+    use Module, Events;
 
     public static $routes,
                   $base       = '',
@@ -93,6 +93,7 @@ class Route {
       if ( $this->befores ) {
         // Reverse befores order
         foreach (array_reverse($this->befores) as $mw) {
+          static::trigger('before', $this, $mw);
           Event::trigger('core.route.before', $this, $mw);
           ob_start();
           $mw_result  = call_user_func($mw);
@@ -124,6 +125,7 @@ class Route {
       // Apply afters
       if ( $this->afters ) {
         foreach ($this->afters as $mw) {
+          static::trigger('after', $this, $mw);
           Event::trigger('core.route.after', $this, $mw);
           ob_start();
           $mw_result  = call_user_func($mw);
@@ -137,6 +139,7 @@ class Route {
         }
       }
 
+      static::trigger('end', $this);
       Event::trigger('core.route.end', $this);
 
       return [Filter::with('core.route.response', Response::body())];
@@ -415,7 +418,10 @@ class Route {
         }
 
         Response::status(404, '404 Resource not found.');
-        foreach (array_filter(Event::trigger(404)?:[]) as $res){
+        foreach (array_filter(array_merge(
+          (static::trigger(404)?:[]),
+          (Event::trigger(404)?:[])
+        )) as $res){
            Response::add($res);
         }
         return false;

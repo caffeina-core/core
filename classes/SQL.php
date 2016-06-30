@@ -6,13 +6,14 @@
  * SQL database access via PDO.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015 - http://caffeina.com
  */
 
 
 class SQL {
-  use Module;
+  use Module, Events;
+
   protected static $connections = [],
                    $current     = 'default';
 
@@ -134,6 +135,7 @@ class SQLConnection {
             $this->connection['options']
 
         );
+        SQL::trigger('connect',$this);
         Event::trigger('core.sql.connect',$this);
       } catch(Exception $e) {
         $this->connection['pdo'] = null;
@@ -153,6 +155,7 @@ class SQLConnection {
     if (false==is_array($params)) $params = (array)$params;
     $query = Filter::with('core.sql.query',$query);
     if($statement = $this->prepare($query, $pdo_params)){
+      SQL::trigger('query',$query,$params,(bool)$statement);
       Event::trigger('core.sql.query',$query,$params,(bool)$statement);
 
       foreach ($params as $key => $val) {
@@ -169,6 +172,7 @@ class SQLConnection {
         $statement->bindValue(is_numeric($key)?$key+1:':'.$key, $val, $type);
       }
     } else {
+      static::trigger('error',$query,$params);
       Event::trigger('core.sql.error',$query,$params);
       return false;
     }

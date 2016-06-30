@@ -6,12 +6,12 @@
  * Validate a data map against defined methods.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015 - http://caffeina.com
  */
 
 class Check {
-  use Module;
+  use Module, Events;
 
   protected static $methods = [],
                    $errors  = [];
@@ -19,7 +19,7 @@ class Check {
 
   public static function valid($rules, $data){
     static::$errors = [];
-    Event::triggerOnce('core.check.init');
+    static::triggerOnce('init');
     self::$data = ($data = (array)$data);
 
     foreach ((array)$rules as $field_name => $rule) {
@@ -96,7 +96,7 @@ class Check {
 
 }
 
-Event::on('core.check.init',function(){
+Check::on('init',function(){
 
   Check::method([
 

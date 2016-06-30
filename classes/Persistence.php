@@ -139,6 +139,7 @@ trait Persistence {
        foreach ((array)$data as $key => $value) {
          $obj->$key = $value;
        }
+       if (is_callable(($c=get_called_class())."::trigger")) $c::trigger("load", $obj, $table, $options['key']);
        return $obj;
      } else {
        return null;
@@ -163,7 +164,8 @@ trait Persistence {
    * Private Standard Save Method
    */
   private function persistenceSaveDefault($table,$options){
-     return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);
+    if (is_callable(($c=get_called_class())."::trigger")) $c::trigger("save", $this, $table, $options['key']);
+    return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);
   }
 
 

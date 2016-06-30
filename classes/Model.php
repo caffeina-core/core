@@ -11,7 +11,7 @@
  */
 
 abstract class Model {
-    use Module, Persistence;
+    use Module, Persistence, Events;
 
     public static function where($where_sql = false){
       // Forward persistence calls to caller class, not Model

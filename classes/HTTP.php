@@ -11,7 +11,7 @@
  */
 
 class HTTP {
-  use Module;
+  use Module, Events;
 
   protected static $UA          = "Mozilla/4.0 (compatible; Core::HTTP; Windows NT 6.1)",
                    $json_data   = false,

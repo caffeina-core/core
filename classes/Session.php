@@ -6,12 +6,12 @@
  * Manage PHP sessions.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015 - http://caffeina.com
  */
 
 class Session {
-    use Module;
+    use Module, Events;
 
 	/**
 	 * Start session handler
@@ -22,11 +22,12 @@ class Session {
 	 */
 	static public function start($name=null){
 		if (isset($_SESSION)) return;
-		static::name($name);
+		$ln = static::name($name);
     // Obfuscate IDs
     ini_set('session.hash_function', 'whirlpool');
 		session_cache_limiter('must-revalidate');
 		@session_start();
+    static::trigger("start", $name?:$ln);
 	}
 
 	/**
@@ -102,6 +103,7 @@ class Session {
 		static::start();
 		session_unset();
 		session_destroy();
+    static::trigger("end");
 	}
 
 	/**

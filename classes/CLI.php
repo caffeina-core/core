@@ -6,12 +6,12 @@
  * CLI command routing.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015 - http://caffeina.com
  */
 
 class CLI {
-    use Module;
+    use Module, Events;
 
     protected static $file         = null;
     protected static $arguments    = [];

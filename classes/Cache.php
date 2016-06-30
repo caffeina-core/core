@@ -6,12 +6,12 @@
  * Multi-strategy cache store.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015 - http://caffeina.com
  */
 
 class Cache {
-   use Module;
+   use Module, Events;
 
    protected static $driver  = null,
                     $enabled = true;

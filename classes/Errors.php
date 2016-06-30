@@ -11,7 +11,7 @@
  */
 
 class Errors {
-    use Module;
+    use Module, Events;
 
     const SIMPLE = 0;
     const HTML   = 1;
@@ -51,8 +51,14 @@ class Errors {
         break;
       }
       $e = new \ErrorException($type.': '.$errstr, 0, $errno, $errfile, $errline);
-      $chk_specific = array_filter((array)Event::trigger('core.error.'.strtolower($type),$e));
-      $chk_general  = array_filter((array)Event::trigger('core.error',$e));
+      $chk_specific = array_filter(array_merge(
+                      (array)static::trigger(strtolower($type),$e),
+                      (array)Event::trigger('core.error.'.strtolower($type),$e)
+                    ));
+      $chk_general  = array_filter(array_merge(
+                      (array)static::trigger('any',$e),
+                      (array)Event::trigger('core.error',$e)
+                    ));
       if (! ($chk_specific || $chk_general) ) static::traceException($e);
       return true;
     }
@@ -76,18 +82,30 @@ class Errors {
       return true;
     }
 
+    /**
+     * @deprecated Use Errors::on('fatal', $listener)
+     */
     public static function onFatal(callable $listener){
       Event::on('core.error.fatal',$listener);
     }
 
+    /**
+     * @deprecated Use Errors::on('warning', $listener)
+     */
     public static function onWarning(callable $listener){
       Event::on('core.error.warning',$listener);
     }
 
+    /**
+     * @deprecated Use Errors::on('notice', $listener)
+     */
     public static function onNotice(callable $listener){
       Event::on('core.error.notice',$listener);
     }
 
+    /**
+     * @deprecated Use Errors::on('any', $listener)
+     */
     public static function onAny(callable $listener){
       Event::on('core.error',$listener);
     }
