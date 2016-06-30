@@ -232,5 +232,42 @@ class RouteTest extends PHPUnit_Framework_TestCase {
       $this->assertEquals('OK-DYNAMIC-abcd', Response::body());
     }
 
+   public function testFullyOptionalRoute() {
+
+      Options::set('core.response.autosend', false);
+      Options::set('core.route.pruning', false);
+      
+      Route::group('/model', function () {
+        
+        Route::on('(/:slug)', function ($slug = null){
+          return "SLUG:" . ($slug === null ? 'NULL' : $slug);
+        });
+
+        Route::on('/:slug/info', function ($slug){
+          return "INFO:FOR:$slug";
+        });
+
+      });
+
+      $URI = '/model/test/info';
+      Response::clean();
+      $this->mock_request($URI, 'get');
+      Route::dispatch($URI, 'get');
+      $this->assertEquals('INFO:FOR:test', Response::body());
+      
+      $URI = '/model';
+      Response::clean();
+      $this->mock_request($URI, 'get');
+      Route::dispatch($URI, 'get');
+      $this->assertEquals('SLUG:NULL', Response::body());
+
+      $URI = '/model/test';
+      Response::clean();
+      $this->mock_request($URI, 'get');
+      Route::dispatch($URI, 'get');
+      $this->assertEquals('SLUG:test', Response::body());
+
+    }
+
 
 }

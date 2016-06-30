@@ -355,15 +355,17 @@ class Route {
       switch (true) {
 
         // Dynamic group
-        case static::isDynamic($prefix) 
-             && ($args = static::extractVariablesFromURL($prx=static::compilePatternAsRegex("$pre_prefix$prefix"), null, true)):              
-
-          // Burn-in $prefix as static string
-          $partial = preg_match_all(str_replace('$#', '#', $prx), $URI, $partial) ? $partial[0][0] : '';
-          $prefix = $partial ? preg_replace('#^'.implode('',static::$prefix).'#', '', $partial) : $prefix;
+        case static::isDynamic($prefix) :
+          $args = static::extractVariablesFromURL($prx=static::compilePatternAsRegex("$pre_prefix$prefix"), null, true);
+          if ( $args !== false ) {
+            // Burn-in $prefix as static string
+            $partial = preg_match_all(str_replace('$#', '#', $prx), $URI, $partial) ? $partial[0][0] : '';
+            $prefix = $partial ? preg_replace('#^'.implode('',static::$prefix).'#', '', $partial) : $prefix;
+          }
 
         // Static group
-        case 0 === strpos("$URI/", "$pre_prefix$prefix/") :
+        case ( 0 === strpos("$URI/", "$pre_prefix$prefix/") )
+             || ( ! Options::get('core.route.pruning', true) ) :
 
           static::$prefix[] = $prefix;
           if (empty(static::$group)) static::$group = [];
