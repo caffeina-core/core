@@ -147,13 +147,33 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(Response::body(), 'AA-API-V1-INFO-BB');
 	}
 
+  public function testStaticGroupsNesting() {
+      Event::off(404);
+      Options::set('core.response.autosend', false);
+      Response::clean();
+      $URI = '/r_a/r_b/r_c/r_d';
+      $this->mock_request($URI, 'get');
+      Route::group('/r_a', function () {
+        Route::group('/r_b', function () {
+          Route::group('/r_c', function () {
+            Route::group('/r_d', function () {
+              Route::on('/',function(){
+                return "OK-STATIC";
+              });
+            });
+          });          
+        });
+      });
+      Route::dispatch($URI, 'get');
+      $this->assertEquals('OK-STATIC', Response::body());
+    }
 
   public function testGroupsExtraction() {
     Options::set('core.response.autosend', false);
     Response::clean();
     $this->mock_request('/item/1/info', 'get');
 
-    Route::group("/item/:id",function($id){
+    Route::group("/item(/:id)",function($id){
      
       Route::on("/",function() use ($id){
         return "$id";
@@ -187,6 +207,30 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals('1', Response::body());
   }
 
+
+   public function testDynamicGroupsNesting() {
+      Event::off(404);
+      Options::set('core.response.autosend', false);
+      Response::clean();
+      
+      $URI = '/x_a/x_b/x_c/x_d';
+      $this->mock_request($URI, 'get');
+
+      Route::group('/x_:a', function ($a) {
+        Route::group('/x_:b', function ($b) use ($a) {
+          Route::group('/x_:c', function ($c) use ($a,$b) {
+            Route::group('/x_:d', function ($d) use ($a,$b,$c) {
+              Route::on('/',function() use ($a,$b,$c,$d){
+                return "OK-DYNAMIC-$a$b$c$d";
+              });
+            });
+          });          
+        });
+      });
+      
+      Route::dispatch($URI, 'get');
+      $this->assertEquals('OK-DYNAMIC-abcd', Response::body());
+    }
 
 
 }

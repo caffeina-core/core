@@ -347,33 +347,31 @@ class Route {
     public static function group($prefix, $callback){
 
       // Skip definition if current request doesn't match group.
-      $prefix_complete = rtrim(implode('',static::$prefix),'/') . $prefix;
+      $pre_prefix = rtrim(implode('',static::$prefix),'/');
       $URI   = Request::URI();
-      $vars  = $args = [];
+      $args  = [];
       $group = false;
 
       switch (true) {
 
-        // Dynamic group, capture vars
-        case static::isDynamic($prefix) :
-          $vars = static::extractVariablesFromURL($prx=static::compilePatternAsRegex($prefix_complete), null, true);
+        // Dynamic group
+        case static::isDynamic($prefix) 
+             && ($args = static::extractVariablesFromURL($prx=static::compilePatternAsRegex("$pre_prefix$prefix"), null, true)):              
+
           // Burn-in $prefix as static string
-          preg_match(str_replace('$#','#',$prx), $URI ,$prefix);
-          $prefix = $prefix[0];
-          $prefix_complete = rtrim(implode('',static::$prefix),'/') . $prefix;
+          $partial = preg_match_all(str_replace('$#', '#', $prx), $URI, $partial) ? $partial[0][0] : '';
+          $prefix = $partial ? preg_replace('#^'.implode('',static::$prefix).'#', '', $partial) : $prefix;
 
         // Static group
-        case 0 === strpos("$URI/", "$prefix_complete/") :
+        case 0 === strpos("$URI/", "$pre_prefix$prefix/") :
 
           static::$prefix[] = $prefix;
           if (empty(static::$group)) static::$group = [];
-          array_unshift(static::$group, new RouteGroup());
-          $args = array_values($vars);
+          array_unshift(static::$group, $group = new RouteGroup());
 
           // Call the group body function
-          $callback(...$args);
+          call_user_func_array($callback, $args ?: []);
           
-          $group = static::$group[0];
           array_shift(static::$group);
           array_pop(static::$prefix);
           if (empty(static::$prefix)) static::$prefix = [''];
