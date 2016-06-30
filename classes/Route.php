@@ -348,29 +348,39 @@ class Route {
 
       // Skip definition if current request doesn't match group.
       $prefix_complete = rtrim(implode('',static::$prefix),'/') . $prefix;
-      $URI = Request::URI();
-      $vars = $args = [];
+      $URI   = Request::URI();
+      $vars  = $args = [];
       $group = false;
+
       switch (true) {
+
         // Dynamic group, capture vars
         case static::isDynamic($prefix) :
           $vars = static::extractVariablesFromURL($prx=static::compilePatternAsRegex($prefix_complete), null, true);
-          // Burn-in $prefix
+          // Burn-in $prefix as static string
           preg_match(str_replace('$#','#',$prx), $URI ,$prefix);
           $prefix = $prefix[0];
+          $prefix_complete = rtrim(implode('',static::$prefix),'/') . $prefix;
+
         // Static group
         case 0 === strpos("$URI/", "$prefix_complete/") :
+
           static::$prefix[] = $prefix;
           if (empty(static::$group)) static::$group = [];
           array_unshift(static::$group, new RouteGroup());
           $args = array_values($vars);
+
+          // Call the group body function
           $callback(...$args);
+          
           $group = static::$group[0];
           array_shift(static::$group);
           array_pop(static::$prefix);
           if (empty(static::$prefix)) static::$prefix = [''];
         break;
+
       }
+
       return $group ?: new RouteGroup();
     }
 
