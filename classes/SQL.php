@@ -208,11 +208,11 @@ class SQLConnection {
     // ($query,$looper) shorthand
     if ($looper===null && is_callable($params)) {$looper = $params; $params = [];}
     if( $res = $this->exec($query,$params, [PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ){
-      if(is_callable($looper))
+      if(is_callable($looper)) {
         while ($row = $res->fetchObject()) $looper($row);
-      else
-        return $res->fetchAll(PDO::FETCH_CLASS);
-    }
+        return true;
+      } else return $res->fetchAll(PDO::FETCH_CLASS);
+    } else return false;
   }
 
   public function single($query, $params=[], callable $handler = null){
