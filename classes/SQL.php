@@ -202,6 +202,17 @@ class SQLConnection {
     return $results;
   }
 
+  public function reduce($query, $params=[], $looper = null, $initial = null){
+    if(!$this->connection()) return false;
+
+    // ($query,$looper,$initial) shorthand
+    if (is_callable($params)) { $initial = $looper; $looper = $params; $params = []; }
+    if(( $res = $this->exec($query,$params, [PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ) && is_callable($looper) ){
+      while ($row = $res->fetchObject()) { $initial = $looper($row, $initial); }
+      return $initial;
+    } else return false;
+  }
+
   public function each($query, $params=[], callable $looper = null){
     if(!$this->connection()) return false;
 

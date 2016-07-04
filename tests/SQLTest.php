@@ -72,6 +72,22 @@ class SQLTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(10, $cc);
 	}
 
+  public function testReduceCallback() {
+    $val = SQL::reduce('SELECT id FROM users', function ($row, $cc) {
+      $cc += $row->id;
+      return $cc;
+    }, 0);
+    $this->assertEquals(10, $val);
+
+    $val = SQL::reduce('SELECT id FROM users', function ($row, $cc) {
+      $row->test = $row->id;
+      $cc[] = $row;
+      return $cc;
+    }, []);
+    $espect = '[{"id":"1","test":"1"},{"id":"2","test":"2"},{"id":"3","test":"3"},{"id":"4","test":"4"}]';
+    $this->assertEquals($espect, json_encode($val));
+  }
+
   public function testColumn() {
     $ids = SQL::column('SELECT id FROM users',[],0);
     $this->assertEquals('1,2,3,4', implode(',',$ids), "Numeric Column");
