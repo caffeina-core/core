@@ -222,7 +222,7 @@ class SQLConnection {
     if ($handler===null && is_callable($params)) {$handler = $params; $params = [];}
     if( $res = $this->exec($query,$params, [PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ){
         if (is_callable($handler))
-          $handler($res->fetchObject());
+          return $handler($res->fetchObject());
         else
           return $res->fetchObject();
     }

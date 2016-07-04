@@ -99,6 +99,16 @@ class SQLTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("test", $results);
 	}
 
+  public function testGetSingleRow() {
+    $results = SQL::single('SELECT password FROM users WHERE id=?', [2]);
+    $this->assertEquals("test", $results->password);
+
+    $results = SQL::single('SELECT password FROM users WHERE id=?', [2], function($value) {
+      return strtoupper($value->password);
+    });
+    $this->assertEquals("TEST", $results);
+  }
+
 	public function testInsertOrUpdate() {
 		$iou = SQL::insertOrUpdate('users', [
 			'id' => "2",
