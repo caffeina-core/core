@@ -5,3 +5,4 @@ vendor
 /docs/*
 !/docs/assets
 /dist/*
+!/dist/.gitkeep
