@@ -69,6 +69,7 @@ class HTTP {
     static::$last_info = curl_getinfo($ch);
     if(false !== strpos($contentType,'json')) $result = json_decode($result);
     curl_close($ch);
+    static::trigger("request", $result, static::$last_info);
     return $result;
   }
 
@@ -134,22 +135,46 @@ class HTTP {
 
 }
 
-namespace HTTP {
-  class Response {
-    public $status   = 200,
-           $headers  = [],
-           $contents = '';
+class HTTP_Request {
+  public $method   = 'GET',
+         $url      = '',
+         $headers  = [],
+         $body     = '';
 
-    public function __construct($contents, $status, $headers){
-      $this->status   = $status;
-      $this->contents = $contents;
-      $this->headers  = (array)$headers;
+  public function __construct($method, $url, $headers=[], $data=null){
+    $this->method   = strtoupper($method);
+    $this->url      = new URL($this->url);
+    $this->headers  = (array)$headers;
+    if ($data) {
+      if (isset($this->headers["Content-Type"]) && $this->headers["Content-Type"]=='application/json')
+        $this->body = json_encode($data);
+      else
+        $this->body = http_build_query($data);
     }
+  }
 
-    public function __toString(){
-      return $this->content;
-    }
+  public function __toString(){
+    return "$this->method {$this->url->path}{$this->url->query} HTTP/1.1\r\n"
+          ."Host: {$this->url->host}\r\n"
+          .($this->headers ? implode("\r\n",$this->headers) . "\r\n" : '')
+          ."\r\n{$this->body}";
+  }
+}
 
+
+class HTTP_Response {
+  public $status   = 200,
+         $headers  = [],
+         $contents = '';
+
+  public function __construct($contents, $status, $headers){
+    $this->status   = $status;
+    $this->contents = $contents;
+    $this->headers  = (array)$headers;
+  }
+
+  public function __toString(){
+    return $this->content;
   }
 }
 

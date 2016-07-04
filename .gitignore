@@ -4,3 +4,4 @@ composer.lock
 vendor
 /docs/*
 !/docs/assets
+/dist/*

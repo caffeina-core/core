@@ -1,0 +1,11 @@
+{
+  "directories": "classes",
+  "main": "classes/Loader.php",
+  "output": "dist/core.phar",
+  "git-version": "package_version",
+  "stub": "stub.php",
+  "compactors": [
+        "Herrera\\Box\\Compactor\\Composer",
+        "Herrera\\Box\\Compactor\\Php"
+    ]
+}
