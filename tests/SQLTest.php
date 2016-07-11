@@ -4,6 +4,9 @@ class SQLTest extends PHPUnit_Framework_TestCase {
 	public function __construct() {
 		SQL::register('database_a', 'sqlite::memory:');
 		SQL::register('database_b', 'sqlite::memory:');
+    SQL::on('error',function($e,$q){
+      echo "SQL\\Error: $e\n\t$q\n";
+    });
 	}
 
 	public function testCreateTable() {
