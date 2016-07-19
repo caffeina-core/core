@@ -9,6 +9,9 @@ class ModelTest extends PHPUnit_Framework_TestCase {
 
 	public function __construct() {
 		SQL::connect('sqlite::memory:');
+    SQL::on('error',function($e,$q){
+      echo "SQL\\Error: $e\n\t$q\n";
+    });
 		SQL::exec("CREATE TABLE books (
 			  id integer primary key,
 			  title text

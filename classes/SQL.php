@@ -154,6 +154,7 @@ class SQLConnection {
 
     if (false==is_array($params)) $params = (array)$params;
     $query = Filter::with('core.sql.query',$query);
+
     if($statement = $this->prepare($query, $pdo_params)){
       SQL::trigger('query',$query,$params,(bool)$statement);
       Event::trigger('core.sql.query',$query,$params,(bool)$statement);
@@ -172,8 +173,9 @@ class SQLConnection {
         $statement->bindValue(is_numeric($key)?$key+1:':'.$key, $val, $type);
       }
     } else {
-      static::trigger('error',$query,$params);
-      Event::trigger('core.sql.error',$query,$params);
+      $error = $this->connection['pdo']->errorInfo();
+      SQL::trigger('error',$error[2], $query, $params, $error);
+      Event::trigger('core.sql.error',$error[2], $query, $params, $error);
       return false;
     }
 

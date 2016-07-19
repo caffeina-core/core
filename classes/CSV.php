@@ -116,7 +116,7 @@ class CSV {
 
   public function each(callable $looper = null){
     if ($looper) {
-      foreach($this->read() as $row) $looper($row);
+      foreach($this->read() as $k => $row) $looper($row, (int)$k);
       return $this;
     } else {
       $results = [];
