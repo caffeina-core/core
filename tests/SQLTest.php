@@ -73,13 +73,13 @@ class SQLTest extends PHPUnit_Framework_TestCase {
 	}
 
   public function testReduceCallback() {
-    $val = SQL::reduce('SELECT id FROM users', function ($row, $cc) {
+    $val = SQL::reduce('SELECT id FROM users', function ($cc, $row) {
       $cc += $row->id;
       return $cc;
     }, 0);
     $this->assertEquals(10, $val);
 
-    $val = SQL::reduce('SELECT id FROM users', function ($row, $cc) {
+    $val = SQL::reduce('SELECT id FROM users', function ($cc, $row) {
       $row->test = $row->id;
       $cc[] = $row;
       return $cc;
