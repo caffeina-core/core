@@ -124,7 +124,7 @@ class Request {
   }
 
   /**
-   * Returns the current host adn port (omitted if port 80), complete with protocol (pass `false` to omit).
+   * Returns the current host and port (omitted if port 80), complete with protocol (pass `false` to omit).
    *
    * @return string
    */
