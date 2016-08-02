@@ -153,6 +153,7 @@ class Envelope {
 
   public function body($recompile = false){
     if ($recompile || (null === $this->compiled_body)){
+      $body = [];
       if (!empty($this->attachments)) {
         $body[] = "--{$this->uid}";
         $body[] = "Content-Type: {$this->contentType}";
