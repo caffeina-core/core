@@ -12,7 +12,7 @@
 
 abstract class Enum {
 
-  private function __construct(){}
+  final private function __construct(){}
 
   protected static function __constants(){
     static $_consts = null;
