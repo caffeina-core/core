@@ -334,7 +334,7 @@ class Route {
 
     /**
      * Add a route to the internal route repository.
-     * @param Route $r
+     * @param Route $route
      * @return Route
      */
     public static function add($route){
@@ -376,7 +376,7 @@ class Route {
 
           // Call the group body function
           call_user_func_array($callback, $args ?: []);
-          
+
           array_shift(static::$group);
           array_pop(static::$prefix);
           if (empty(static::$prefix)) static::$prefix = [''];
@@ -387,7 +387,7 @@ class Route {
       return $group ?: new RouteGroup();
     }
 
-    public static function exitWithError($code,$message="Application Error"){
+    public static function exitWithError($code, $message="Application Error"){
       Response::error($code,$message);
       Response::send();
       exit;
@@ -398,7 +398,7 @@ class Route {
      * @param  string $URL The URL to match onto.
      * @return boolean true if a route callback was executed.
      */
-    public static function dispatch($URL=null,$method=null){
+    public static function dispatch($URL=null, $method=null){
         if (!$URL)     $URL     = Request::URI();
         if (!$method)  $method  = Request::method();
 
