@@ -13,7 +13,7 @@
 abstract class Model {
     use Module, Persistence, Events;
 
-    public static function where($where_sql = false){
+    public static function where($where_sql = false, $params = []){
       // Forward persistence calls to caller class, not Model
       $self  = get_called_class();
       $table = $self::persistenceOptions('table');
@@ -22,7 +22,7 @@ abstract class Model {
       $sql   = "select $key from $table" . ($where_sql ? " where $where_sql" : '');
 
       $results = [];
-      SQL::each($sql, function($row) use ($self, &$results, $key){
+      SQL::each($sql, $params, function($row) use ($self, &$results, $key){
           $results[] = $self::load($row->$key);
       });
       return $results;
