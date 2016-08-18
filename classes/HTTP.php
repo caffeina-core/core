@@ -137,7 +137,7 @@ class HTTP {
 
 class HTTP_Request {
   public $method   = 'GET',
-         $url      = '',
+         $url      = null,
          $headers  = [],
          $body     = '';
 
@@ -174,7 +174,7 @@ class HTTP_Response {
   }
 
   public function __toString(){
-    return $this->content;
+    return $this->contents;
   }
 }
 

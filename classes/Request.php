@@ -124,7 +124,7 @@ class Request {
   }
 
   /**
-   * Returns the current host, complete with protocol (pass `false` to omit).
+   * Returns the current host and port (omitted if port 80), complete with protocol (pass `false` to omit).
    *
    * @return string
    */
@@ -133,6 +133,10 @@ class Request {
           filter_input(INPUT_SERVER,'SERVER_NAME') ?:
           filter_input(INPUT_SERVER,'HTTP_HOST')
     );
+    $host = explode(':',$host,2);
+    $port = isset($host[1]) ? (int)$host[1] : filter_input(INPUT_SERVER,'SERVER_PORT');
+    $host = $host[0] . (($port && $port != 80) ? ":$port" : '');
+    if ($port == 80) $port = '';
     return ($protocol ? 'http' . (filter_input(INPUT_SERVER,'HTTPS')?'s':'') . '://' : '') . Filter::with('core.request.host',$host);
   }
 

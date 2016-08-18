@@ -95,7 +95,6 @@ class SQL {
 // Default connection to in-memory ephemeral database
 SQL::connect('sqlite::memory:');
 
-
 class SQLConnection {
 
   protected $connection        = [],
@@ -144,6 +143,15 @@ class SQLConnection {
     return $this->connection['pdo'];
   }
 
+
+  /**
+   * Prepares a SQL query string
+   *
+   * @param      string   $query       The query
+   * @param      array    $pdo_params  The extra PDO parameters
+   *
+   * @return     boolean
+   */
   public function prepare($query, $pdo_params=[]){
     if(!$this->connection()) return false;
     return isset($this->queries[$query]) ? $this->queries[$query] : ($this->queries[$query] = $this->connection()->prepare($query, $pdo_params));
