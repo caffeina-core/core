@@ -351,6 +351,12 @@ class Route {
      * @return Route
      */
     public static function add($route){
+      $base =& static::$optimized_tree;
+      foreach (explode('/',trim(strtok($route->URLPattern,':'),'/')) as $segment) {
+        if (!isset($base[$segment])) $base[$segment] = [];
+        $base =& $base[$segment];
+      }
+      $base[] = $route;
       if ( isset(static::$group[0]) ) static::$group[0]->add($route);
       return static::$routes[implode('', static::$prefix)][] = $route;
     }
