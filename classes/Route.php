@@ -353,7 +353,7 @@ class Route {
     public static function add($route){
       if (Options::get('core.route.auto_optimize', true) && is_a($route, 'Route')){
         $base =& static::$optimized_tree;
-        foreach ($x=explode('/',trim(preg_replace('#^(.+?)\(?:.+$#','$1',$route->URLPattern),'/')) as $segment) {
+        foreach (explode('/',trim(preg_replace('#^(.+?)\(?:.+$#','$1',$route->URLPattern),'/')) as $segment) {
           $segment = trim($segment,'(');
           if (!isset($base[$segment])) $base[$segment] = [];
           $base =& $base[$segment];
