@@ -351,12 +351,15 @@ class Route {
      * @return Route
      */
     public static function add($route){
-      $base =& static::$optimized_tree;
-      foreach (explode('/',trim(strtok($route->URLPattern,':'),'/')) as $segment) {
-        if (!isset($base[$segment])) $base[$segment] = [];
-        $base =& $base[$segment];
+      if (Options::get('core.route.auto_optimize', true) && is_a($route, 'Route')){
+        $base =& static::$optimized_tree;
+        foreach ($x=explode('/',trim(preg_replace('#^(.+?)\(?:.+$#','$1',$route->URLPattern),'/')) as $segment) {
+          $segment = trim($segment,'(');
+          if (!isset($base[$segment])) $base[$segment] = [];
+          $base =& $base[$segment];
+        }
+        $base[] = $route;
       }
-      $base[] = $route;
       if ( isset(static::$group[0]) ) static::$group[0]->add($route);
       return static::$routes[implode('', static::$prefix)][] = $route;
     }
@@ -451,18 +454,16 @@ class Route {
               }
           }
         } else {
-
-          $branch =& static::$optimized_tree;
+          $routes =& static::$optimized_tree;
           foreach (explode('/',trim($URL,'/')) as $segment) {
-            if (isset($branch[$segment])) $branch =& $branch[$segment];
+            if (isset($routes[$segment])) $routes =& $routes[$segment];
           }
-          if (is_array($branch)) foreach ($branch as $route) {
-              if (is_a($route, 'Route') && false !== ($args = $route->match($URL,$method))){
+          if (isset($routes[0]) && !is_array($routes[0])) foreach ((array)$routes as $route) {
+              if (false !== ($args = $route->match($URL, $method))){
                   $route->run($args, $method);
                   return true;
               }
           }
-
         }
 
         Response::status(404, '404 Resource not found.');

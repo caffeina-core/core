@@ -113,7 +113,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
       Route::on('/(:id)', function ($test=0) {echo "$test-API-INFO";});
     });
     Route::dispatch('/aaaaaa', 'get');
-    $this->assertEquals(Response::body(), '0-API-INFO');
+    $this->assertEquals('0-API-INFO',Response::body());
   }
 
   public function testGroupsSkipping() {
@@ -161,7 +161,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
                 return "OK-STATIC";
               });
             });
-          });          
+          });
         });
       });
       Route::dispatch($URI, 'get');
@@ -174,7 +174,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     $this->mock_request('/item/1/info', 'get');
 
     Route::group("/item(/:id)",function($id){
-     
+
       Route::on("/",function() use ($id){
         return "$id";
       });
@@ -192,7 +192,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     $this->mock_request('/ritem/1/', 'get');
 
     Route::group("/ritem(/:id)",function($id){
-     
+
       Route::on("/",function() use ($id){
         return "$id";
       });
@@ -212,7 +212,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
       Event::off(404);
       Options::set('core.response.autosend', false);
       Response::clean();
-      
+
       $URI = '/x_a/x_b/x_c/x_d';
       $this->mock_request($URI, 'get');
 
@@ -224,10 +224,10 @@ class RouteTest extends PHPUnit_Framework_TestCase {
                 return "OK-DYNAMIC-$a$b$c$d";
               });
             });
-          });          
+          });
         });
       });
-      
+
       Route::dispatch($URI, 'get');
       $this->assertEquals('OK-DYNAMIC-abcd', Response::body());
     }
@@ -236,9 +236,9 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 
       Options::set('core.response.autosend', false);
       Options::set('core.route.pruning', false);
-      
+
       Route::group('/model', function () {
-        
+
         Route::on('(/:slug)', function ($slug = null){
           return "SLUG:" . ($slug === null ? 'NULL' : $slug);
         });
@@ -254,7 +254,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
       $this->mock_request($URI, 'get');
       Route::dispatch($URI, 'get');
       $this->assertEquals('INFO:FOR:test', Response::body());
-      
+
       $URI = '/model';
       Response::clean();
       $this->mock_request($URI, 'get');
