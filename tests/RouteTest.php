@@ -14,6 +14,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testBasicRouting() {
+    Route::reset();
     Options::set('core.response.autosend', false);
 		Response::clean();
 		Route::on('/', function () {
@@ -24,6 +25,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testAliasGet() {
+    Route::reset();
     Options::set('core.response.autosend', false);
 		Response::clean();
 		Route::get('/', function () {
@@ -34,6 +36,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testAliasPost() {
+    Route::reset();
     Options::set('core.response.autosend', false);
 		Response::clean();
 		Route::post('/', function () {
@@ -44,6 +47,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testRouteNotFound() {
+    Route::reset();
     Options::set('core.response.autosend', false);
 		Response::clean();
 		$test = $this;
@@ -55,6 +59,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testWildcardMethod() {
+    Route::reset();
     Options::set('core.response.autosend', false);
 		Route::any('/any', function () {return "ANY";});
 		Response::clean();
@@ -69,6 +74,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testParameterExtraction() {
+    Route::reset();
     Options::set('core.response.autosend', false);
 		Response::clean();
 		Route::on('/post/:a/:b', function ($a, $b) {return "$b-$a";});
@@ -77,6 +83,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testMiddlewares() {
+    Route::reset();
     Options::set('core.response.autosend', false);
 		Response::clean();
 		Route::on('/middle', function () {return "-Test-";})
@@ -90,6 +97,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testGroups() {
+    Route::reset();
     Options::set('core.response.autosend', false);
 		Response::clean();
 		$this->mock_request('/api1/v1/info', 'get');
@@ -106,6 +114,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
   public function testNullParamerGroupIndex() {
+    Route::reset();
     Options::set('core.response.autosend', false);
     Response::clean();
     $this->mock_request('/aaaaaa', 'get');
@@ -117,6 +126,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
   }
 
   public function testGroupsSkipping() {
+    Route::reset();
     Event::off(404);
     Options::set('core.response.autosend', false);
     Response::clean();
@@ -130,6 +140,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
   }
 
 	public function testGroupsMiddlewares() {
+    Route::reset();
     Options::set('core.response.autosend', false);
 		Response::clean();
 		$this->mock_request('/api2/v1/info', 'get');
@@ -148,6 +159,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	}
 
   public function testStaticGroupsNesting() {
+      Route::reset();
       Event::off(404);
       Options::set('core.response.autosend', false);
       Response::clean();
@@ -169,6 +181,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     }
 
   public function testGroupsExtraction() {
+    Route::reset();
     Options::set('core.response.autosend', false);
     Response::clean();
     $this->mock_request('/item/1/info', 'get');
@@ -209,6 +222,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 
 
    public function testDynamicGroupsNesting() {
+      Route::reset();
+
       Event::off(404);
       Options::set('core.response.autosend', false);
       Response::clean();
@@ -233,6 +248,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     }
 
    public function testFullyOptionalRoute() {
+      Route::reset();
 
       Options::set('core.response.autosend', false);
       Options::set('core.route.pruning', false);
@@ -268,6 +284,5 @@ class RouteTest extends PHPUnit_Framework_TestCase {
       $this->assertEquals('SLUG:test', Response::body());
 
     }
-
 
 }

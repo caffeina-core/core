@@ -415,20 +415,6 @@ class Route {
       exit;
     }
 
-    public static function optimize(){
-      static::$optimized_tree = [];
-      foreach ((array)static::$routes as $group => $routes){
-        foreach ($routes as $route) {
-          $base =& static::$optimized_tree;
-          foreach (explode('/',trim(strtok($route->URLPattern,':'),'/')) as $segment) {
-            if (!isset($base[$segment])) $base[$segment] = [];
-            $base =& $base[$segment];
-          }
-          $base[] = $route;
-        }
-      }
-    }
-
     /**
      * Start the route dispatcher and resolve the URL request.
      * @param  string $URL The URL to match onto.
