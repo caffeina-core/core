@@ -442,7 +442,7 @@ class Route {
         } else {
           $routes =& static::$optimized_tree;
           foreach (explode('/',trim($URL,'/')) as $segment) {
-            if (isset($routes[$segment])) $routes =& $routes[$segment];
+            if (isset($routes[$segment])) $routes =& $routes[$segment]; else break;
           }
           if (isset($routes[0]) && !is_array($routes[0])) foreach ((array)$routes as $route) {
               if (false !== ($args = $route->match($URL, $method))){
