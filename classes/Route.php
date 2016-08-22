@@ -78,11 +78,15 @@ class Route {
       }
       return false;
     }
-    
+
+    /**
+     * Clears all stored routes definitions to pristine conditions.
+     * @return void
+     */
     public static function reset(){
       static::$routes = [];
-      static::$base   = '',
-      static::$prefix = [],
+      static::$base   = '';
+      static::$prefix = [];
       static::$group  = [];
     }
 
