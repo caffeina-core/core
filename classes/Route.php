@@ -16,7 +16,8 @@ class Route {
     public static $routes,
                   $base       = '',
                   $prefix     = [],
-                  $group      = [];
+                  $group      = [],
+                  $optimized_tree = [];
 
     protected $URLPattern     = '',
               $pattern        = '',
@@ -88,6 +89,7 @@ class Route {
       static::$base   = '';
       static::$prefix = [];
       static::$group  = [];
+      static::$optimized_tree = [];
     }
 
     /**
@@ -404,6 +406,20 @@ class Route {
       exit;
     }
 
+    public static function optimize(){
+      static::$optimized_tree = [];
+      foreach ((array)static::$routes as $group => $routes){
+        foreach ($routes as $route) {
+          $base =& static::$optimized_tree;
+          foreach (explode('/',trim(strtok($route->URLPattern,':'),'/')) as $segment) {
+            if (!isset($base[$segment])) $base[$segment] = [];
+            $base =& $base[$segment];
+          }
+          $base[] = $route;
+        }
+      }
+    }
+
     /**
      * Start the route dispatcher and resolve the URL request.
      * @param  string $URL The URL to match onto.
@@ -419,13 +435,28 @@ class Route {
           }
         });
 
-        foreach ((array)static::$routes as $group => $routes){
-            foreach ($routes as $route) {
-                if (is_a($route, 'Route') && false !== ($args = $route->match($URL,$method))){
-                    $route->run($args,$method);
-                    return true;
-                }
-            }
+        if (empty(static::$optimized_tree)) {
+          foreach ((array)static::$routes as $group => $routes){
+              foreach ($routes as $route) {
+                  if (is_a($route, 'Route') && false !== ($args = $route->match($URL,$method))){
+                      $route->run($args,$method);
+                      return true;
+                  }
+              }
+          }
+        } else {
+
+          $branch =& static::$optimized_tree;
+          foreach (explode('/',trim($URL,'/')) as $segment) {
+            if (isset($branch[$segment])) $branch =& $branch[$segment];
+          }
+          if (is_array($branch)) foreach ($branch as $route) {
+              if (is_a($route, 'Route') && false !== ($args = $route->match($URL,$method))){
+                  $route->run($args, $method);
+                  return true;
+              }
+          }
+
         }
 
         Response::status(404, '404 Resource not found.');
