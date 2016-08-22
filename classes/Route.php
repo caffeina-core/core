@@ -418,9 +418,11 @@ class Route {
     /**
      * Start the route dispatcher and resolve the URL request.
      * @param  string $URL The URL to match onto.
+     * @param  string $method The HTTP method.
+     * @param  bool $return_route If setted to true it will *NOT* execute the route but it will return her.
      * @return boolean true if a route callback was executed.
      */
-    public static function dispatch($URL=null, $method=null){
+    public static function dispatch($URL=null, $method=null, $return_route=false){
         if (!$URL)     $URL     = Request::URI();
         if (!$method)  $method  = Request::method();
 
@@ -434,20 +436,28 @@ class Route {
           foreach ((array)static::$routes as $group => $routes){
               foreach ($routes as $route) {
                   if (is_a($route, 'Route') && false !== ($args = $route->match($URL,$method))){
+                    if ($return_route){
+                      return $route;
+                    } else {
                       $route->run($args,$method);
-                      return true;
+                      return true;                      
+                    }
                   }
               }
           }
         } else {
           $routes =& static::$optimized_tree;
           foreach (explode('/',trim($URL,'/')) as $segment) {
-            if (isset($routes[$segment])) $routes =& $routes[$segment]; else break;
+            if (isset($routes[$segment])) $routes =& $routes[$segment];
           }
           if (isset($routes[0]) && !is_array($routes[0])) foreach ((array)$routes as $route) {
               if (false !== ($args = $route->match($URL, $method))){
-                  $route->run($args, $method);
-                  return true;
+                    if ($return_route){
+                      return $route;
+                    } else {
+                      $route->run($args,$method);
+                      return true;                      
+                    }
               }
           }
         }
