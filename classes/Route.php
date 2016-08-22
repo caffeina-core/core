@@ -78,6 +78,13 @@ class Route {
       }
       return false;
     }
+    
+    public static function reset(){
+      static::$routes = [];
+      static::$base   = '',
+      static::$prefix = [],
+      static::$group  = [];
+    }
 
     /**
      * Run one of the mapped callbacks to a passed HTTP Method.
