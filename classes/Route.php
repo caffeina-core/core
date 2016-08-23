@@ -19,16 +19,17 @@ class Route {
                   $group      = [],
                   $optimized_tree = [];
 
-    protected $URLPattern     = '',
-              $pattern        = '',
-              $dynamic        = false,
-              $callback       = null,
-              $methods        = [],
-              $befores        = [],
-              $afters         = [],
+    protected $URLPattern      = '',
+              $pattern         = '',
+              $matcher_pattern = '',
+              $dynamic         = false,
+              $callback        = null,
+              $methods         = [],
+              $befores         = [],
+              $afters          = [],
 
-              $rules          = [],
-              $response       = '';
+              $rules           = [],
+              $response        = '';
 
 
     /**
@@ -41,14 +42,23 @@ class Route {
      */
     public function __construct($URLPattern, $callback = null, $method='get'){
       $prefix  = static::$prefix ? rtrim(implode('',static::$prefix),'/') : '';
-      $pattern = "/" . trim($URLPattern, "/");
+      $pattern = '/' . trim($URLPattern, "/");
+
+      $this->callback         = $callback;
+
       // Adjust / optionality with dynamic patterns
       // Ex:  /test/(:a) ===> /test(/:a)
-      $this->URLPattern = str_replace('//','/',str_replace('/(','(/', rtrim("{$prefix}{$pattern}","/")));
+      $this->URLPattern       = str_replace('//','/',str_replace('/(','(/', rtrim("{$prefix}{$pattern}","/")));
 
-      $this->dynamic    = $this->isDynamic($this->URLPattern);
-      $this->pattern    = $this->dynamic ? $this->compilePatternAsRegex($this->URLPattern, $this->rules) : $this->URLPattern;
-      $this->callback   = $callback;
+      $this->dynamic          = $this->isDynamic($this->URLPattern);
+
+      $this->pattern          = $this->dynamic
+                                ? $this->compilePatternAsRegex($this->URLPattern, $this->rules)
+                                : $this->URLPattern;
+
+      $this->matcher_pattern  = $this->dynamic
+                                ? $this->compilePatternAsRegex($this->URLPattern, $this->rules, false)
+                                : '';
 
       // We will use hash-checks, for O(1) complexity vs O(n)
       $this->methods[$method] = 1;
@@ -61,23 +71,17 @@ class Route {
      * @param  string $method The HTTP Method to check against.
      * @return boolean
      */
-    public function match($URL,$method='get'){
+    public function match($URL, $method='get'){
       $method = strtolower($method);
 
       // * is an http method wildcard
       if (empty($this->methods[$method]) && empty($this->methods['*'])) return false;
-      $URL  = rtrim($URL,'/');
-      $args = [];
-      if ( $this->dynamic
-           ? preg_match($this->pattern,$URL,$args)
-           : $URL == rtrim($this->pattern,'/')
-      ){
-        foreach ( $args as $key => $value ) {
-          if ( false === is_string($key) ) unset($args[$key]);
-        }
-        return $args;
-      }
-      return false;
+
+      return (bool) (
+        $this->dynamic
+           ? preg_match($this->matcher_pattern, '/'.trim($URL,'/'))
+           : rtrim($URL,'/') == rtrim($this->pattern,'/')
+      );
     }
 
     /**
@@ -165,7 +169,7 @@ class Route {
      * @return array The callback response.
      */
     public function runIfMatch($URL, $method='get'){
-      return ($args = $this->match($URL,$method)) ? $this->run($args,$method) : null;
+      return $this->match($URL,$method) ? $this->run($this->extractArgs($URL),$method) : null;
     }
 
     /**
@@ -275,7 +279,8 @@ class Route {
       foreach ((array)$rules as $varname => $rule){
         $this->rules[$varname] = $rule;
       }
-      $this->pattern = $this->compilePatternAsRegex( $this->URLPattern, $this->rules );
+      $this->pattern         = $this->compilePatternAsRegex( $this->URLPattern, $this->rules );
+      $this->matcher_pattern = $this->compilePatternAsRegex( $this->URLPattern, $this->rules, false );
       return $this;
     }
 
@@ -313,10 +318,18 @@ class Route {
      * @param  string $pattern The URL schema.
      * @return string The compiled PREG RegEx.
      */
-    protected static function compilePatternAsRegex($pattern, $rules=[]){
-      return '#^'.preg_replace_callback('#:([a-zA-Z]\w*)#S',function($g) use (&$rules){
-        return '(?<' . $g[1] . '>' . (isset($rules[$g[1]])?$rules[$g[1]]:'[^/]+') .')';
-      },str_replace(['.',')','*'],['\.',')?','.+'],$pattern)).'$#';
+    protected static function compilePatternAsRegex($pattern, $rules=[], $extract_params=true){
+
+      return '#^'.preg_replace_callback('#:([a-zA-Z]\w*)#',$extract_params
+        // Extract named parameters
+        ? function($g) use (&$rules){
+            return '(?<' . $g[1] . '>' . (isset($rules[$g[1]])?$rules[$g[1]]:'[^/]+') .')';
+          }
+        // Optimized for matching
+        : function($g) use (&$rules){
+            return isset($rules[$g[1]]) ? $rules[$g[1]] : '[^/]+';
+          },
+      str_replace(['.',')','*'],['\.',')?','.+'],$pattern)).'$#';
     }
 
     /**
@@ -329,9 +342,22 @@ class Route {
     protected static function extractVariablesFromURL($pattern, $URL=null, $cut=false){
       $URL     = $URL ?: Request::URI();
       $pattern = $cut ? str_replace('$#','',$pattern).'#' : $pattern;
-      if ( !preg_match($pattern,$URL,$args) ) return false;
+      $args    = [];
+      if ( !preg_match($pattern,'/'.trim($URL,'/'),$args) ) return false;
       foreach ($args as $key => $value) {
         if (false === is_string($key)) unset($args[$key]);
+      }
+      return $args;
+    }
+
+
+    public function extractArgs($URL){
+      $args = [];
+      if ( $this->dynamic ) {
+        preg_match($this->pattern, '/'.trim($URL,'/'), $args);
+        foreach ($args as $key => $value) {
+          if (false === is_string($key)) unset($args[$key]);
+        }
       }
       return $args;
     }
@@ -435,12 +461,12 @@ class Route {
         if (empty(static::$optimized_tree)) {
           foreach ((array)static::$routes as $group => $routes){
               foreach ($routes as $route) {
-                  if (is_a($route, 'Route') && false !== ($args = $route->match($URL,$method))){
+                  if (is_a($route, 'Route') && $route->match($URL,$method)){
                     if ($return_route){
                       return $route;
                     } else {
-                      $route->run($args,$method);
-                      return true;                      
+                      $route->run($route->extractArgs($URL),$method);
+                      return true;
                     }
                   }
               }
@@ -448,15 +474,15 @@ class Route {
         } else {
           $routes =& static::$optimized_tree;
           foreach (explode('/',trim($URL,'/')) as $segment) {
-            if (isset($routes[$segment])) $routes =& $routes[$segment];
+            if (isset($routes[$segment])) $routes =& $routes[$segment]; else break;
           }
           if (isset($routes[0]) && !is_array($routes[0])) foreach ((array)$routes as $route) {
-              if (false !== ($args = $route->match($URL, $method))){
+              if ($route->match($URL, $method)){
                     if ($return_route){
                       return $route;
                     } else {
-                      $route->run($args,$method);
-                      return true;                      
+                      $route->run($route->extractArgs($URL),$method);
+                      return true;
                     }
               }
           }

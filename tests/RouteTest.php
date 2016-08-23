@@ -64,13 +64,13 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		Route::any('/any', function () {return "ANY";});
 		Response::clean();
 		Route::dispatch('/any', 'patch');
-		$this->assertEquals(Response::body(), 'ANY');
+		$this->assertEquals('ANY', Response::body(),'patch /any');
 		Response::clean();
 		Route::dispatch('/any', 'get');
-		$this->assertEquals(Response::body(), 'ANY');
+    $this->assertEquals('ANY', Response::body(),'get /any');
 		Response::clean();
 		Route::dispatch('/any', 'post');
-		$this->assertEquals(Response::body(), 'ANY');
+    $this->assertEquals('ANY', Response::body(),'post /any');
 	}
 
 	public function testParameterExtraction() {
@@ -79,7 +79,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		Response::clean();
 		Route::on('/post/:a/:b', function ($a, $b) {return "$b-$a";});
 		Route::dispatch('/post/1324/fefifo', 'get');
-		$this->assertEquals(Response::body(), 'fefifo-1324');
+		$this->assertEquals('fefifo-1324', Response::body());
 	}
 
 	public function testMiddlewares() {
