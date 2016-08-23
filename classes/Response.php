@@ -269,6 +269,7 @@ class Response {
         }
         if (static::$force_dl) header('Content-Disposition: attachment; filename="'.static::$force_dl.'"');
         echo static::body();
+        static::trigger('sent');
       }
     }
 
