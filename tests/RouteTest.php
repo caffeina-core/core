@@ -253,6 +253,14 @@ class RouteTest extends PHPUnit_Framework_TestCase {
       Options::set('core.response.autosend', false);
       Options::set('core.route.pruning', false);
 
+      Route::on('/', function (){
+          return "INDEX";
+      });
+
+      Route::on('/(:optional)', function ($optional='0'){
+          return "ROOT:OPTIONAL:$optional";
+      });
+
       Route::group('/model', function () {
 
         Route::on('(/:slug)', function ($slug = null){
@@ -269,19 +277,31 @@ class RouteTest extends PHPUnit_Framework_TestCase {
       Response::clean();
       $this->mock_request($URI, 'get');
       Route::dispatch($URI, 'get');
-      $this->assertEquals('INFO:FOR:test', Response::body());
+      $this->assertEquals(Response::body(),'INFO:FOR:test',$URI);
 
       $URI = '/model';
       Response::clean();
       $this->mock_request($URI, 'get');
       Route::dispatch($URI, 'get');
-      $this->assertEquals('SLUG:NULL', Response::body());
+      $this->assertEquals(Response::body(),'SLUG:NULL',$URI);
 
       $URI = '/model/test';
       Response::clean();
       $this->mock_request($URI, 'get');
       Route::dispatch($URI, 'get');
-      $this->assertEquals('SLUG:test', Response::body());
+      $this->assertEquals(Response::body(),'SLUG:test',$URI);
+
+      $URI = '/';
+      Response::clean();
+      $this->mock_request($URI, 'get');
+      Route::dispatch($URI, 'get');
+      $this->assertEquals(Response::body(),'INDEX',$URI);
+
+      $URI = '/foobar';
+      Response::clean();
+      $this->mock_request($URI, 'get');
+      Route::dispatch($URI, 'get');
+      $this->assertEquals(Response::body(),'ROOT:OPTIONAL:foobar',$URI);
 
     }
 
