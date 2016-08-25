@@ -305,4 +305,61 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    public function testTagsAndReverseRouting() {
+      Route::reset();
+      Options::set('core.response.autosend', false);
+      Response::clean();
+
+      Route::on('/', function ($id) {
+        return "INDEX";
+      })->tag("index");
+
+      Route::on('/user/:id', function ($id) {
+        return "USER{$id}";
+      })->tag("user");
+
+      // Test also grouped routes
+      Route::group("/foo",function(){
+        Route::on('/bar(/:alpha/(:beta))/baz', function ($alpha=0,$beta=0) {
+          return "ALPHA{$alpha},BETA{$beta}";
+        })->tag("foo");
+      });
+
+
+      $foo  = Route::as("foo");
+      $this->assertInstanceOf(Route::class, $foo);
+
+      $user = Route::as("user");
+      $this->assertInstanceOf(Route::class, $user);
+
+      $this->assertFalse(Route::as("unknown"),"Unknown tag");
+
+      // Must return an URL
+      $this->assertInstanceOf(URL::class, Route::URL('foo'));
+
+      $this->assertEquals('/foo/bar/baz',         Route::URL('foo'));
+      $this->assertEquals('/foo/bar/123/baz',     Route::URL('foo',[
+        'alpha' => 123,
+      ]));
+      $this->assertEquals('/foo/bar/321/baz',     Route::URL('foo',[
+        'beta' => 321,
+      ]));
+      $this->assertEquals('/foo/bar/123/321/baz', Route::URL('foo',[
+        'alpha' => 123,
+        'beta' => 321,
+      ]));
+
+      $this->assertEquals('/foo/bar/123/321/baz', Route::URL('foo',[
+        'alpha' => 123,
+        'beta' => 321,
+      ]));
+
+
+      $this->assertEquals('/user',                Route::URL('user'));
+      $this->assertEquals('/user/a/b',            Route::URL('user',['id'=>'a/b']));
+
+      $this->assertEquals('/',                    Route::URL('index'));
+
+    }
+
 }

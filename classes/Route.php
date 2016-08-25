@@ -14,22 +14,24 @@ class Route {
     use Module, Events;
 
     public static $routes,
-                  $base       = '',
-                  $prefix     = [],
-                  $group      = [],
+                  $base           = '',
+                  $prefix         = [],
+                  $group          = [],
+                  $tags           = [],
                   $optimized_tree = [];
 
-    protected $URLPattern      = '',
-              $pattern         = '',
-              $matcher_pattern = '',
-              $dynamic         = false,
-              $callback        = null,
-              $methods         = [],
-              $befores         = [],
-              $afters          = [],
+    protected     $URLPattern         = '',
+                  $pattern            = '',
+                  $matcher_pattern    = '',
+                  $dynamic            = false,
+                  $callback           = null,
+                  $methods            = [],
+                  $befores            = [],
+                  $afters             = [],
 
-              $rules           = [],
-              $response        = '';
+                  $rules              = [],
+                  $response           = '',
+                  $tag                = '';
 
 
     /**
@@ -314,6 +316,47 @@ class Route {
     }
 
     /**
+     * Assign a name tag to the route
+     * @param  string $name The name tag of the route.
+     * @return Route
+     */
+    public function & tag($name){
+      if ($this->tag = $name) static::$tags[$name] =& $this;
+      return $this;
+    }
+
+    /**
+     * Reverse routing : obtain a complete URL for a named route with passed parameters
+     * @param  array $params The parameter map of the route dynamic values.
+     * @return URL
+     */
+    public function getURL($params = []){
+      $params = (array)$params;
+      return new URL(rtrim(preg_replace('(/+)','/',preg_replace_callback('(:(\w+))',function($m) use ($params){
+        return isset($params[$m[1]]) ? $params[$m[1]].'/' : '';
+      },strtr($this->URLPattern,['('=>'',')'=>'']))),'/')?:'/');
+    }
+
+    /**
+     * Get a named route
+     * @param  string $name The name tag of the route.
+     * @return Route or false if not found
+     */
+    public static function as($name){
+      return isset(static::$tags[$name]) ? static::$tags[$name] : false;
+    }
+
+   /**
+     * Helper for reverse routing : obtain a complete URL for a named route with passed parameters
+     * @param  string $name The name tag of the route.
+     * @param  array $params The parameter map of the route dynamic values.
+     * @return string
+     */
+    public static function URL($name, $params = []){
+      return ($r = static::as($name)) ? $r-> getURL($params) : new URL();
+    }
+
+    /**
      * Compile an URL schema to a PREG regular expression.
      * @param  string $pattern The URL schema.
      * @return string The compiled PREG RegEx.
@@ -377,16 +420,26 @@ class Route {
      * @return Route
      */
     public static function add($route){
-      if (Options::get('core.route.auto_optimize', true) && is_a($route, 'Route')){
-        $base =& static::$optimized_tree;
-        foreach (explode('/',trim(preg_replace('#^(.+?)\(?:.+$#','$1',$route->URLPattern),'/')) as $segment) {
-          $segment = trim($segment,'(');
-          if (!isset($base[$segment])) $base[$segment] = [];
-          $base =& $base[$segment];
+      if (is_a($route, 'Route')){
+
+        // Add to tag map
+        if ($route->tag) static::$tags[$route->tag] =& $route;
+
+        // Optimize tree
+        if (Options::get('core.route.auto_optimize', true)){
+          $base =& static::$optimized_tree;
+          foreach (explode('/',trim(preg_replace('#^(.+?)\(?:.+$#','$1',$route->URLPattern),'/')) as $segment) {
+            $segment = trim($segment,'(');
+            if (!isset($base[$segment])) $base[$segment] = [];
+            $base =& $base[$segment];
+          }
+          $base[] =& $route;
         }
-        $base[] = $route;
       }
+
+      // Add route to active group
       if ( isset(static::$group[0]) ) static::$group[0]->add($route);
+
       return static::$routes[implode('', static::$prefix)][] = $route;
     }
 
