@@ -326,13 +326,13 @@ class RouteTest extends PHPUnit_Framework_TestCase {
       });
 
 
-      $foo  = Route::as("foo");
+      $foo  = Route::tagged("foo");
       $this->assertInstanceOf(Route::class, $foo);
 
-      $user = Route::as("user");
+      $user = Route::tagged("user");
       $this->assertInstanceOf(Route::class, $user);
 
-      $this->assertFalse(Route::as("unknown"),"Unknown tag");
+      $this->assertFalse(Route::tagged("unknown"),"Unknown tag");
 
       // Must return an URL
       $this->assertInstanceOf(URL::class, Route::URL('foo'));

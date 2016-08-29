@@ -342,7 +342,7 @@ class Route {
      * @param  string $name The name tag of the route.
      * @return Route or false if not found
      */
-    public static function as($name){
+    public static function tagged($name){
       return isset(static::$tags[$name]) ? static::$tags[$name] : false;
     }
 
@@ -353,7 +353,7 @@ class Route {
      * @return string
      */
     public static function URL($name, $params = []){
-      return ($r = static::as($name)) ? $r-> getURL($params) : new URL();
+      return ($r = static::tagged($name)) ? $r-> getURL($params) : new URL();
     }
 
     /**
