@@ -338,22 +338,24 @@ class RouteTest extends PHPUnit_Framework_TestCase {
       $this->assertInstanceOf(URL::class, Route::URL('foo'));
 
       $this->assertEquals('/foo/bar/baz',         Route::URL('foo'));
+
       $this->assertEquals('/foo/bar/123/baz',     Route::URL('foo',[
         'alpha' => 123,
       ]));
+
       $this->assertEquals('/foo/bar/321/baz',     Route::URL('foo',[
         'beta' => 321,
       ]));
-      $this->assertEquals('/foo/bar/123/321/baz', Route::URL('foo',[
-        'alpha' => 123,
-        'beta' => 321,
-      ]));
 
       $this->assertEquals('/foo/bar/123/321/baz', Route::URL('foo',[
         'alpha' => 123,
         'beta' => 321,
       ]));
 
+      $this->assertEquals('/foo/bar/123/321/baz', Route::URL('foo',[
+        'alpha' => 123,
+        'beta' => 321,
+      ]));
 
       $this->assertEquals('/user',                Route::URL('user'));
       $this->assertEquals('/user/a/b',            Route::URL('user',['id'=>'a/b']));
