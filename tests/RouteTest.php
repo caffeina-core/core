@@ -20,7 +20,20 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		Route::on('/', function () {
 			return "index";
 		});
+
+    $route_start_event_passed = false;
+    $route_end_event_passed = false;
+    Route::onEvent('start',function() use (&$route_start_event_passed){ $route_start_event_passed = true; });
+    Route::onEvent('end',function() use (&$route_end_event_passed){ $route_end_event_passed = true; });
+
 		Route::dispatch('/', 'get');
+
+    $this->assertTrue($route_start_event_passed, 'route_start_event');
+    $this->assertTrue($route_end_event_passed, 'route_end_event');
+
+    Route::off('start');
+    Route::off('end');
+
 		$this->assertEquals(Response::body(), 'index');
 	}
 

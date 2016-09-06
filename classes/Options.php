@@ -58,6 +58,7 @@ class Options extends Dictionary {
 			} else {
 				static::merge($array);
 			}
+      self::trigger('loaded');
 		}
 	}
 

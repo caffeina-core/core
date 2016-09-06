@@ -35,7 +35,14 @@ export      TMP_DIR="${BASE_DIR}/tmp"
 
 EOENV
     );
+
+    $test_loaded_event = false;
+    Options::on('loaded',function() use (&$test_loaded_event){
+      $test_loaded_event = true;
+    });
     Options::loadENV(dirname($tempfile), basename($tempfile), 'ENV');
+    $this->assertTrue($test_loaded_event, "Loaded Event");
+    Options::off('loaded');
 
     $this->assertEquals(3, count((array)Options::get('ENV')), "ENV count");
 

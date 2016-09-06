@@ -11,7 +11,10 @@
  */
 
 class Route {
-    use Module, Events;
+    use Module,
+        Events {
+          on as onEvent;
+        }
 
     public static $routes,
                   $base           = '',
@@ -107,6 +110,7 @@ class Route {
     public function run(array $args, $method='get'){
       $method = strtolower($method);
       $append_echoed_text = Options::get('core.route.append_echoed_text',true);
+      static::trigger('start', $this, $args, $method);
 
       // Call direct befores
       if ( $this->befores ) {
