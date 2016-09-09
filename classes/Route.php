@@ -537,7 +537,7 @@ class Route {
             else break;
           }
           if (isset($routes[0]) && !is_array($routes[0])) foreach ((array)$routes as $route) {
-              if ($route->match($URL, $method)){
+              if (is_a($route, __CLASS__) && $route->match($URL, $method)){
                     if ($return_route){
                       return $route;
                     } else {
