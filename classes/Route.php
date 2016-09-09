@@ -162,7 +162,7 @@ class Route {
         }
       }
 
-      static::trigger('end', $this);
+      static::trigger('end', $this, $args, $method);
       Event::trigger('core.route.end', $this);
 
       return [Filter::with('core.route.response', Response::body())];
