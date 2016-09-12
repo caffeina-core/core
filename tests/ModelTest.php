@@ -54,6 +54,16 @@ class ModelTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(2, count($results));
 	}
 
+  public function testCountAll() {
+    $results = Book::count();
+    $this->assertEquals(2, $results);
+  }
+
+  public function testCountWithCondition() {
+    $results = Book::count("id=:id",["id" => 2]);
+    $this->assertEquals(1, $results);
+  }
+
 	public function testWhereSimple() {
 		$results = json_encode(Book::where('id=2'));
 		$this->assertEquals('[{"id":"2","title":"Necronomicon"}]', $results);

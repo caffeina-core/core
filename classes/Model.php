@@ -22,6 +22,10 @@ abstract class Model {
       }, []);
     }
 
+    public static function count($where_sql = false, $params = []) {
+      return SQL::value('SELECT COUNT(1) FROM ' . static::persistenceOptions('table') . ($where_sql ? " where {$where_sql}" : ''), $params);
+    }
+
     public static function all($page=1, $limit=-1){
       return static::where($limit < 1 ? "" : "1 limit {$limit} offset " . (max(1,$page)-1)*$limit);
     }
