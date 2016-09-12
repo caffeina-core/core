@@ -13,30 +13,22 @@
 abstract class Model {
     use Module, Persistence, Events;
 
-    public static function where($where_sql = false, $params = []){
-      // Forward persistence calls to caller class, not Model
-      $self  = get_called_class();
-      $table = $self::persistenceOptions('table');
-      $key   = $self::persistenceOptions('key');
+    public static function where($where_sql = false, $params = [], $flush = false){
+      $key   = static::persistenceOptions('key');
 
-      $sql   = "select $key from $table" . ($where_sql ? " where $where_sql" : '');
-
-      $results = [];
-      SQL::each($sql, $params, function($row) use ($self, &$results, $key){
-          $results[] = $self::load($row->$key);
-      });
-      return $results;
+      return SQL::reduce("SELECT {$key} FROM " . static::persistenceOptions('table') . ($where_sql ? " where {$where_sql}" : ''), $params, function($results, $row) use ($key) {
+           $results[] = static::load($row->{$key});
+           return $results;
+      }, []);
     }
 
     public static function all($page=1, $limit=-1){
-      $offset = max(1,$page)-1;
-      return static::where($limit < 1 ? "" : "1 limit $limit offset $offset");
+      return static::where($limit < 1 ? "" : "1 limit {$limit} offset " . (max(1,$page)-1)*$limit);
     }
 
     public function primaryKey(){
-      $self = get_called_class();
-      $key  = $self::persistenceOptions('key');
-      return $this->$key;
+      $key  = static::persistenceOptions('key');
+      return $this->{$key};
     }
 
     public static function create($data){
