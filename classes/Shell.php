@@ -100,7 +100,7 @@ class Shell {
         return new static(implode(' && ',$cmd));
     }
 
-    public static function execCommand($command,$params){
+    public static function execCommand($command,$params = null){
         return new static($command,$params);
     }
 
