@@ -41,4 +41,14 @@ class TextTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals("this-is-a-very-wrong-sentence", $results);
   }
 
+  public function testCut() {
+    $txt = "Name: Ethan Hunt; Role: Agent";
+
+    $results = Text::cut($txt,'Name: ',';');
+    $this->assertEquals("Ethan Hunt", $results);
+
+    $results = Text::cut($txt,'Name: ');
+    $this->assertEquals("Ethan Hunt; Role: Agent", $results);
+  }
+
 }
