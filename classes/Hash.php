@@ -14,13 +14,14 @@ class Hash {
 	use Module;
 
 	/**
-	 * Create ah hash for payload
-	 * @param  mixed $payload The payload string/object/array
-	 * @param  integer $method  The hashing method, default is "md5"
-	 * @return string          The hash string
-	 */
-	public static function make($payload, $method = 'md5') {
-		return $method == 'murmur' ? static::murmur(serialize($payload)) : hash($method, serialize($payload));
+   * Create ah hash for payload
+   * @param  mixed $payload    The payload string/object/array
+   * @param  integer $method   The hashing method, default is "md5"
+   * @param  bool $raw_output  When set to TRUE, outputs raw binary data. FALSE outputs lowercase hexits.
+   * @return string            The hash string
+   */
+	public static function make($payload, $method = 'md5', $raw_output = false) {
+		return $method == 'murmur' ? static::murmur(serialize($payload)) : hash($method, serialize($payload), $raw_output);
 	}
 
 	/**
