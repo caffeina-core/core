@@ -51,9 +51,10 @@ class Errors {
         break;
       }
       $e = new \ErrorException($type.': '.$errstr, 0, $errno, $errfile, $errline);
+      $error_type = strtolower($type);
       $chk_specific = array_filter(array_merge(
-                      (array)static::trigger(strtolower($type),$e),
-                      (array)Event::trigger('core.error.'.strtolower($type),$e)
+                      (array)static::trigger($error_type,$e),
+                      (array)Event::trigger("core.error.$error_type",$e)
                     ));
       $chk_general  = array_filter(array_merge(
                       (array)static::trigger('any',$e),
