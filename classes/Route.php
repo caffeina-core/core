@@ -134,11 +134,11 @@ class Route {
                   ? $this->callback[$method]
                   : $this->callback;
 
-      if (is_callable($callback)) {
+      if (is_callable($callback) || is_a($callback, "View") ) {
         Response::type( Options::get('core.route.response_default_type', Response::TYPE_HTML) );
 
         ob_start();
-        $view_results = call_user_func_array($callback, $args);
+        $view_results = is_a($callback, "View") ? (string)$callback : call_user_func_array($callback, $args);
         $raw_echoed   = ob_get_clean();
 
         if ($append_echoed_text) Response::add($raw_echoed);
