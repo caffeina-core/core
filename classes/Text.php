@@ -79,4 +79,21 @@ class Text {
       'aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
   }
 
+  /**
+   * Cut a string from the end of a substring to the start of another
+   *
+   * @example
+   *   echo strcut("Name: Ethan Hunt; Role: Agent",'Name: ',';');
+   *   // Ethan Hunt
+   *
+   * @param  string $text      The source text
+   * @param  string $start_tag The starting substring
+   * @param  string $end_tag   Ending substring, if omitted all remaining string is returned
+   * @return string            The cutted string
+   */
+  public static function cut($text, $start_tag, $end_tag=null){
+    $_s = strlen($start_tag) + strpos($text, $start_tag);
+    return $end_tag ? substr($text, $_s, strpos($text,$end_tag,$_s)-$_s) : substr($text, $_s);
+  }
+
 } /* End of class */

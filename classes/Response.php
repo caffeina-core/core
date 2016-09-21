@@ -59,13 +59,16 @@ class Response {
     /**
      * Enable CORS HTTP headers.
      */
-    public static function enableCORS(){
+    public static function enableCORS($origin='*'){
 
         // Allow from any origin
-        if ($origin = filter_input(INPUT_SERVER,'HTTP_ORIGIN')) {
-          static::header('Access-Control-Allow-Origin', $origin);
+        if ($origin = $origin ?:( isset($_SERVER['HTTP_ORIGIN'])
+                    ? $_SERVER['HTTP_ORIGIN']
+                    : (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '*')
+        )) {
+          static::header('Access-Control-Allow-Origin',      $origin);
           static::header('Access-Control-Allow-Credentials', 'true');
-          static::header('Access-Control-Max-Age', 86400);
+          static::header('Access-Control-Max-Age',           86400);
         }
 
         // Access-Control headers are received during OPTIONS requests
@@ -80,6 +83,7 @@ class Response {
               static::header('Access-Control-Allow-Headers',$req_h);
             }
 
+            self::trigger('cors.preflight');
             static::send();
             exit;
         }
@@ -188,24 +192,24 @@ class Response {
     }
 
     public static function status($code,$message=''){
-        static::header('Status',$message?:$code,$code);
+      static::header('Status',$message?:$code,$code);
     }
 
     public static function header($name,$value,$code=null){
-        static::$headers[$name] = [$value,$code];
+      static::$headers[$name] = [$value,$code];
     }
 
     public static function error($code=500,$message='Application Error'){
-        static::trigger('error',$code,$message);
-        Event::trigger('core.response.error',$code,$message);
-        static::status($code,$message);
+      static::trigger('error',$code,$message);
+      Event::trigger('core.response.error',$code,$message);
+      static::status($code,$message);
     }
 
     public static function body($setBody=null){
       if ($setBody) static::$payload = [$setBody];
       return Filter::with('core.response.body',
-                is_array(static::$payload) ? implode('',static::$payload) : static::$payload
-             );
+        is_array(static::$payload) ? implode('',static::$payload) : static::$payload
+      );
     }
 
     public static function headers($setHeaders=null){
