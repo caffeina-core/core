@@ -29,7 +29,8 @@ class Response {
                      $buffer      = null,
                      $force_dl    = false,
                      $link        = null,
-                     $sent        = false;
+                     $sent        = false,
+                     $links       = [];
 
 
     public static function charset($charset){
@@ -119,6 +120,7 @@ class Response {
      */
     public static function clean(){
         static::$payload = [];
+        static::$headers = [];
     }
 
     /**
@@ -196,7 +198,11 @@ class Response {
     }
 
     public static function header($name,$value,$code=null){
-      static::$headers[$name] = [$value,$code];
+      if (empty(static::$headers[$name])){
+        static::$headers[$name] = [[$value,$code]];
+      } else {
+        static::$headers[$name][] = [$value,$code];
+      }
     }
 
     public static function error($code=500,$message='Application Error'){
@@ -226,8 +232,8 @@ class Response {
      */
     public static function save(){
         return [
-          'head' => static::$headers,
-          'body' => static::body(),
+          'head'  => static::$headers,
+          'body'  => static::body(),
         ];
     }
 
@@ -249,7 +255,8 @@ class Response {
         static::$sent = true;
         static::trigger('send');
         Event::trigger('core.response.send');
-        if (false === headers_sent()) foreach (static::$headers as $name => $value_code) {
+        if (false === headers_sent()) foreach (static::$headers as $name => $family)
+          foreach ($family as $value_code) {
 
             if (is_array($value_code)) {
                 list($value, $code) = (count($value_code) > 1) ? $value_code : [current($value_code), 200];
@@ -258,22 +265,55 @@ class Response {
                 $code  = null;
             }
 
-            if ($value == 'Status'){
-              if (function_exists('http_response_code')){
-                http_response_code($code);
-              } else {
-                header("Status: $code", true, $code);
-              }
-
-            } else {
-                $code
-                ? header("$name: $value", true, $code)
-                : header("$name: $value", true);
+            switch($value){
+              case "Status":
+                if (function_exists('http_response_code')){
+                  http_response_code($code);
+                } else {
+                  header("Status: $code", true, $code);
+                }
+              break;
+              case "Link":
+                  header("Link: $value", false);
+              break;
+              default:
+                if ($code) {
+                  header("$name: $value", true, $code);
+                } else {
+                  header("$name: $value", true);
+                }
+              break;
             }
         }
         if (static::$force_dl) header('Content-Disposition: attachment; filename="'.static::$force_dl.'"');
         echo static::body();
         static::trigger('sent');
+      }
+    }
+
+
+    /**
+     * Push resources to client (HTTP/2 spec)
+     * @param  string/array $links The link(s) to the resources to push.
+     * @return Response     The Route object
+     */
+    public static function push($links, $type='text'){
+      if (is_array($links)){
+        foreach($links as $_type => $link) {
+            // Extract URL basename extension (query-safe version)
+            if (is_numeric($_type)) switch(strtolower(substr(strrchr(strtok(basename($link),'?'),'.'),1))) {
+                case 'js': $_type = 'script'; break;
+                case 'css': $_type = 'style'; break;
+                case 'png': case 'svg': case 'gif': case 'jpg': $_type = 'image'; break;
+                case 'woff': case 'woff2': case 'ttf': case 'eof': $_type = 'font'; break;
+                default: $_type = 'text'; break;
+            }
+            foreach ((array)$link as $link_val) {
+              static::header("Link","<$link_val>; rel=preload; as=$_type");
+            }
+        }
+      } else {
+        static::header("Link","<".((string)$links).">; rel=preload; as=$type");
       }
     }
 

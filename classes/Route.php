@@ -138,7 +138,12 @@ class Route {
         Response::type( Options::get('core.route.response_default_type', Response::TYPE_HTML) );
 
         ob_start();
-        $view_results = is_a($callback, "View") ? (string)$callback : call_user_func_array($callback, $args);
+        if (is_a($callback, "View")) {
+          // Get the rendered view
+          $view_results = (string)$callback;
+        } else {
+          $view_results = call_user_func_array($callback, $args);
+        }
         $raw_echoed   = ob_get_clean();
 
         if ($append_echoed_text) Response::add($raw_echoed);
@@ -557,6 +562,12 @@ class Route {
         }
         return false;
     }
+
+    public function push($links, $type = 'text'){
+      Response::push($links, $type);
+      return $this;
+    }
+
 }
 
 class RouteGroup {
@@ -592,6 +603,11 @@ class RouteGroup {
     foreach ($this->routes as $route){
       $route->after($callbacks);
     }
+    return $this;
+  }
+
+  public function push($links, $type = 'text'){
+    Response::push($links, $type);
     return $this;
   }
 

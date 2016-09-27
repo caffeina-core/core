@@ -377,4 +377,68 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 
     }
 
+
+    public function testRoutePushes() {
+
+      Route::reset();
+      Options::set('core.response.autosend', false);
+      Response::clean();
+
+      Route::get('/', function () {
+        return "index";
+      })
+      ->push("/main.css","style")
+      ->push("/main.js","script")
+      ->push([
+        'font'  => ["/fonts/a.woff","/fonts/b.ttf"],
+        'image' => "/imgs/test.png",
+        0 => '/idk.txt',
+      ]);
+
+      Route::dispatch('/', 'get');
+      $compiled_headers = [];
+      foreach(Response::headers() as $key=>$vals){
+        foreach($vals as $val){
+          $compiled_headers[] = "$key: $val[0]";
+        }
+      }
+      $compiled_headers = implode("\n",$compiled_headers);
+      $this->assertContains('Link: </main.js>; rel=preload; as=script',      $compiled_headers, 'RoutePushes.1');
+      $this->assertContains('Link: </fonts/a.woff>; rel=preload; as=font',   $compiled_headers, 'RoutePushes.2');
+      $this->assertContains('Link: </fonts/b.ttf>; rel=preload; as=font',    $compiled_headers, 'RoutePushes.3');
+      $this->assertContains('Link: </imgs/test.png>; rel=preload; as=image', $compiled_headers, 'RoutePushes.4');
+      $this->assertContains('Link: </idk.txt>; rel=preload; as=text',        $compiled_headers, 'RoutePushes.5');
+
+      Route::reset();
+      Options::set('core.response.autosend', false);
+      Response::clean();
+
+      Route::group('',function(){
+        Route::get('/', function () {
+          return "index";
+        });
+      })
+      ->push("/main.css","style")
+      ->push("/main.js","script")
+      ->push([
+        0 => '/idk.txt',
+        'font'  => ["/fonts/a.woff","/fonts/b.ttf"],
+        'image' => "/imgs/test.png",
+      ]);
+
+      Route::dispatch('/', 'get');
+      $compiled_headers = [];
+      foreach(Response::headers() as $key=>$vals){
+        foreach($vals as $val){
+          $compiled_headers[] = "$key: $val[0]";
+        }
+      }
+      $compiled_headers = implode("\n",$compiled_headers);
+      $this->assertContains('Link: </main.js>; rel=preload; as=script',      $compiled_headers, 'RouteGroupPushes.1');
+      $this->assertContains('Link: </fonts/a.woff>; rel=preload; as=font',   $compiled_headers, 'RouteGroupPushes.2');
+      $this->assertContains('Link: </fonts/b.ttf>; rel=preload; as=font',    $compiled_headers, 'RouteGroupPushes.3');
+      $this->assertContains('Link: </imgs/test.png>; rel=preload; as=image', $compiled_headers, 'RouteGroupPushes.4');
+      $this->assertContains('Link: </idk.txt>; rel=preload; as=text',        $compiled_headers, 'RouteGroupPushes.5');
+    }
+
 }
