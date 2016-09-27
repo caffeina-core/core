@@ -72,7 +72,7 @@ class Request {
    * @return Object The returned value or $default.
    */
   public static function server($key=null,$default=null){
-    return $key ? (filter_input(INPUT_SERVER,$key) ?: (is_callable($default)?call_user_func($default):$default))  : $_SERVER;
+    return $key ? ($_SERVER[$key] ?: (is_callable($default)?call_user_func($default):$default))  : $_SERVER;
   }
 
   /**
@@ -129,15 +129,20 @@ class Request {
    * @return string
    */
   public static function host($protocol=true){
-    $host = filter_input(INPUT_SERVER,'HOSTNAME') ?: (
-          filter_input(INPUT_SERVER,'SERVER_NAME') ?:
-          filter_input(INPUT_SERVER,'HTTP_HOST')
-    );
+    switch(true){
+      case !empty($_SERVER['HTTP_X_FORWARDED_HOST']) :
+        $host = trim(substr(strrchr($_SERVER['HTTP_X_FORWARDED_HOST'],','),1));
+      break;
+      case isset($_SERVER['HOSTNAME'])     : $host = $_SERVER['HOSTNAME']; break;
+      case isset($_SERVER['SERVER_NAME'])  : $host = $_SERVER['SERVER_NAME']; break;
+      case isset($_SERVER['HTTP_HOST'])    : $host = $_SERVER['HTTP_HOST']; break;
+      default                              : $host = 'localhost'; break;
+    }
     $host = explode(':',$host,2);
-    $port = isset($host[1]) ? (int)$host[1] : filter_input(INPUT_SERVER,'SERVER_PORT');
+    $port = isset($host[1]) ? (int)$host[1] : (isset($_SERVER['SERVER_PORT'])?$_SERVER['SERVER_PORT']:80);
     $host = $host[0] . (($port && $port != 80) ? ":$port" : '');
     if ($port == 80) $port = '';
-    return ($protocol ? 'http' . (filter_input(INPUT_SERVER,'HTTPS')?'s':'') . '://' : '') . Filter::with('core.request.host',$host);
+    return ($protocol ? 'http' . (!empty($_SERVER['HTTPS'])?'s':'') . '://' : '') . Filter::with('core.request.host',$host);
   }
 
   /**
@@ -159,7 +164,7 @@ class Request {
    */
   public static function header($key=null,$default=null){
     $key = 'HTTP_'.strtr(strtoupper($key),'-','_');
-    return $key ? (filter_input(INPUT_SERVER,$key) ?: (is_callable($default)?call_user_func($default):$default)) : $_SERVER;
+    return $key ? (isset($_SERVER[$key])? $_SERVER[$key] : (is_callable($default)?call_user_func($default):$default)) : $_SERVER;
   }
 
   /**
@@ -170,13 +175,15 @@ class Request {
    * @return string
    */
   public static function URI($relative=true){
-    // On some web server configurations PHP_SELF is not populated.
-    $self = filter_input(INPUT_SERVER,'SCRIPT_NAME') ?: filter_input(INPUT_SERVER,'PHP_SELF');
+    // On some web server configurations SCRIPT_NAME is not populated.
+    $self = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : $_SERVER['PHP_SELF'];
     // Search REQUEST_URI in $_SERVER
-    $serv_uri = filter_input(INPUT_SERVER,'PATH_INFO') ?: (
-          filter_input(INPUT_SERVER,'ORIG_PATH_INFO') ?:
-          filter_input(INPUT_SERVER,'REQUEST_URI')
-    );
+    switch(true){
+      case isset($_SERVER['PATH_INFO']):      $serv_uri = $_SERVER['PATH_INFO']; break;
+      case isset($_SERVER['ORIG_PATH_INFO']): $serv_uri = $_SERVER['ORIG_PATH_INFO']; break;
+      case isset($_SERVER['REQUEST_URI']):    $serv_uri = $_SERVER['REQUEST_URI']; break;
+      default:                                $serv_uri = '/'; break;
+    }
     $uri = strtok($serv_uri,'?');
     $uri = ($uri == $self) ? '/' : $uri;
 
@@ -199,9 +206,7 @@ class Request {
    * @return string
    */
   public static function baseURI(){
-    // On some web server configurations PHP_SELF is not populated.
-    $uri = dirname(filter_input(INPUT_SERVER,'SCRIPT_NAME') ?: filter_input(INPUT_SERVER,'PHP_SELF'));
-    return $uri ?: '/';
+    return dirname(isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : $_SERVER['PHP_SELF']) ?: '/';
   }
 
   /**
@@ -210,7 +215,7 @@ class Request {
    * @return string
    */
   public static function method(){
-   return Filter::with('core.request.method',strtolower(filter_input(INPUT_SERVER,'REQUEST_METHOD')?:'get'));
+   return Filter::with('core.request.method',strtolower(isset($_SERVER['REQUEST_METHOD'])?$_SERVER['REQUEST_METHOD']:'get'));
   }
 
   /**
@@ -219,7 +224,7 @@ class Request {
    * @return string
    */
   public static function IP(){
-   return Filter::with('core.request.IP',strtolower(filter_input(INPUT_SERVER,'REMOTE_ADDR')?:''));
+   return Filter::with('core.request.IP',strtolower(isset($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:''));
   }
 
   /**
@@ -228,7 +233,7 @@ class Request {
    * @return string
    */
   public static function UA(){
-   return Filter::with('core.request.UA',strtolower(filter_input(INPUT_SERVER,'HTTP_USER_AGENT')?:''));
+   return Filter::with('core.request.UA',strtolower(isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:''));
   }
 
 
@@ -242,8 +247,8 @@ class Request {
    */
   public static function data($key=null,$default=null){
     if (null===static::$body){
-      $json = (false !== stripos(filter_input(INPUT_SERVER,'HTTP_CONTENT_TYPE'),'json'))
-           || (false !== stripos(filter_input(INPUT_SERVER,'CONTENT_TYPE'),'json'));
+      $json = (false !== stripos(isset($_SERVER['HTTP_CONTENT_TYPE'])?$_SERVER['HTTP_CONTENT_TYPE']:'','json'))
+           || (false !== stripos(isset($_SERVER['CONTENT_TYPE'])?$_SERVER['CONTENT_TYPE']:'','json'));
       if ($json) {
         static::$body = json_decode(file_get_contents("php://input"));
       } else {

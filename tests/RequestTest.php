@@ -33,31 +33,31 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 
 	public function testGet() {
 		$this->request_set_get_data(['alpha' => 'beta']);
-		$this->assertEquals(Request::get()['alpha'], 'beta');
+		$this->assertEquals('beta', Request::get()['alpha']);
 	}
 
 	public function testPost() {
 		$this->request_set_post_data(['alpha' => 'beta']);
-		$this->assertEquals(Request::post()['alpha'], 'beta');
+		$this->assertEquals('beta', Request::post()['alpha']);
 	}
 
 	public function testCookie() {
 		$this->request_set_cookie_data(['alpha' => 'beta']);
-		$this->assertEquals(Request::cookie()['alpha'], 'beta');
+		$this->assertEquals('beta', Request::cookie()['alpha']);
 	}
 
 	public function testFiles() {
 		$this->request_set_files_data(['alpha' => 'beta']);
-		$this->assertEquals(Request::files()['alpha'], 'beta');
+		$this->assertEquals('beta', Request::files()['alpha']);
 	}
 
 	public function testEnv() {
 		$this->request_set_env_data(['alpha' => 'beta']);
-		$this->assertEquals(Request::env()['alpha'], 'beta');
+		$this->assertEquals('beta', Request::env()['alpha']);
 	}
 
 	public function testURL() {
-		$this->assertEquals(Request::URL(), 'http:///');
+		$this->assertEquals('http://localhost/', Request::URL());
 	}
 
 	public function testURI() {
@@ -70,12 +70,12 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 		$_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en;q=0.6,it,en-US;q=0.8';
 		// $_SERVER['HTTP_CHARSET']      = '';
 
-		$this->assertEquals(Request::accept('language', 'en,es'), 'en');
-		$this->assertEquals(Request::accept('language', 'en,it;q=0.1'), 'it');
+		$this->assertEquals('en',Request::accept('language', 'en,es'));
+		$this->assertEquals('it',Request::accept('language', 'en,it;q=0.1'));
 		$this->assertFalse(Request::accept('type', 'svg'));
-		$this->assertEquals(Request::accept('encoding', 'deflate;q=0.6,gzip;q=0.1'), 'gzip');
-		$this->assertEquals(Request::accept('charset', 'utf-8,*;q=0.1'), 'utf-8');
-		$this->assertEquals(Request::accept('type', 'application/xml,application/xhtml+xml'), 'application/xhtml+xml');
+		$this->assertEquals('gzip',Request::accept('encoding', 'deflate;q=0.6,gzip;q=0.1'));
+		$this->assertEquals('utf-8',Request::accept('charset', 'utf-8,*;q=0.1'));
+		$this->assertEquals('application/xhtml+xml',Request::accept('type', 'application/xml,application/xhtml+xml'));
 
 	}
 
