@@ -165,7 +165,7 @@ trait Persistence {
    */
   private function persistenceSaveDefault($table,$options){
     if (is_callable(($c=get_called_class())."::trigger")) $c::trigger("save", $this, $table, $options['key']);
-    return SQL::insertOrUpdate($table,array_filter((array)$this),$options['key']);
+    return SQL::insertOrUpdate($table,(array)$this,$options['key']);
   }
 
 
