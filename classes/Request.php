@@ -6,8 +6,8 @@
  * Handles the HTTP request for the current execution.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2016 - http://caffeina.com
  */
 
 class Request {
@@ -24,7 +24,7 @@ class Request {
    *
    * @return Object The preferred content if $choices is empty else return best match
    */
-  public static function accept($key='type',$choices=''){
+  public static function accept($key='type',$choices='') {
     if (null === static::$accepts) static::$accepts = [
       'type'     => new Negotiation(isset($_SERVER['HTTP_ACCEPT'])          ? $_SERVER['HTTP_ACCEPT']          : ''),
       'language' => new Negotiation(isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : ''),
@@ -72,7 +72,7 @@ class Request {
    * @return Object The returned value or $default.
    */
   public static function server($key=null,$default=null){
-    return $key ? ($_SERVER[$key] ?: (is_callable($default)?call_user_func($default):$default))  : $_SERVER;
+    return $key ? (isset($_SERVER[$key]) ? $_SERVER[$key] : (is_callable($default)?call_user_func($default):$default)) : $_SERVER;
   }
 
   /**
@@ -84,7 +84,7 @@ class Request {
    * @return Object The returned value or $default.
    */
   public static function post($key=null,$default=null){
-    return $key ? (filter_input(INPUT_POST,$key) ?: (is_callable($default)?call_user_func($default):$default))  : $_POST;
+    return $key ? (filter_input(INPUT_POST,$key) ?: (is_callable($default)?call_user_func($default):$default)) : $_POST;
   }
 
   /**
@@ -96,7 +96,7 @@ class Request {
    * @return Object The returned value or $default.
    */
   public static function get($key=null,$default=null){
-    return $key ? (filter_input(INPUT_GET,$key) ?: (is_callable($default)?call_user_func($default):$default))  : $_GET;
+    return $key ? (filter_input(INPUT_GET,$key) ?: (is_callable($default)?call_user_func($default):$default)) : $_GET;
   }
 
   /**
@@ -133,16 +133,16 @@ class Request {
       case !empty($_SERVER['HTTP_X_FORWARDED_HOST']) :
         $host = trim(substr(strrchr($_SERVER['HTTP_X_FORWARDED_HOST'],','),1));
       break;
-      case isset($_SERVER['HOSTNAME'])     : $host = $_SERVER['HOSTNAME']; break;
+      case isset($_SERVER['HOSTNAME'])     : $host = $_SERVER['HOSTNAME'];    break;
       case isset($_SERVER['SERVER_NAME'])  : $host = $_SERVER['SERVER_NAME']; break;
-      case isset($_SERVER['HTTP_HOST'])    : $host = $_SERVER['HTTP_HOST']; break;
-      default                              : $host = 'localhost'; break;
+      case isset($_SERVER['HTTP_HOST'])    : $host = $_SERVER['HTTP_HOST'];   break;
+      default                              : $host = 'localhost';             break;
     }
     $host = explode(':',$host,2);
     $port = isset($host[1]) ? (int)$host[1] : (isset($_SERVER['SERVER_PORT'])?$_SERVER['SERVER_PORT']:80);
     $host = $host[0] . (($port && $port != 80) ? ":$port" : '');
     if ($port == 80) $port = '';
-    return ($protocol ? 'http' . (!empty($_SERVER['HTTPS'])?'s':'') . '://' : '') . Filter::with('core.request.host',$host);
+    return ($protocol ? 'http' . (!empty($_SERVER['HTTPS'])&&(strtolower($_SERVER['HTTPS'])!=='off')?'s':'') . '://' : '') . Filter::with('core.request.host',$host);
   }
 
   /**
