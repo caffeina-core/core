@@ -51,5 +51,3 @@ Core is maintained by using the [Semantic Versioning Specification (SemVer)](htt
 ## Copyright and license
 
 Copyright 2014-2016 [Caffeina](http://caffeina.com) srl under the [MIT license](LICENSE.md).
-
-<img src="http://www.google-analytics.com/__utm.gif?utmac=UA-26094283-36">
