@@ -131,7 +131,7 @@ class Request {
   public static function host($protocol=true){
     switch(true){
       case !empty($_SERVER['HTTP_X_FORWARDED_HOST']) :
-        $host = trim(substr(strrchr($_SERVER['HTTP_X_FORWARDED_HOST'],','),1));
+        $host = trim(substr(strrchr($_SERVER['HTTP_X_FORWARDED_HOST'],','),1) ?: $_SERVER['HTTP_X_FORWARDED_HOST']);
       break;
       case isset($_SERVER['HOSTNAME'])     : $host = $_SERVER['HOSTNAME'];    break;
       case isset($_SERVER['SERVER_NAME'])  : $host = $_SERVER['SERVER_NAME']; break;
