@@ -52,13 +52,4 @@ Core is maintained by using the [Semantic Versioning Specification (SemVer)](htt
 
 Copyright 2014-2016 [Caffeina](http://caffeina.com) srl under the [MIT license](LICENSE.md).
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-26094283-36', 'auto');
-  ga('send', 'pageview');
-
-</script>
+<img src="http://www.google-analytics.com/__utm.gif?utmac=UA-26094283-36">
