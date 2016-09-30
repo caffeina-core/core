@@ -37,10 +37,12 @@ abstract class Model {
 
     public static function create($data){
       $tmp = new static;
-      foreach ((array)$data as $key => $value) {
-         $tmp->$key = $value;
+      $data = (object)$data;
+      foreach (array_keys(get_object_vars($tmp)) as $key) {
+         if (isset($data->{$key})) $tmp->{$key} = $data->{$key};
       }
       $tmp->save();
+      static::trigger('create',$tmp,$data);
       return $tmp;
     }
 

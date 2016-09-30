@@ -2,6 +2,8 @@
 
 class Book extends Model {
 	const _PRIMARY_KEY_ = 'books.id';
+  public $id,
+         $title;
 }
 
 class ModelTest extends PHPUnit_Framework_TestCase {
