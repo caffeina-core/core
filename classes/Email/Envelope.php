@@ -139,13 +139,9 @@ class Envelope {
       if(is_array($this->cc)  && !empty($this->cc))  $head[] = "Cc: "  . implode(', ',$this->cc);
       if(is_array($this->bcc) && !empty($this->bcc)) $head[] = "Bcc: " . implode(', ',$this->bcc);
       if($this->replyTo)                     $head[] = "Reply-To: {$this->replyTo}";
+      $head[] = "Content-Type: multipart/mixed; boundary=\"{$this->uid}\"";
       $head[] = 'MIME-Version: 1.0';
-      if (!empty($this->attachments)) {
-        $head[] = "Content-Type: multipart/mixed; boundary=\"{$this->uid}\"";
-      } else {
-        $head[] = "Content-Type: {$this->contentType}";
-        $head[] = "Content-Transfer-Encoding: quoted-printable";
-      }
+      $head[] = '';
       $this->compiled_head = implode("\r\n", $head);
     }
     return \Filter::with( 'core.email.source.head', $this->compiled_head);
@@ -154,11 +150,9 @@ class Envelope {
   public function body($recompile = false){
     if ($recompile || (null === $this->compiled_body)){
       $body = [];
-      if (!empty($this->attachments)) {
-        $body[] = "--{$this->uid}";
-        $body[] = "Content-Type: {$this->contentType}";
-        $body[] = "Content-Transfer-Encoding: quoted-printable";
-      }
+      $body[] = "--{$this->uid}";
+      $body[] = "Content-Type: {$this->contentType}";
+      $body[] = "Content-Transfer-Encoding: quoted-printable";
       $body[] = '';
       $body[] = quoted_printable_encode($this->message);
       $body[] = '';
@@ -180,8 +174,9 @@ class Envelope {
         $body[] = '';
         $body[] = chunk_split(base64_encode($data));
         $body[] = '';
-        $body[] = "--{$this->uid}--";
       }
+
+      $body[] = "--{$this->uid}";
 
       $this->compiled_body = implode("\r\n", $body);
     }

@@ -60,7 +60,10 @@ class Smtp implements Driver {
     }
     $this->lastCode = 1 * substr($this->lastMessage, 0, 3);
     \Email::trigger("smtp.console",$this->lastMessage);
-    return $code == $this->lastCode;
+    if ($code != $this->lastCode) {
+      throw new \Exception("Expected $code returned {$this->lastMessage}");
+    }
+    return true;
   }
 
   protected function cleanAddr($email){
@@ -68,6 +71,7 @@ class Smtp implements Driver {
   }
 
   protected function SMTPmail($from,$to,$body){
+    try {
     $this->connect();
     $this->expectCode(220);
 
@@ -80,7 +84,7 @@ class Smtp implements Driver {
       $this->write(base64_encode($this->username));
       $this->expectCode(334);
       $this->write(base64_encode($this->password));
-      $this->expectCode(334);
+      $this->expectCode(235);
     }
 
     $from = $this->cleanAddr($from);
@@ -99,12 +103,16 @@ class Smtp implements Driver {
     $this->write($body);
 
     $this->write(".");
-    $success = $this->expectCode(250);
+    $this->expectCode(250);
 
     $this->write("QUIT");
 
     $this->close();
-    return $success;
+    } catch (\Exception $e) {
+      \Email::trigger('error',$e->getMessage());
+      return false;
+    }
+    return true;
   }
 
   public function onSend(Envelope $envelope){
