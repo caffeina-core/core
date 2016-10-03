@@ -49,6 +49,7 @@ class Smtp implements Driver {
   protected function write($data, $nl = 1){
     $payload = $data . str_repeat("\r\n",$nl);
     fwrite($this->socket, $payload);
+    \Email::trigger("smtp.console",$payload);
   }
 
   protected function expectCode($code){
@@ -57,8 +58,8 @@ class Smtp implements Driver {
     while (substr($this->lastMessage, 3, 1) != ' '){
       $this->lastMessage = fgets($this->socket, 256);
     }
-
     $this->lastCode = 1 * substr($this->lastMessage, 0, 3);
+    \Email::trigger("smtp.console",$this->lastMessage);
     return $code == $this->lastCode;
   }
 
