@@ -28,7 +28,7 @@ class Smtp implements Driver {
     $options        = (object)$options;
     $this->host     = isset($options->host)     ? $options->host     : 'localhost';
     $this->username = isset($options->username) ? $options->username : false;
-    $this->secure   = isset($options->secure)   ? $options->secure   : ($this->username ? true : false);
+    $this->secure   = isset($options->secure)   ? $options->secure   : !empty($this->username);
     $this->port     = isset($options->port)     ? $options->port     : ($this->secure ? 465 : 25);
     $this->password = isset($options->password) ? $options->password : false;
   }
@@ -37,7 +37,7 @@ class Smtp implements Driver {
     if ($this->socket) $this->close();
     $url = ($this->secure ? 'tls' : 'tcp') ."://{$this->host}";
     $this->socket = fsockopen( $url, $this->port, $errno, $errstr, 30 );
-    if ( ! $this->socket ) throw new \Exception("Unable to connect to $url on port {$this->port}.");
+    if (!$this->socket) throw new \Exception("Unable to connect to $url on port {$this->port}.");
     $this->lastMessage = '';
     $this->lastCode = 0;
   }

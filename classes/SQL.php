@@ -278,17 +278,17 @@ class SQLConnection {
     }
   }
 
-  public function insert($table, $data){
+  public function insert($table, $data, $pk='id'){
     if(!$this->connection()) return false;
 
     if (false==is_array($data)) $data = (array)$data;
     $k = array_keys($data);
     asort($k);
-    $pk = $k;
-    array_walk($pk,function(&$e){ $e = ':'.$e;});
-    $q = "INSERT INTO `$table` (`".implode('`,`',$k)."`) VALUES (".implode(',',$pk).")";
+    $pk_a = $k;
+    array_walk($pk_a,function(&$e){ $e = ':'.$e;});
+    $q = "INSERT INTO `$table` (`".implode('`,`',$k)."`) VALUES (".implode(',',$pk_a).")";
     $this->exec($q,$data);
-    return $this->last_exec_success ? $this->connection()->lastInsertId() : false;
+    return $this->last_exec_success ? $this->connection()->lastInsertId($pk) : false;
   }
 
   public function updateWhere($table, $data, $where, $pk='id'){
@@ -321,7 +321,7 @@ class SQLConnection {
     if( (string) $this->value("SELECT `$pk` FROM `$table` WHERE `$pk`=? LIMIT 1", [$data[$pk]]) === (string) $data[$pk] ){
         return $this->update($table, $data, $pk, $extra_where);
     } else {
-        return $this->insert($table, $data);
+        return $this->insert($table, $data, $pk);
     }
   }
 }
