@@ -98,7 +98,7 @@ class HTTP {
     return $value===null ? static::$UA : static::$UA = $value;
   }
 
-  public static function proxy($proxy=false){
+  public static function proxy($value=false){
     return $value===false ? static::$proxy : static::$proxy = $value;
   }
 
