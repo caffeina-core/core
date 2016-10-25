@@ -16,7 +16,7 @@ class HTTP {
   protected static $UA          = "Mozilla/4.0 (compatible; Core::HTTP; Windows NT 6.1)",
                    $json_data   = false,
                    $headers     = [],
-                   $last_info   = null
+                   $last_info   = null,
                    $proxy       = null; // host:port
 
   protected static function request($method, $url, $data=[], array $headers=[], $data_as_json=false, $username=null, $password = null){
