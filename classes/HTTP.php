@@ -6,8 +6,8 @@
  * cURL proxy.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2016 - http://caffeina.com
  */
 
 class HTTP {
@@ -16,7 +16,8 @@ class HTTP {
   protected static $UA          = "Mozilla/4.0 (compatible; Core::HTTP; Windows NT 6.1)",
                    $json_data   = false,
                    $headers     = [],
-                   $last_info   = null;
+                   $last_info   = null
+                   $proxy       = null; // host:port
 
   protected static function request($method, $url, $data=[], array $headers=[], $data_as_json=false, $username=null, $password = null){
     $http_method = strtoupper($method);
@@ -31,6 +32,7 @@ class HTTP {
       CURLOPT_MAXREDIRS       => 10,
       CURLOPT_FOLLOWLOCATION  => true,
       CURLOPT_ENCODING        => '',
+      CURLOPT_PROXY           => static::$proxy,
     ];
 
     if($username && $password) {
@@ -96,6 +98,10 @@ class HTTP {
     return $value===null ? static::$UA : static::$UA = $value;
   }
 
+  public static function proxy($proxy=false){
+    return $value===false ? static::$proxy : static::$proxy = $value;
+  }
+
   public static function get($url, $data=null, array $headers=[], $username = null, $password = null){
     return static::request('get',$url,$data,$headers,false,$username,$password);
   }
@@ -123,6 +129,7 @@ class HTTP {
         CURLOPT_ENCODING        => '',
         CURLOPT_FILETIME        => true,
         CURLOPT_NOBODY          => true,
+        CURLOPT_PROXY           => static::$proxy,
       ]);
       curl_exec($ch);
       $info = curl_getinfo($ch);
