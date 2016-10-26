@@ -72,20 +72,18 @@ class Check {
     return empty(static::$errors);
   }
 
-  public static function method($name, $definition = null){
+   public static function method($name, $definition = null){
     if (is_array($name)) {
       foreach ($name as $method_name => $method_definition){
         if (is_callable($method_definition)) $method_definition = ['validate' => $method_definition];
         if (empty($method_definition['validate']) || !is_callable($method_definition['validate'])) continue;
-        $method_definition['key']      = "core.check.error.$method_name";
-        $method_definition['message']  = Filter::with("core.check.message.$method_definition[key]",@$method_definition['message']?:'Field not valid.');
+        $method_definition['message']  = Filter::with("core.check.error.$method_name",@$method_definition['message']?:'Field not valid.');
         static::$methods[$method_name] = (object)$method_definition;
       }
     } else {
       if (is_callable($definition)) $definition = ['validate' => $definition];
       if (empty($definition['validate']) || !is_callable($definition['validate'])) return;
-      $methods['key']         = "core.check.error.$name";
-      $methods['message']     = Filter::with("core.check.message.$methods[key]",@$methods['message']?:'Field not valid.');
+      $methods['message']     = Filter::with("core.check.error.$name",@$methods['message']?:'Field not valid.');
       static::$methods[$name] = (object)$definition;
     }
   }
