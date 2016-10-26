@@ -28,7 +28,7 @@ class Smtp implements Driver {
     $options        = (object)$options;
     $this->host     = isset($options->host)     ? $options->host     : 'localhost';
     $this->username = isset($options->username) ? $options->username : false;
-    $this->secure   = isset($options->secure)   ? $options->secure   : ($this->username ? true : false);
+    $this->secure   = isset($options->secure)   ? $options->secure   : !empty($this->username);
     $this->port     = isset($options->port)     ? $options->port     : ($this->secure ? 465 : 25);
     $this->password = isset($options->password) ? $options->password : false;
   }
@@ -37,7 +37,7 @@ class Smtp implements Driver {
     if ($this->socket) $this->close();
     $url = ($this->secure ? 'tls' : 'tcp') ."://{$this->host}";
     $this->socket = fsockopen( $url, $this->port, $errno, $errstr, 30 );
-    if ( ! $this->socket ) throw new \Exception("Unable to connect to $url on port {$this->port}.");
+    if (!$this->socket) throw new \Exception("Unable to connect to $url on port {$this->port}.");
     $this->lastMessage = '';
     $this->lastCode = 0;
   }
@@ -49,6 +49,7 @@ class Smtp implements Driver {
   protected function write($data, $nl = 1){
     $payload = $data . str_repeat("\r\n",$nl);
     fwrite($this->socket, $payload);
+    \Email::trigger("smtp.console",$payload);
   }
 
   protected function expectCode($code){
@@ -57,9 +58,12 @@ class Smtp implements Driver {
     while (substr($this->lastMessage, 3, 1) != ' '){
       $this->lastMessage = fgets($this->socket, 256);
     }
-
     $this->lastCode = 1 * substr($this->lastMessage, 0, 3);
-    return $code == $this->lastCode;
+    \Email::trigger("smtp.console",$this->lastMessage);
+    if ($code != $this->lastCode) {
+      throw new \Exception("Expected $code returned {$this->lastMessage}");
+    }
+    return true;
   }
 
   protected function cleanAddr($email){
@@ -67,6 +71,7 @@ class Smtp implements Driver {
   }
 
   protected function SMTPmail($from,$to,$body){
+    try {
     $this->connect();
     $this->expectCode(220);
 
@@ -79,7 +84,7 @@ class Smtp implements Driver {
       $this->write(base64_encode($this->username));
       $this->expectCode(334);
       $this->write(base64_encode($this->password));
-      $this->expectCode(334);
+      $this->expectCode(235);
     }
 
     $from = $this->cleanAddr($from);
@@ -98,12 +103,16 @@ class Smtp implements Driver {
     $this->write($body);
 
     $this->write(".");
-    $success = $this->expectCode(250);
+    $this->expectCode(250);
 
     $this->write("QUIT");
 
     $this->close();
-    return $success;
+    } catch (\Exception $e) {
+      \Email::trigger('error',$e->getMessage());
+      return false;
+    }
+    return true;
   }
 
   public function onSend(Envelope $envelope){

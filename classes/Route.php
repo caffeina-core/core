@@ -536,12 +536,12 @@ class Route {
         } else {
           $routes =& static::$optimized_tree;
           foreach (explode('/',trim($URL,'/')) as $segment) {
-            if (isset($routes[$segment])) $routes =& $routes[$segment];
+            if (is_array($routes) && isset($routes[$segment])) $routes =& $routes[$segment];
               // Root-level dynamic routes Ex: "/:param"
-              else if (isset($routes[''])) $routes =& $routes[''];
+              else if (is_array($routes) && isset($routes[''])) $routes =& $routes[''];
             else break;
           }
-          if (isset($routes[0]) && !is_array($routes[0])) foreach ((array)$routes as $route) {
+          if (is_array($routes) && isset($routes[0]) && !is_array($routes[0])) foreach ((array)$routes as $route) {
               if (is_a($route, __CLASS__) && $route->match($URL, $method)){
                     if ($return_route){
                       return $route;

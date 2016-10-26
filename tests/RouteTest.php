@@ -377,6 +377,64 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    public function testRootExtraction() {
+      Route::reset();
+      Event::off(404);
+      Options::set('core.response.autosend', false);
+      Response::clean();
+
+      $URI = '/base/12/alpha/beta';
+      Response::clean();
+      $this->mock_request($URI, 'get');
+
+      Route::group("/base", function() {
+        Route::get("/", function() {
+           return "INDEX";
+        });
+
+        Route::get("/:id", function($id) {
+           return "ROOT$id";
+        })->rules(['id' => '\d+']);
+
+        Route::get("/:id/alpha", function($id) {
+           return "ALPHA$id";
+        })->rules(['id' => '\d+']);
+
+        Route::get("/:id/alpha/beta", function($id) {
+           return "BETA$id";
+        })->rules(['id' => '\d+']);
+
+        Route::group("/alpha", function() {
+          Route::get("/", function() {
+             return "ALPHA-INDEX";
+          });
+          Route::get("/gamma", function() {
+             return "ALPHA-GAMMA";
+          });
+          Route::get("/delta", function() {
+             return "ALPHA-DELTA";
+          });
+        });
+
+
+      });
+
+      Route::dispatch($URI, 'get');
+      $this->assertEquals('BETA12',Response::body(),$URI);
+
+      $URI = '/fake/alpha/beta';
+      Response::clean();
+      $this->mock_request($URI, 'get');
+      Route::dispatch($URI, 'get');
+      $this->assertEquals('',Response::body(),$URI);
+
+      $URI = '/base/alpha/gamma';
+      Response::clean();
+      $this->mock_request($URI, 'get');
+      Route::dispatch($URI, 'get');
+      $this->assertEquals('ALPHA-GAMMA',Response::body(),$URI);
+
+    }
 
     public function testRoutePushes() {
 
@@ -441,4 +499,59 @@ class RouteTest extends PHPUnit_Framework_TestCase {
       $this->assertContains('Link: </idk.txt>; rel=preload; as=text',        $compiled_headers, 'RouteGroupPushes.5');
     }
 
+
+    public function testComplexNesting() {
+      Route::reset();
+      Event::off(404);
+      Options::set('core.response.autosend', false);
+      Response::clean();
+
+      $make_tree = function($base,$cb=null){
+        Route::group($base, function() use ($cb,$base) {
+          Route::get("/", function() {
+             return "INDEX";
+          });
+
+          Route::get("/:id", function($id) {
+             return "ROOT$id";
+          })->rules(['id' => '\d+']);
+
+          Route::get("/:id/alpha", function($id) {
+             return "ALPHA$id";
+          })->rules(['id' => '\d+']);
+
+          Route::get("/:id/alpha/beta", function($id) {
+             return "BETA$id";
+          })->rules(['id' => '\d+']);
+
+          Route::group("/alpha", function() use ($cb,$base){
+            Route::get("/", function() {
+               return "ALPHA-INDEX";
+            });
+            Route::get("/gamma", function() {
+               return "ALPHA-GAMMA";
+            });
+            Route::get("/delta", function() use ($base) {
+               return "ALPHA-DELTA($base)";
+            });
+
+            if ($cb) $cb();
+          });
+        });
+      };
+
+      $URI = '/A1/alpha/A2/alpha/A3/alpha/delta';
+      Response::clean();
+      $this->mock_request($URI, 'get');
+
+      $make_tree("/A1",function() use ($make_tree){
+        $make_tree("/A2",function() use ($make_tree){
+          $make_tree("/A3");
+        });
+      });
+
+      Route::dispatch($URI, 'get');
+      $this->assertEquals('ALPHA-DELTA(/A3)',Response::body(),$URI);
+
+    }
 }
