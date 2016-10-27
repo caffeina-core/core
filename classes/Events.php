@@ -3,7 +3,7 @@
 /**
  * Events trait
  *
- * Add to a class a generic, private event emitter-listener.
+ * Add to a class for a generic, private event emitter-listener.
  *
  * @package core
  * @author stefano.azzolini@caffeina.com
@@ -11,7 +11,7 @@
  */
 
 trait Events {
-  
+
     protected static $_listeners = [];
 
     public static function on($name,callable $listener){
