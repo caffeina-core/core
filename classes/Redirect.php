@@ -34,7 +34,7 @@ class Redirect {
     public static function viaJavaScript($url, $parent=false){
       if ($link = Filter::with('core.redirect', $url)){
         Response::type('text/html');
-        Response::add('<script>'.($parent?'parent.':'').'location.href="',addslashes($link),'"</script>');
+        Response::add('<script>'.($parent?'parent.':'').'location.href="'.addslashes($link).'"</script>');
         Response::send();
         exit;
       }
