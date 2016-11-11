@@ -35,6 +35,7 @@ CREATE TABLE `queue` (
 
 class Job extends Model {
   const _PRIMARY_KEY_ = "queue.id";
+  private static $sql_connection = 'default';
 
   public $id,
          $type,
@@ -62,7 +63,7 @@ class Job extends Model {
 
   public static function cleanQueue($all=false){
     $statuses = $all ? "'DONE','ERROR'" : "'DONE'";
-    return SQL::exec("DELETE FROM `".static::persistenceOptions('table')."` WHERE `status` IN ($statuses)");
+    return SQL::using(static::$sql_connection)->exec("DELETE FROM `".static::persistenceOptions('table')."` WHERE `status` IN ($statuses)");
   }
 
   public static function execute(){

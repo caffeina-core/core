@@ -2,7 +2,7 @@
 
 class FileTest extends PHPUnit_Framework_TestCase {
 
-	public function __construct() {
+	public function setUp() {
 		File::mount('temp', 'native', [
 			'root' => sys_get_temp_dir(),
 		]);

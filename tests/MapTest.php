@@ -2,7 +2,7 @@
 
 class MapTest extends PHPUnit_Framework_TestCase {
 
-	public function __construct() {
+	public function setUp() {
 		$this->data = [
 			'a' => 123,
 			'b' => 'hello',

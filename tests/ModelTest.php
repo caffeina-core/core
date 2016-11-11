@@ -9,7 +9,7 @@ class Book extends Model {
 class ModelTest extends PHPUnit_Framework_TestCase {
 	private $b1, $b2;
 
-	public function __construct() {
+	public function setUp() {
 		SQL::connect('sqlite::memory:');
     SQL::on('error',function($e,$q){
       echo "SQL\\Error: $e\n\t$q\n";

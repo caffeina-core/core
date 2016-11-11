@@ -2,7 +2,7 @@
 
 class ViewTest extends PHPUnit_Framework_TestCase {
 
-	public function __construct() {
+	public function setUp() {
 		// Build some templates
 		$TEMPLATE_DIR = sys_get_temp_dir();
 		@mkdir("$TEMPLATE_DIR/special");
