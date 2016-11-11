@@ -154,7 +154,7 @@ class Request {
    * @return string
    */
   public static function URL(){
-    return static::host(true) . static::URI(false);
+    return static::host(true) . static::URI();
   }
 
   /**
