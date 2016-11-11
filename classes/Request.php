@@ -124,11 +124,13 @@ class Request {
   }
 
   /**
-   * Returns the current host and port (omitted if port 80), complete with protocol (pass `false` to omit).
+   * Returns the current host and port (omitted if port 80).
+   *
+   * @param bool $with_protocol Pass true to prepend protocol to hostname
    *
    * @return string
    */
-  public static function host($protocol=true){
+  public static function host($with_protocol=false){
     switch(true){
       case !empty($_SERVER['HTTP_X_FORWARDED_HOST']) :
         $host = trim(substr(strrchr($_SERVER['HTTP_X_FORWARDED_HOST'],','),1) ?: $_SERVER['HTTP_X_FORWARDED_HOST']);
@@ -142,7 +144,7 @@ class Request {
     $port = isset($host[1]) ? (int)$host[1] : (isset($_SERVER['SERVER_PORT'])?$_SERVER['SERVER_PORT']:80);
     $host = $host[0] . (($port && $port != 80) ? ":$port" : '');
     if ($port == 80) $port = '';
-    return ($protocol ? 'http' . (!empty($_SERVER['HTTPS'])&&(strtolower($_SERVER['HTTPS'])!=='off')?'s':'') . '://' : '')
+    return ($with_protocol ? 'http' . (!empty($_SERVER['HTTPS'])&&(strtolower($_SERVER['HTTPS'])!=='off')?'s':'') . '://' : '')
            . Filter::with('core.request.host',$host);
   }
 
@@ -152,7 +154,7 @@ class Request {
    * @return string
    */
   public static function URL(){
-    return static::host(true) . static::URI(false);
+    return static::host(true) . static::URI();
   }
 
   /**
@@ -171,34 +173,17 @@ class Request {
   /**
    * Returns the current request URI.
    *
-   * @param  boolean $relative If true, trim the URI relative to the application index.php script.
-   *
    * @return string
    */
-  public static function URI($relative=true){
-    // On some web server configurations SCRIPT_NAME is not populated.
-    $self = !empty($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : $_SERVER['PHP_SELF'];
-    // Search REQUEST_URI in $_SERVER
+  public static function URI(){
     switch(true){
       case !empty($_SERVER['REQUEST_URI']):    $serv_uri = $_SERVER['REQUEST_URI']; break;
       case !empty($_SERVER['ORIG_PATH_INFO']): $serv_uri = $_SERVER['ORIG_PATH_INFO']; break;
       case !empty($_SERVER['PATH_INFO']):      $serv_uri = $_SERVER['PATH_INFO']; break;
       default:                                 $serv_uri = '/'; break;
     }
-    $uri = strtok($serv_uri,'?');
-    $uri = ($uri == $self) ? '/' : $uri;
-
-    // Add a filter here, for URL rewriting
-    $uri = Filter::with('core.request.URI',$uri);
-
-    $uri = rtrim($uri,'/');
-
-    if ($relative){
-      $base = rtrim(dirname($self),'/');
-      $uri = str_replace($base,'',$uri);
-    }
-
-    return $uri ?: '/';
+    $uri = rtrim(strtok($serv_uri,'?'),'/') ?: '/';
+    return Filter::with('core.request.URI', $uri) ?: '/';
   }
 
   /**
