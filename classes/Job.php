@@ -70,7 +70,10 @@ class Job extends Model {
     $condition = "status = 'PENDING' and `scheduled_at` <= NOW() ORDER BY `scheduled_at` ASC LIMIT 1";
     if (($job = static::where($condition)) && ($job = current($job))){
       // Lock chosen job rapidly
-      SQL::update(static::persistenceOptions('table'),['id' => $job->id, 'status' => 'ACTIVE']);
+      $table = static::persistenceOptions('table');
+      SQL::exec("LOCK TABLES `$table` WRITE");
+      SQL::update($table,['id' => $job->id, 'status' => 'ACTIVE']);
+      SQL::exec("UNLOCK TABLES");
       $job->run();
       return $job;
     } else return false;
