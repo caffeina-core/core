@@ -130,6 +130,11 @@ class Envelope {
     }
   }
 
+  public function attachments($file=null){
+    if ($file!==null && $file) $this->attach($file);
+    return $this->attachments ?: [];
+  }
+
   public function head($recompile = false){
     if ($recompile || (null === $this->compiled_head)){
       $head   = [];
