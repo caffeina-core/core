@@ -1,60 +1,117 @@
 <?php
 
-class Book extends Model {
-	const _PRIMARY_KEY_ = 'books.id';
+class Extra extends Model {
   public $id,
-         $title;
+         $data;
 }
 
-class ModelTest extends PHPUnit_Framework_TestCase {
-	private $b1, $b2;
+/*******************************************/
 
-	public function __construct() {
-		SQL::connect('sqlite::memory:');
+class Author extends Model {
+  const _PRIMARY_KEY_ = 'authors.id';
+  public $id,
+         $name;
+}
+
+/*******************************************/
+
+class Book extends Model {
+  const _PRIMARY_KEY_ = 'books.id';
+  public $id,
+         $title,
+         $author_id,
+         $extra_id;
+}
+
+Book::hasOne('Author:author_id');
+Book::hasOne('Extra:extra_id');
+
+/*******************************************/
+
+Author::hasMany('Book.author_id');
+
+/*******************************************/
+
+class ModelTest extends PHPUnit_Framework_TestCase {
+  private $b1, $b2;
+
+  public function __construct() {
+    SQL::connect('sqlite::memory:');
+
     SQL::on('error',function($e,$q){
       echo "SQL\\Error: $e\n\t$q\n";
     });
-		SQL::exec("CREATE TABLE books (
-			  id integer primary key,
-			  title text
-			);");
 
-		$this->b1 = Book::create([
-			'id' => 1,
-			'title' => 'My book',
-		]);
+    SQL::exec("CREATE TABLE extras (
+        id integer primary key,
+        data text
+      );");
 
-		$this->b2 = Book::create([
-			'id' => 2,
-			'title' => 'Necronomicon',
-		]);
-	}
+    Extra::create([
+      'id' => 1,
+      'data' => 'Lorem Ipsum Dolor Sit Amet',
+    ]);
 
-	public function testCreate() {
-		$results = SQL::value('SELECT title from books where id=1');
-		$this->assertEquals('My book', $results);
-	}
+    SQL::exec("CREATE TABLE authors (
+        id integer primary key,
+        name text
+      );");
 
-	public function testSave() {
-		$this->b1->title = "My Awesome Book";
-		$this->b1->save();
-		$results = SQL::value('SELECT title from books where id=1');
-		$this->assertEquals('My Awesome Book', $results);
-	}
+    $this->a1 = Author::create([
+      'id' => 1,
+      'name' => 'Abdul Alhazred',
+    ]);
 
-	public function testLoad() {
-		$b2_loaded = Book::load(2);
+    $this->a2 = Author::create([
+      'id' => 2,
+      'name' => 'Steven King',
+    ]);
 
-		$this->assertNotNull($b2_loaded);
-		$this->assertNotFalse($b2_loaded);
-		$this->assertEquals('Necronomicon', $b2_loaded->title);
+    SQL::exec("CREATE TABLE books (
+        id integer primary key,
+        title text,
+        author_id integer,
+        extra_id integer
+      );");
 
-	}
+    $this->b1 = Book::create([
+      'id' => 1,
+      'title' => 'No, not the aliens this time.',
+      'author_id' => 2,
+    ]);
 
-	public function testRetrieveAll() {
-		$results = Book::all();
-		$this->assertEquals(2, count($results));
-	}
+    $this->b2 = Book::create([
+      'id' => 2,
+      'author_id' => 1,
+      'extra_id' => 1,
+      'title' => 'Necronomicon',
+    ]);
+
+  }
+
+  public function testCreate() {
+    $results = SQL::value('SELECT title from books where id=1');
+    $this->assertEquals($this->b1->title, $results);
+  }
+
+  public function testSave() {
+    $this->b1->title = "My Awesome Book";
+    $this->b1->save();
+    $results = SQL::value('SELECT title from books where id=1');
+    $this->assertEquals('My Awesome Book', $results);
+  }
+
+  public function testLoad() {
+    $b2_loaded = Book::load(2);
+    $this->assertNotNull($b2_loaded);
+    $this->assertNotFalse($b2_loaded);
+    $this->assertEquals('Necronomicon', $b2_loaded->title);
+  }
+
+  public function testRetrieveAll() {
+    $results = Book::all();
+    $this->assertEquals(2, count($results));
+  }
 
   public function testCountAll() {
     $results = Book::count();
@@ -66,9 +123,28 @@ class ModelTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals(1, $results);
   }
 
-	public function testWhereSimple() {
-		$results = json_encode(Book::where('id=2'));
-		$this->assertEquals('[{"id":"2","title":"Necronomicon"}]', $results);
-	}
+  public function testWhereSimple() {
+    $results = Book::where('id=2');
+    $this->assertNotEmpty($results);
+    $this->assertEquals(2, $results[0]->id);
+  }
+
+  public function testExporter() {
+    $this->assertEquals('{"ID":"2"}', json_encode(
+      Book::load(2)->export(function($k,$v){
+        return $k == 'id' ? [strtoupper($k)=>$v] : false;
+      })
+    ));
+  }
+
+  public function testRelations() {
+    $book = Book::load(1);
+    $this->assertNotEmpty($book);
+    $author = $book->author;
+    $this->assertNotEmpty($author);
+    $this->assertEquals(2, $author->id);
+    $this->assertTrue(is_array($author->books));
+    $this->assertTrue(is_a($author->books[0],'Book'));
+  }
 
 }

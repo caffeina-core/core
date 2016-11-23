@@ -10,8 +10,8 @@
  * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
-abstract class Model {
-    use Module, Persistence, Events;
+abstract class Model implements JsonSerializable {
+    use Module, Persistence, Events, Relation;
 
     public static function where($where_sql = false, $params = [], $flush = false){
       $key   = static::persistenceOptions('key');
@@ -44,6 +44,39 @@ abstract class Model {
       $tmp->save();
       static::trigger('create',$tmp,$data);
       return $tmp;
+    }
+
+    public function export($transformer=null, $disabled_relations=[]){
+      $data = [];
+      if (!is_callable($transformer)) $transformer = function($k,$v){ return [$k=>$v]; };
+      foreach (get_object_vars($this) as $key => $value) {
+        if ($res = $transformer($key, $value)){
+          $data[key($res)] = current($res);
+        }
+      }
+
+      foreach (static::relationOptions()->links as $hash => $link) {
+        $relation = $link->method;
+        // Expand relations but protect from self-references loop
+        if (isset($disabled_relations[$hash])) continue;
+        $disabled_relations[$hash] = true;
+        $value = $this->$relation;
+        if ($value && is_array($value))
+          foreach ($value as &$val) $val = $val->export(null,$disabled_relations);
+        else
+          $value = $value ? $value->export(null,$disabled_relations) : false;
+        unset($disabled_relations[$hash]);
+
+        if ($res = $transformer($relation, $value)){
+          $data[key($res)] = current($res);
+        }
+
+      }
+      return $data;
+    }
+
+    public function jsonSerialize() {
+      return $this->export();
     }
 
 }
