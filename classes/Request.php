@@ -130,7 +130,7 @@ class Request {
    *
    * @return string
    */
-  public static function host($with_protocol=false){
+  public static function host($with_protocol=true){
     switch(true){
       case !empty($_SERVER['HTTP_X_FORWARDED_HOST']) :
         $host = trim(substr(strrchr($_SERVER['HTTP_X_FORWARDED_HOST'],','),1) ?: $_SERVER['HTTP_X_FORWARDED_HOST']);
