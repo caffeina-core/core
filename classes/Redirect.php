@@ -13,9 +13,10 @@
 class Redirect {
     use Module;
 
-    public static function to($url){
+    public static function to($url, $status=302){
         if ($link = Filter::with('core.redirect',$url)) {
           Response::clean();
+          Response::status($status);
           Response::header('Location', $link);
           Response::send();
           exit;
