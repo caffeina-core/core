@@ -145,6 +145,17 @@ class ModelTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals(2, $author->id);
     $this->assertTrue(is_array($author->books));
     $this->assertTrue(is_a($author->books[0],'Book'));
+
+    //echo "\n",json_encode($book, JSON_PRETTY_PRINT),"\n";
+
+    $author->name = "Lord Soth";
+    $author->save();
+
+    //echo "\n",json_encode(Book::load(1), JSON_PRETTY_PRINT),"\n";
+    //echo "\n",json_encode(Author::load(2), JSON_PRETTY_PRINT),"\n";
+
+    //die;
+
   }
 
 }

@@ -19,7 +19,7 @@ class CLI {
     protected static $commands     = [];
     protected static $help         = null;
     protected static $error        = null;
-    
+
     protected static $shell_colors = [
       'BLACK'     =>"\033[0;30m",      'DARKGRAY'     =>"\033[1;30m",
       'BLUE'      =>"\033[0;34m",      'LIGHTBLUE'    =>"\033[1;34m",
@@ -35,11 +35,11 @@ class CLI {
       'U'         =>"\033[4m",         'D'            =>"\033[2m",
     ];
     protected static $color_stack = ['NORMAL'];
-    
+
 
     /**
      * Bind a callback to a command route
-     * @param  string   $command  The command route, use ":" before a parameter for extraction. 
+     * @param  string   $command  The command route, use ":" before a parameter for extraction.
      * @param  callable $callback The callback to be binded to the route.
      */
     public static function on($command,callable $callback,$description=''){
@@ -77,7 +77,7 @@ class CLI {
 
     /**
      * Triggers an error and exit
-     * @param string $message 
+     * @param string $message
      */
     protected static function triggerError($message){
         is_callable(static::$error) && call_user_func(static::$error,$message);
@@ -87,7 +87,7 @@ class CLI {
     /**
      * Get a passed option
      * @param string $key The name of the option paramenter
-     * @param mixed $default The default value if parameter is omitted. (if a callable it will be evaluated) 
+     * @param mixed $default The default value if parameter is omitted. (if a callable it will be evaluated)
      * @return mixed
      */
     public static function input($key=null,$default=null){
@@ -119,6 +119,7 @@ class CLI {
      * @return boolean  True if route was correctly dispatched.
      */
     public static function run($args=null){
+      if (PHP_SAPI != 'cli') return false;
       if($args) {
         $_args = $args;
         static::$file = basename(isset($_SERVER['PHP_SELF'])?$_SERVER['PHP_SELF']:__FILE__);
@@ -128,14 +129,14 @@ class CLI {
       }
       foreach($_args as $e) if(strpos($e,'-')===0) {
         $h = explode('=',$e);
-        static::$options[ltrim(current($h),'-')] = isset($h[1])?$h[1]:true; 
+        static::$options[ltrim(current($h),'-')] = isset($h[1])?$h[1]:true;
       } else {
         static::$arguments[] = $e;
       }
-      
+
       if(isset(static::$arguments[0])){
         $command = array_shift(static::$arguments);
-        if (empty(static::$commands[$command])) 
+        if (empty(static::$commands[$command]))
           return static::triggerError("Unknown command [".$command."].");
         $cmd = static::$commands[$command];
         $pars_vector = [];
@@ -147,7 +148,7 @@ class CLI {
             } else return static::triggerError("Command [".$command."] needs more parameters");
           } else {
             // Match command
-            if (empty(static::$arguments[$_idx]) || $segment!=static::$arguments[$_idx]) 
+            if (empty(static::$arguments[$_idx]) || $segment!=static::$arguments[$_idx])
               return static::triggerError("Command [".$command."] is incomplete.");
           }
         }
@@ -182,7 +183,7 @@ class CLI {
          echo strtr($message,["&BR;"=>PHP_EOL]);
       }
    }
-   
+
    /**
     * Like CLI::write, but appends a newline at the end.
     * @param  string $message The html-like encoded message
@@ -196,7 +197,7 @@ class CLI {
     * Set output ANSI color
     * @param string $color The color name constant.
     * @return void
-    */   
+    */
    public static function color($color){
        if ( isset(static::$shell_colors[$color]) ) echo static::$shell_colors[$color];
    }
@@ -226,9 +227,9 @@ CLI::help(function(){
   echo 'Usage: ', CLI::name(),' [commands]', PHP_EOL,
        'Commands:',PHP_EOL;
   foreach( CLI::commands() as $cmd ){
-    echo "\t", $cmd['name'], ' ' ,$cmd['params'], PHP_EOL;    
+    echo "\t", $cmd['name'], ' ' ,$cmd['params'], PHP_EOL;
     if($cmd['description'])
-      echo "\t\t- ", str_replace("\n","\n\t\t  ",$cmd['description']), PHP_EOL, PHP_EOL;    
+      echo "\t\t- ", str_replace("\n","\n\t\t  ",$cmd['description']), PHP_EOL, PHP_EOL;
   }
 });
 
