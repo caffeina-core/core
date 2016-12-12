@@ -27,6 +27,16 @@ EOT
 EOT
 		);
 
+    file_put_contents("$TEMPLATE_DIR/article-123.php", <<<'EOT'
+ARTICLE-123:<?=$this->var?>
+EOT
+    );
+
+    file_put_contents("$TEMPLATE_DIR/article.php", <<<'EOT'
+ARTICLE:<?=$this->var?>
+EOT
+    );
+
 		file_put_contents("$TEMPLATE_DIR/index_pass.php", <<<'EOT'
 [<?= $this->partial('special/hello') ?>]
 EOT
@@ -81,5 +91,40 @@ EOT
 		$this->assertTrue(View::exists('special/hello'));
 		$this->assertFalse(View::exists('im/fake/template'));
 	}
+
+  public function testFallbackException() {
+    // Test exception on fail
+    try {
+      $view = View::from([
+        'foo',
+        'bar',
+        'baz',
+      ]);
+    } catch(Exception $e){
+      // Ok, exception catched
+      return $this->assertTrue(true,'Exception on view fallback error');
+    }
+    // Error, an exception must be throwed
+    return $this->assertTrue(false,'Exception on view fallback error');
+  }
+
+  public function testFallback() {
+    $this->assertEquals('ARTICLE-123:626', View::from([
+      'undefined',
+      'article-123',
+      'article',
+    ],[
+      'var' => 626
+    ]));
+
+    $this->assertEquals('ARTICLE:626', View::from([
+      'undefined',
+      'article-9999',
+      'article',
+    ],[
+      'var' => 626
+    ]));
+
+  }
 
 }

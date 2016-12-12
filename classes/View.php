@@ -21,10 +21,14 @@ class View {
 
     /**
      * Construct a new view based on the passed template
-     * @param  string $template The template path
+     * @param  mixed $template The template path or an array of them.
      */
     public function __construct($template){
-      $this->options['template'] = $template;
+      foreach ((array)$template as $templ){
+        if (static::$handler->exists($templ))
+          return $this->options['template'] = $templ;
+      }
+      throw new Exception("[Core.View] Template not found.");
     }
 
     /**
