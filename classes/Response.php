@@ -43,11 +43,16 @@ class Response {
 
     /**
      * Force download of Response body
-     * @param  string/bool $filename Pass a falsy value to disable download or pass a filename for exporting content
-     * @return [type]        [description]
+     * @param  mixed $data Pass a falsy value to disable download, pass a filename for exporting content or array with raw string data
+     * @return void
      */
-    public static function download($filename){
-        static::$force_dl = $filename;
+    public static function download($data){
+        if (is_array($data)) {
+            if (isset($data['filename'])) static::$force_dl = $data['filename'];
+            if (isset($data['charset'])) static::charset($data['charset']);
+            if (isset($data['mime'])) static::type($data['mime']);
+            if (isset($data['body'])) static::body($data['body']);
+        } else static::$force_dl = $data;
     }
 
     /**
