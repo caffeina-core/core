@@ -30,6 +30,31 @@ class Session {
     static::trigger("start", $name?:$ln);
 	}
 
+   /**
+   * Get/Set Session's cookie params
+   *
+   * @access public
+   * @static
+   * @param array $args Array of cookie's parameters
+   * @see http://php.net/manual/en/function.session-set-cookie-params.php
+   * @example $args = [
+   *            "lifetime"  => 600,
+   *            "path"      => "/",
+   *            "domain"    => ".caffeina.com",
+   *            "secure"    => true,
+   *            "httponly"  => false
+   *          ];
+   *
+   * @return array The cookie's parameters
+   * @see http://php.net/manual/en/function.session-get-cookie-params.php
+   */
+  static public function cookieParams($args = []) {
+    if (empty($args)) return session_get_cookie_params();
+    $args = array_merge(session_get_cookie_params(), $args);
+    session_set_cookie_params($args["lifetime"], $args["path"], $args["domain"], $args["secure"], $args["httponly"]);
+    return $args;
+  }
+
 	/**
 	 * Get/Set Session name
 	 *
