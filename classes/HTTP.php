@@ -13,11 +13,13 @@
 class HTTP {
   use Module, Events;
 
-  protected static $UA          = "Mozilla/4.0 (compatible; Core::HTTP; Windows NT 6.1)",
-                   $json_data   = false,
-                   $headers     = [],
-                   $last_info   = null,
-                   $proxy       = null; // host:port
+  protected static $UA                    = "Mozilla/4.0 (compatible; Core::HTTP; Windows NT 6.1)",
+                   $json_data             = false,
+                   $headers               = [],
+                   $last_response_header  = null,
+                   $last_response_body    = null,
+                   $last_info             = null,
+                   $proxy                 = null; // host:port
 
   protected static function request($method, $url, $data=[], array $headers=[], $data_as_json=false, $username=null, $password = null){
     $http_method = strtoupper($method);
@@ -28,7 +30,8 @@ class HTTP {
       CURLOPT_CONNECTTIMEOUT  => 10,
       CURLOPT_RETURNTRANSFER  => true,
       CURLOPT_USERAGENT       => static::$UA,
-      CURLOPT_HEADER          => false,
+      CURLOPT_HEADER          => true,
+      CURLOPT_VERBOSE         => true,
       CURLOPT_MAXREDIRS       => 10,
       CURLOPT_FOLLOWLOCATION  => true,
       CURLOPT_ENCODING        => '',
@@ -67,16 +70,44 @@ class HTTP {
     foreach($headers as $key=>$val)  $_harr[] = $key.': '.$val;
     curl_setopt($ch, CURLOPT_HTTPHEADER, $_harr);
     $result = curl_exec($ch);
+    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
     $contentType = strtolower(curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
+    static::$last_response_header = substr($result, 0, $header_size);
+    $result = substr($result, $header_size);
     static::$last_info = curl_getinfo($ch);
     if(false !== strpos($contentType,'json')) $result = json_decode($result);
     curl_close($ch);
     static::trigger("request", $result, static::$last_info);
+    static::$last_response_body = $result;
     return $result;
   }
 
   public static function useJSON($value=null){
     return $value===null ? static::$json_data : static::$json_data = $value;
+  }
+
+  protected static function trasformRawHeaders($headers,$url) {
+    foreach (explode("\r\n", trim($headers)) as $line) {
+      if (empty($line)) continue;
+      $splitted = explode(': ', $line);
+      if (count($splitted) == 2) {
+        list ($key, $value) = explode(': ', $line);
+        $res[$key] = $value;
+      } else $res['http_code'][] = $line;
+    }
+    if (count($res['http_code']) == 1) $res['http_code'] = $res['http_code'][0];
+    return $res;
+  }
+
+  public static function lastResponseBody(){
+    return static::$last_response_body;
+  }
+
+  public static function lastResponseHeader(){
+    if (static::$last_response_header && !is_array(static::$last_response_header)) {
+      static::$last_response_header = static::trasformRawHeaders(static::$last_response_header);
+    }
+    return static::$last_response_header;
   }
 
   public static function addHeader($name,$value){
