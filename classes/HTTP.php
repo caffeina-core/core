@@ -86,16 +86,12 @@ class HTTP {
     return $value===null ? static::$json_data : static::$json_data = $value;
   }
 
-  protected static function trasformRawHeaders($headers,$url) {
+  protected static function trasformRawHeaders($headers) {
     foreach (explode("\r\n", trim($headers)) as $line) {
       if (empty($line)) continue;
       $splitted = explode(': ', $line);
-      if (count($splitted) == 2) {
-        list ($key, $value) = explode(': ', $line);
-        $res[$key] = $value;
-      } else $res['http_code'][] = $line;
+      $res[isset($splitted[1])? $splitted[0] : 'extra'][] = end($splitted);
     }
-    if (count($res['http_code']) == 1) $res['http_code'] = $res['http_code'][0];
     return $res;
   }
 
