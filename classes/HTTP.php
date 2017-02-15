@@ -89,8 +89,8 @@ class HTTP {
   protected static function trasformRawHeaders($headers) {
     foreach (explode("\r\n", trim($headers)) as $line) {
       if (empty($line)) continue;
-      $splitted = explode(': ', $line);
-      $res[isset($splitted[1])? $splitted[0] : 'extra'][] = end($splitted);
+      $splitted = explode(':', $line);
+      $res[isset($splitted[1])? trim($splitted[0]) : 'extra'][] = trim(end($splitted));
     }
     return $res;
   }
