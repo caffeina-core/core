@@ -22,7 +22,7 @@ class Service {
     }
 
     public static function registerFactory($serviceName, $serviceFactory){
-        static::$services[$serviceName] = function(...$args) use ($serviceName, $serviceFactory) {
+        static::$services[$serviceName] = function(...$args) use ($serviceFactory) {
             return $serviceFactory(...$args);
         };
     }

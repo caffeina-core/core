@@ -7,9 +7,8 @@
  *
  * @package core
  * @author stefano.azzolini@caffeina.com
- * @copyright Caffeina srl - 2015 - http://caffeina.com
+ * @copyright Caffeina srl - 2015-2017 - http://caffeina.com
  */
-
 
 class SQL {
   use Module, Events;
@@ -71,11 +70,12 @@ class SQL {
 
   /**
    * Datasource connection accessor
-   * @param  strinf $name The datasource name
-   * @return SQLConnect   The datasource connection
+   * @param  string $name The datasource name
+   * @return SQLConnection   The datasource connection
    */
   public static function using($name){
-    if (empty(self::$connections[$name])) throw new \Exception("[SQL] Unknown connection named '$name'.");
+    if (empty(self::$connections[$name]))
+      throw new \Exception("[SQL] Unknown connection named '$name'.");
     return self::$connections[$name];
   }
 
@@ -86,7 +86,8 @@ class SQL {
    * @return mixed          The method return value
    */
   public static function __callStatic($method, $args){
-    if (empty(self::$connections[self::$current])) throw new \Exception("[SQL] No default connection defined.");
+    if (empty(self::$connections[self::$current]))
+      throw new \Exception("[SQL] No default connection defined.");
     return call_user_func_array([self::$connections[self::$current],$method],$args);
   }
 
@@ -164,21 +165,19 @@ class SQLConnection {
     $query = Filter::with('core.sql.query',$query);
 
     if($statement = $this->prepare($query, $pdo_params)){
-      SQL::trigger('query',$query,$params,(bool)$statement);
-      Event::trigger('core.sql.query',$query,$params,(bool)$statement);
+      SQL::trigger('query',$query,$params,$statement);
+      Event::trigger('core.sql.query',$query,$params,$statement);
 
       foreach ($params as $key => $val) {
-        $type = PDO::PARAM_STR;
-        if (is_bool($val)) {
-          $type = PDO::PARAM_BOOL;
-        } elseif (is_null($val)) {
-          $type = PDO::PARAM_NULL;
-        } elseif (is_int($val)) {
-          $type = PDO::PARAM_INT;
+        switch(true){
+          case is_bool($val) : $type = PDO::PARAM_BOOL; break;
+          case is_null($val) : $type = PDO::PARAM_NULL; break;
+          case is_int($val)  : $type = PDO::PARAM_INT; break;
+          default            : $type = PDO::PARAM_STR; break;
         }
 
         // bindValue need a 1-based numeric parameter
-        $statement->bindValue(is_numeric($key)?$key+1:':'.$key, $val, $type);
+        $statement->bindValue((is_numeric($key)?$key+1:':'.$key), $val, $type);
       }
     } else {
       $error = $this->connection['pdo']->errorInfo();

@@ -1,0 +1,7 @@
+parameters:
+    ignoreErrors:
+        - '#Call to an undefined static method SQL::[a-zA-Z0-9_]+\(\)#'
+        - '#Function mcrypt_create_iv not found#'
+        - '#Cannot call method bindValue\(\) on bool#'
+        - '#Cannot call method execute\(\) on bool#'
+        - '#Function fastcgi_finish_request not found#'

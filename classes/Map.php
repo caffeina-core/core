@@ -96,7 +96,7 @@ class Map implements JsonSerializable {
 
     /**
      * Merge an associative array to the map.
-     * @param  array   $array The array to merge
+     * @param  mixed   $array The array to merge
      * @param  boolean $merge_back If `true` merge the map over the $array, if `false` (default) the reverse.
      */
     public function merge($array, $merge_back=false){
@@ -131,6 +131,7 @@ class Map implements JsonSerializable {
      * @return mixed The founded value.
      */
     public function & find($path, $create=false, callable $operation=null) {
+        $value = null;
         $create ? $value =& $this->fields : $value = $this->fields;
         foreach (explode('.',$path) as $tok) if ($create || isset($value[$tok])) {
           $value =& $value[$tok];

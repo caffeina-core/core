@@ -13,33 +13,31 @@
 class CLI {
     use Module, Events;
 
-    protected static $file         = null;
-    protected static $arguments    = [];
-    protected static $options      = [];
-    protected static $commands     = [];
-    protected static $help         = null;
-    protected static $error        = null;
-    
-    protected static $shell_colors = [
-      'BLACK'     =>"\033[0;30m",      'DARKGRAY'     =>"\033[1;30m",
-      'BLUE'      =>"\033[0;34m",      'LIGHTBLUE'    =>"\033[1;34m",
-      'GREEN'     =>"\033[0;32m",      'LIGHTGREEN'   =>"\033[1;32m",
-      'CYAN'      =>"\033[0;36m",      'LIGHTCYAN'    =>"\033[1;36m",
-      'RED'       =>"\033[0;31m",      'LIGHTRED'     =>"\033[1;31m",
-      'PURPLE'    =>"\033[0;35m",      'LIGHTPURPLE'  =>"\033[1;35m",
-      'BROWN'     =>"\033[0;33m",      'YELLOW'       =>"\033[1;33m",
-      'LIGHTGRAY' =>"\033[0;37m",      'WHITE'        =>"\033[1;37m",
-      'NORMAL'    =>"\033[0;37m",      'B'            =>"\033[1m",
-      'ERROR'     =>"\033[1;31m",      'INFO'         =>"\033[0;36m",
-      'I'         =>"\033[0;30;104m",  'IB'           =>"\033[1;30;104m",
-      'U'         =>"\033[4m",         'D'            =>"\033[2m",
-    ];
-    protected static $color_stack = ['NORMAL'];
-    
+    protected static $file         = null,
+                     $arguments    = [],
+                     $options      = [],
+                     $commands     = [],
+                     $help         = null,
+                     $error        = null,
+                     $color_stack  = ['NORMAL'],
+                     $shell_colors = [
+                      'BLACK'     =>"\033[0;30m",      'DARKGRAY'     =>"\033[1;30m",
+                      'BLUE'      =>"\033[0;34m",      'LIGHTBLUE'    =>"\033[1;34m",
+                      'GREEN'     =>"\033[0;32m",      'LIGHTGREEN'   =>"\033[1;32m",
+                      'CYAN'      =>"\033[0;36m",      'LIGHTCYAN'    =>"\033[1;36m",
+                      'RED'       =>"\033[0;31m",      'LIGHTRED'     =>"\033[1;31m",
+                      'PURPLE'    =>"\033[0;35m",      'LIGHTPURPLE'  =>"\033[1;35m",
+                      'BROWN'     =>"\033[0;33m",      'YELLOW'       =>"\033[1;33m",
+                      'LIGHTGRAY' =>"\033[0;37m",      'WHITE'        =>"\033[1;37m",
+                      'NORMAL'    =>"\033[0;37m",      'B'            =>"\033[1m",
+                      'ERROR'     =>"\033[1;31m",      'INFO'         =>"\033[0;36m",
+                      'I'         =>"\033[0;30;104m",  'IB'           =>"\033[1;30;104m",
+                      'U'         =>"\033[4m",         'D'            =>"\033[2m",
+                    ];
 
     /**
      * Bind a callback to a command route
-     * @param  string   $command  The command route, use ":" before a parameter for extraction. 
+     * @param  string   $command  The command route, use ":" before a parameter for extraction.
      * @param  callable $callback The callback to be binded to the route.
      */
     public static function on($command,callable $callback,$description=''){
@@ -77,7 +75,7 @@ class CLI {
 
     /**
      * Triggers an error and exit
-     * @param string $message 
+     * @param string $message
      */
     protected static function triggerError($message){
         is_callable(static::$error) && call_user_func(static::$error,$message);
@@ -87,7 +85,7 @@ class CLI {
     /**
      * Get a passed option
      * @param string $key The name of the option paramenter
-     * @param mixed $default The default value if parameter is omitted. (if a callable it will be evaluated) 
+     * @param mixed $default The default value if parameter is omitted. (if a callable it will be evaluated)
      * @return mixed
      */
     public static function input($key=null,$default=null){
@@ -128,14 +126,14 @@ class CLI {
       }
       foreach($_args as $e) if(strpos($e,'-')===0) {
         $h = explode('=',$e);
-        static::$options[ltrim(current($h),'-')] = isset($h[1])?$h[1]:true; 
+        static::$options[ltrim(current($h),'-')] = isset($h[1])?$h[1]:true;
       } else {
         static::$arguments[] = $e;
       }
-      
+
       if(isset(static::$arguments[0])){
         $command = array_shift(static::$arguments);
-        if (empty(static::$commands[$command])) 
+        if (empty(static::$commands[$command]))
           return static::triggerError("Unknown command [".$command."].");
         $cmd = static::$commands[$command];
         $pars_vector = [];
@@ -147,7 +145,7 @@ class CLI {
             } else return static::triggerError("Command [".$command."] needs more parameters");
           } else {
             // Match command
-            if (empty(static::$arguments[$_idx]) || $segment!=static::$arguments[$_idx]) 
+            if (empty(static::$arguments[$_idx]) || $segment!=static::$arguments[$_idx])
               return static::triggerError("Command [".$command."] is incomplete.");
           }
         }
@@ -182,7 +180,7 @@ class CLI {
          echo strtr($message,["&BR;"=>PHP_EOL]);
       }
    }
-   
+
    /**
     * Like CLI::write, but appends a newline at the end.
     * @param  string $message The html-like encoded message
@@ -196,7 +194,7 @@ class CLI {
     * Set output ANSI color
     * @param string $color The color name constant.
     * @return void
-    */   
+    */
    public static function color($color){
        if ( isset(static::$shell_colors[$color]) ) echo static::$shell_colors[$color];
    }
@@ -226,9 +224,9 @@ CLI::help(function(){
   echo 'Usage: ', CLI::name(),' [commands]', PHP_EOL,
        'Commands:',PHP_EOL;
   foreach( CLI::commands() as $cmd ){
-    echo "\t", $cmd['name'], ' ' ,$cmd['params'], PHP_EOL;    
+    echo "\t", $cmd['name'], ' ' ,$cmd['params'], PHP_EOL;
     if($cmd['description'])
-      echo "\t\t- ", str_replace("\n","\n\t\t  ",$cmd['description']), PHP_EOL, PHP_EOL;    
+      echo "\t\t- ", str_replace("\n","\n\t\t  ",$cmd['description']), PHP_EOL, PHP_EOL;
   }
 });
 

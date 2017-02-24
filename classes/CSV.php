@@ -42,7 +42,7 @@ class CSV {
     });
     return $this;
   }
-  
+
   public static function fromSQL($sql, $format=self::AUTO){
     return static::create(tempnam(sys_get_temp_dir(), 'CSVx'), $format)->SQL($sql);
   }

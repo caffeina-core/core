@@ -8,15 +8,16 @@
  * @package core
  * @author stefano.azzolini@caffeina.com
  * @reference http://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html
- * @copyright Caffeina srl - 2015 - http://caffeina.com
+ * @copyright Caffeina srl - 2015-2017 - http://caffeina.com
  */
 
 class Work {
   use Module;
 
-  protected static $pool = null;
-  protected static $workers;
-  protected static $lastID = 0;
+  protected static $pool = null,
+                   $workers,
+                   $lastID = 0,
+                   $inited_shutdown = false;
 
   public static function add($id, $job=null){
     self::$pool or ( self::$pool = new \SplQueue() );
@@ -61,25 +62,14 @@ class Work {
    */
   protected static function install_shutdown(){
     if (static::$inited_shutdown) return;
-    
+
     // Disable time limit
     set_time_limit(0);
-    
-    // HHVM support
-    if(function_exists('register_postsend_function')){
-      register_postsend_function(function(){
-        Event::trigger('core.shutdown');
-      });
-    } else if(function_exists('fastcgi_finish_request')) {
-      register_shutdown_function(function(){
-        fastcgi_finish_request();
-        Event::trigger('core.shutdown');
-      });       
-    } else {
-      register_shutdown_function(function(){
-        Event::trigger('core.shutdown');
-      });
-    }
+
+    register_shutdown_function(function(){
+      function_exists('fastcgi_finish_request') && fastcgi_finish_request();
+      Event::trigger('core.shutdown');
+    });
 
     static::$inited_shutdown = true;
   }
@@ -87,10 +77,10 @@ class Work {
 
 class TaskCoroutine {
 
-    protected $id;
-    protected $coroutine;
-    protected $passValue = null;
-    protected $beforeFirstYield = true;
+    protected $id,
+              $coroutine,
+              $passValue = null,
+              $beforeFirstYield = true;
     protected static $inited_shutdown = false;
 
     public function __construct($id, \Generator $coroutine) {

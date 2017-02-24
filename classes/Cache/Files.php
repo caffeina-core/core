@@ -16,7 +16,7 @@ class Files implements Adapter {
     protected $options;
 
     public static function valid(){
-        return true;
+        return is_writeable(sys_get_temp_dir());
     }
 
     public function __construct($options=[]){

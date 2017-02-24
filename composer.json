@@ -23,12 +23,14 @@
         "kherge/box": "*",
         "phpunit/phpunit": "^5",
         "phpunit/php-invoker": "*",
-        "mybuilder/phpunit-accelerator": ">=1"
+        "phpstan/phpstan": "^0.6.3"
     },
     "scripts": {
-        "test-lint" : "find classes -type f -name '*.php' -exec php -l {} \\;",
-    	  "test" : "vendor/bin/phpunit --colors=always",
-        "build" : "vendor/bin/box build"
+    	  "test" : [
+          "vendor/bin/phpstan analyse --no-ansi -n -c phpstan.neon -l 5 classes",
+          "vendor/bin/phpunit --colors=never"
+        ],
+        "build" : "php -d phar.readonly=0 vendor/bin/box build"
     },
     "config": {
         "optimize-autoloader": true

@@ -7,7 +7,7 @@
  *
  * @package core
  * @author stefano.azzolini@caffeina.com
- * @copyright Caffeina srl - 2016 - http://caffeina.com
+ * @copyright Caffeina srl - 2016-2017 - http://caffeina.com
  */
 
 class HTTP {
@@ -150,7 +150,7 @@ class HTTP_Request {
 
   public function __construct($method, $url, $headers=[], $data=null){
     $this->method   = strtoupper($method);
-    $this->url      = new URL($this->url);
+    $this->url      = new URL($url);
     $this->headers  = (array)$headers;
     if ($data) {
       if (isset($this->headers["Content-Type"]) && $this->headers["Content-Type"]=='application/json')

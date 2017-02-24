@@ -17,6 +17,7 @@ class Check {
                    $errors  = [];
   public static    $data    = [];
 
+
   public static function valid($rules, $data){
     static::$errors = [];
     static::triggerOnce('init');
@@ -83,7 +84,7 @@ class Check {
     } else {
       if (is_callable($definition)) $definition = ['validate' => $definition];
       if (empty($definition['validate']) || !is_callable($definition['validate'])) return;
-      $methods['message']     = Filter::with("core.check.error.$name",@$methods['message']?:'Field not valid.');
+      $definition['message']     = Filter::with("core.check.error.$name",@$definition['message']?:'Field not valid.');
       static::$methods[$name] = (object)$definition;
     }
   }

@@ -115,7 +115,8 @@ class Hash {
     $key  = array_values(unpack('C*',(string) $key));
     $klen = count($key);
     $h1   = (int)$seed;
-    for ($i=0,$bytes=$klen-($remainder=$klen&3) ; $i<$bytes ; ) {
+    $i    = $remainder = 0;
+    for ($bytes=$klen-($remainder=$klen&3) ; $i<$bytes ; ) {
       $k1 = $key[$i]
         | ($key[++$i] << 8)
         | ($key[++$i] << 16)

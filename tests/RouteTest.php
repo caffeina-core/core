@@ -168,7 +168,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 			->after(function () {echo '-BB';});
 
 		Route::dispatch('/api2/v1/info', 'get');
-		$this->assertEquals(Response::body(), 'AA-API-V1-INFO-BB');
+		$this->assertEquals('AA-API-V1-INFO-BB',Response::body());
 	}
 
   public function testStaticGroupsNesting() {

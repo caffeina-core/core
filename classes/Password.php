@@ -6,8 +6,8 @@
  * Password hashing.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015-2017 - http://caffeina.com
  */
 
  class Password {
@@ -47,7 +47,7 @@
      * Protect from time-based brute force attacks.
      * @param  string $a First string to compare
      * @param  string $b Second string to compare
-     * @return boll      Returns `true` if strings are the same
+     * @return bool      Returns `true` if strings are the same
      */
     public static function compare($a, $b){
       return hash_equals($a, $b);

@@ -6,8 +6,8 @@
  * Pass cross-requests messages.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015-2017 - http://caffeina.com
  */
 
 class Message extends Dictionary {
@@ -33,7 +33,7 @@ class Message extends Dictionary {
   public static function set($key,$data=null){
     static::init();
     parent::set($key,$data);
-    return Session::set('core.messages',parent::all());
+    Session::set('core.messages',parent::all());
   }
 
   public static function add($key,$data=null){
@@ -41,7 +41,7 @@ class Message extends Dictionary {
     $d = parent::get($key,[]);
     $d[] = $data;
     parent::set($key,$d);
-    return Session::set('core.messages',parent::all());
+    Session::set('core.messages',parent::all());
   }
 
   public static function & all($key=null){

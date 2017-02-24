@@ -7,7 +7,7 @@
  *
  * @package core
  * @author stefano.azzolini@caffeina.com
- * @copyright Caffeina srl - 2016 - http://caffeina.com
+ * @copyright Caffeina srl - 2016-2017 - http://caffeina.com
  */
 
 class Route {
@@ -283,7 +283,7 @@ class Route {
      *    ]);
      * </code>
      *
-     * @param  array  $rules The regex rules
+     * @param  mixed  $rules The regex rules
      * @return Route
      */
     public function & rules(array $rules){
@@ -336,7 +336,7 @@ class Route {
 
     /**
      * Reverse routing : obtain a complete URL for a named route with passed parameters
-     * @param  array $params The parameter map of the route dynamic values.
+     * @param  mixed $params The parameter map of the route dynamic values.
      * @return URL
      */
     public function getURL($params = []){
@@ -389,7 +389,7 @@ class Route {
      * @param  string  $pattern The URL schema with the named parameters
      * @param  string  $URL The URL to process, if omitted the current request URI will be used.
      * @param  boolean $cut If true don't limit the matching to the whole URL (used for group pattern extraction)
-     * @return array The extracted variables
+     * @return mixed The extracted variables of false on unmatch
      */
     protected static function extractVariablesFromURL($pattern, $URL=null, $cut=false){
       $URL     = $URL ?: Request::URI();
@@ -425,7 +425,7 @@ class Route {
 
     /**
      * Add a route to the internal route repository.
-     * @param Route $route
+     * @param Route|RouteGroup $route
      * @return Route
      */
     public static function add($route){
@@ -541,7 +541,8 @@ class Route {
               else if (is_array($routes) && isset($routes[''])) $routes =& $routes[''];
             else break;
           }
-          if (is_array($routes) && isset($routes[0]) && !is_array($routes[0])) foreach ((array)$routes as $route) {
+          if (is_array($routes) && isset($routes[0]) && !is_array($routes[0]))
+            foreach ($routes as $route) {
               if (is_a($route, __CLASS__) && $route->match($URL, $method)){
                     if ($return_route){
                       return $route;

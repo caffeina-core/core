@@ -6,8 +6,8 @@
  * Access properties with associative array or object notation seamlessly.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015-2017 - http://caffeina.com
  */
 
 class Object extends ArrayObject {
@@ -79,7 +79,7 @@ class Object extends ArrayObject {
     /**
      * Dot-Notation Array Path Resolver
      * @param  string $path The dot-notation path
-     * @param  array $root The array to navigate
+     * @param  mixed $root The array to navigate
      * @return mixed The pointed value
      */
 

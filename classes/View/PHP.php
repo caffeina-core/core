@@ -7,7 +7,7 @@
  *
  * @package core
  * @author stefano.azzolini@caffeina.com
- * @copyright Caffeina srl - 2015 - http://caffeina.com
+ * @copyright Caffeina srl - 2015-2017 - http://caffeina.com
  */
 
 namespace View;
@@ -17,9 +17,11 @@ class PHP implements Adapter {
   const EXTENSION = '.php';
 
   protected static $templatePath,
+                   $options = [],
                    $globals = [];
 
-  public function __construct($path=null,$options=[]){
+  public function __construct($path=null, $options=[]){
+      self::$options = $options;
       self::$templatePath = ($path ? rtrim($path,'/') : __DIR__) . '/';
   }
 
@@ -32,7 +34,7 @@ class PHP implements Adapter {
   }
 
   public static function addGlobals(array $defs){
-    foreach ((array)$defs as $key=>$val) {
+    foreach ($defs as $key=>$val) {
         self::$globals[$key] = $val;
     }
   }
@@ -54,10 +56,12 @@ class PHP implements Adapter {
 }
 
 class PHPContext {
-  protected $data = [];
+  protected $data = [],
+            $path;
 
   public function __construct($data=[], $path=null){
       $this->data = $data;
+      $this->path = $path;
   }
 
   public function partial($template, $vars=[]){
