@@ -9,6 +9,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 		$_FILES   = [];
 		$_REQUEST = [];
 		$_ENV     = [];
+    $_SERVER  = [];
 	}
 
 	function request_set_get_data($data) {
@@ -31,6 +32,10 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 		$_ENV = $data;
 	}
 
+  function request_set_server_data($data) {
+    $_SERVER = $data;
+  }
+
 	public function testGet() {
 		$this->request_set_get_data(['alpha' => 'beta']);
 		$this->assertEquals('beta', Request::get()['alpha']);
@@ -40,6 +45,22 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 		$this->request_set_post_data(['alpha' => 'beta']);
 		$this->assertEquals('beta', Request::post()['alpha']);
 	}
+
+  public function testHeader() {
+    $this->request_set_clear_data();
+    $this->request_set_server_data(['HTTP_HOST' => 'caffeina']);
+    $this->assertEquals('caffeina', Request::header('host'));
+  }
+
+  public function testAllHeader() {
+    $this->request_set_clear_data();
+    $this->request_set_server_data([
+      'HTTP_HOST'     => 'caffeina',
+      'HTTP_REFERER'  => 'caffeina.com'
+    ]);
+    $this->assertEquals("caffeina", Request::header()['HTTP_HOST']);
+    $this->assertEquals("caffeina.com", Request::header()['HTTP_REFERER']);
+  }
 
 	public function testCookie() {
 		$this->request_set_cookie_data(['alpha' => 'beta']);

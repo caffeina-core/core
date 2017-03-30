@@ -166,8 +166,10 @@ class Request {
    * @return Object The returned value or null.
    */
   public static function header($key=null,$default=null){
-    $key = 'HTTP_'.strtr(strtoupper($key),'-','_');
-    return $key ? (isset($_SERVER[$key])? $_SERVER[$key] : (is_callable($default)?call_user_func($default):$default)) : $_SERVER;
+    if ($key) $key = 'HTTP_'.strtr(strtoupper($key),'-','_');
+    return $key ? (isset($_SERVER[$key])? $_SERVER[$key] : (is_callable($default)?call_user_func($default):$default)) : array_filter($_SERVER, function($k) {
+       return strrpos($k, "HTTP_") === 0;
+    }, ARRAY_FILTER_USE_KEY);
   }
 
   /**
