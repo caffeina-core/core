@@ -1,6 +1,6 @@
 {
-  "directories": "classes",
-  "main": "classes/Loader.php",
+  "directories": "src",
+  "main": "src/Core/Loader.php",
   "output": "dist/core.phar",
   "git-version": "package_version",
   "stub": "stub.php",

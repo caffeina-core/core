@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit 
+<phpunit
          backupGlobals="true"
          backupStaticAttributes="false"
          colors="true"
@@ -9,16 +9,16 @@
          processIsolation="false"
          stopOnFailure="true"
          syntaxCheck="true"
-         bootstrap="./classes/Loader.php"
+         bootstrap="tests/test-boot.php"
 >
     <testsuites>
         <testsuite name="Core Test Suite">
-            <directory>./tests</directory>
+            <directory>tests/cases</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist>
-            <directory>./classes</directory>
+            <directory>src</directory>
         </whitelist>
     </filter>
 </phpunit>

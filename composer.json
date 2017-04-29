@@ -2,7 +2,7 @@
     "name": "caffeina-core/core",
     "type": "library",
     "description": "Platform for rapid application development.",
-    "keywords": ["framework","core","sdk","platform"],
+    "keywords": ["framework","core","sdk","platform","toolkit","caffeina"],
     "homepage": "http://caffeina.com",
     "license": "MIT",
     "authors": [
@@ -17,7 +17,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": ">=5.6"
+        "php": ">=7.0"
     },
     "require-dev": {
         "kherge/box": "*",
@@ -27,8 +27,7 @@
     },
     "scripts": {
     	  "test" : [
-          "vendor/bin/phpstan analyse --no-ansi -n -c phpstan.neon -l 5 classes",
-          "vendor/bin/phpunit --colors=never"
+          "vendor/bin/phpunit --colors=always -c phpunit.xml --bootstrap tests/test-boot.php tests/cases"
         ],
         "build" : "php -d phar.readonly=0 vendor/bin/box build"
     },
@@ -36,9 +35,20 @@
         "optimize-autoloader": true
     },
     "autoload": {
-        "classmap": [ "classes/" ]
+         "psr-4": {
+            "Core\\": "src/Core/"
+          },
+          "files": [
+            "boot.php"
+          ]
     },
     "autoload-dev": {
-        "classmap": [ "classes/", "tests/" ]
+        "psr-4": {
+          "Core\\": "src/Core/"
+        },
+        "files": [
+          "boot.php"
+        ],
+        "classmap": [ "tests/" ]
     }
 }

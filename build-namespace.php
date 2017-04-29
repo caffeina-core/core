@@ -1,5 +1,5 @@
 <?php
-$path = __DIR__ . "/classes";
+$path = __DIR__ . "/src/Core";
 $fqcns = [];
 
 $allFiles = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
