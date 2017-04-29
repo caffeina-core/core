@@ -19,7 +19,7 @@ class File {
   protected static $mount_points = [];
 
   public static function mount($alias, $driver, $options = null) {
-    $driver_class = '\\FileSystem\\'.ucfirst(strtolower($driver));
+    $driver_class = '\\Core\\FileSystem\\'.ucfirst(strtolower($driver));
     if (!class_exists($driver_class)) throw new \Exception('Filesystem adapter '.$driver.' not found.');
     static::$mount_points[$alias] = new $driver_class($options);
     static::trigger("mount",$alias, $driver_class, static::$mount_points[$alias]);

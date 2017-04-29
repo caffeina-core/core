@@ -3,6 +3,7 @@
 use Core\{
   Options,
   Request,
+  Response,
   Route
 };
 

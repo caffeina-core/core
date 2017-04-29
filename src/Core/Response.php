@@ -40,7 +40,7 @@ class Response {
     }
 
     public static function type($mime){
-        static::header('Content-Type',$mime . (static::$charset ? '; charset='.static::$charset : ''));
+        static::header('Content-Type', $mime . (static::$charset ? '; charset='.static::$charset : ''));
     }
 
     /**

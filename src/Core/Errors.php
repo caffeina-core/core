@@ -32,7 +32,7 @@ class Errors {
       return $mode ? self::$mode=$mode : self::$mode;
     }
 
-    public static function traceError($errno,$errstr,$errfile=null,$errline=null){
+    public static function traceError($errno, $errstr, $errfile=null, $errline=null){
       // This error code is not included in error_reporting
       if (!(error_reporting() & $errno)) return;
       switch ( $errno ) {
@@ -54,14 +54,12 @@ class Errors {
       }
       $e = new \ErrorException($type.': '.$errstr, 0, $errno, $errfile, $errline);
       $error_type = strtolower($type);
-      $chk_specific = array_filter(array_merge(
+      $chk_specific = array_filter(
                       (array)static::trigger($error_type,$e),
-                      (array)Event::trigger("core.error.$error_type",$e)
-                    ));
-      $chk_general  = array_filter(array_merge(
+                    );
+      $chk_general  = array_filter(
                       (array)static::trigger('any',$e),
-                      (array)Event::trigger('core.error',$e)
-                    ));
+                    );
       if (! ($chk_specific || $chk_general) ) static::traceException($e);
       return true;
     }
@@ -69,7 +67,7 @@ class Errors {
     public static function traceException($e){
       switch(self::$mode){
           case self::HTML :
-              echo '<pre class="app error"><code>',$e->getMessage(),'</code></pre>',PHP_EOL;
+              echo '<pre class="app error exception"><code>',$e->getMessage(),'</code></pre>',PHP_EOL;
               break;
           case self::JSON :
               echo json_encode(['error' => $e->getMessage()]);
@@ -83,34 +81,6 @@ class Errors {
               break;
       }
       return true;
-    }
-
-    /**
-     * @deprecated Use Errors::on('fatal', $listener)
-     */
-    public static function onFatal(callable $listener){
-      Event::on('core.error.fatal',$listener);
-    }
-
-    /**
-     * @deprecated Use Errors::on('warning', $listener)
-     */
-    public static function onWarning(callable $listener){
-      Event::on('core.error.warning',$listener);
-    }
-
-    /**
-     * @deprecated Use Errors::on('notice', $listener)
-     */
-    public static function onNotice(callable $listener){
-      Event::on('core.error.notice',$listener);
-    }
-
-    /**
-     * @deprecated Use Errors::on('any', $listener)
-     */
-    public static function onAny(callable $listener){
-      Event::on('core.error',$listener);
     }
 
 }
