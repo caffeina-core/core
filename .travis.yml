@@ -9,4 +9,4 @@ matrix:
     allow_failures:
         - php: nightly
 
-script: composer install -o ; phpunit --color=always
+script: composer install -o ; vendor/bin/phpunit --color=always
