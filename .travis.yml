@@ -9,4 +9,6 @@ matrix:
     allow_failures:
         - php: nightly
 
-script: composer test
+script:
+  - composer install -o
+  - composer test
