@@ -28,7 +28,7 @@ before_install:
           INI=/etc/hhvm/php.ini
           echo hhvm.jit = 0 >> $INI
           echo hhvm.php7.all = 1 >> $INI
-          echo hhvm.php7.scalar_types = 0 >> $INI
+          echo hhvm.php7.scalar_types = 1 >> $INI
       fi
 
 install:
