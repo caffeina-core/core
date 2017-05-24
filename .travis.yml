@@ -23,21 +23,13 @@ matrix:
 
 before_install:
    - |
-      # php.ini configuration
+      # HHVM INI configuration
       if [[ $PHP = hhvm* ]]; then
           INI=/etc/hhvm/php.ini
-      else
-          INI=~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
-          phpenv config-rm xdebug.ini || echo "xdebug not available"
+          echo hhvm.jit = 0 >> $INI
+          echo hhvm.php7.all = 1 >> $INI
+          echo hhvm.php7.scalar_types = 0 >> $INI
       fi
-      echo date.timezone = Europe/Rome >> $INI
-      echo memory_limit = -1 >> $INI
-      echo session.gc_probability = 0 >> $INI
-      echo opcache.enable_cli = 1 >> $INI
-      echo hhvm.jit = 0 >> $INI
-      echo hhvm.php7.all = 1
-      echo hhvm.php7.scalar_types = 0
-      echo apc.enable_cli = 1 >> $INI
 
 install:
   - travis_retry composer install -o --no-interaction --ignore-platform-reqs
