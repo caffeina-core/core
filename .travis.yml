@@ -3,6 +3,9 @@ language: php
 dist: trusty
 sudo: required
 
+git:
+    depth: 1
+
 php:
   - '7.1'
   - '7.0'
@@ -14,6 +17,27 @@ matrix:
   allow_failures:
     - php: hhvm-nightly
     - php: nightly
+
+#services:
+#    - redis-server
+
+before_install:
+   - |
+      # php.ini configuration
+      if [[ $PHP = hhvm* ]]; then
+          INI=/etc/hhvm/php.ini
+      else
+          INI=~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+          phpenv config-rm xdebug.ini || echo "xdebug not available"
+      fi
+      echo date.timezone = Europe/Rome >> $INI
+      echo memory_limit = -1 >> $INI
+      echo session.gc_probability = 0 >> $INI
+      echo opcache.enable_cli = 1 >> $INI
+      echo hhvm.jit = 0 >> $INI
+      echo hhvm.php7.all = 1
+      echo hhvm.php7.scalar_types = 0
+      echo apc.enable_cli = 1 >> $INI
 
 install:
   - travis_retry composer install -o --no-interaction --ignore-platform-reqs
