@@ -1,13 +1,15 @@
 language: php
 
 php:
+  - '7.1'
   - '7.0'
-  - '5.6'
+  - hhvm
   - nightly
 
 matrix:
     allow_failures:
         - php: nightly
+        - php: hhvm
 
 script:
   - composer install -o
