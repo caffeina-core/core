@@ -15,10 +15,10 @@ namespace Core;
 class Errors {
     use Module, Events;
 
-    const SIMPLE = 0;
-    const HTML   = 1;
-    const SILENT = 2;
-    const JSON   = 3;
+    const SIMPLE = 0,
+          HTML   = 1,
+          SILENT = 2,
+          JSON   = 3;
 
     static $mode = self::SILENT;
 
@@ -55,10 +55,10 @@ class Errors {
       $e = new \ErrorException($type.': '.$errstr, 0, $errno, $errfile, $errline);
       $error_type = strtolower($type);
       $chk_specific = array_filter(
-                      (array)static::trigger($error_type,$e),
+                      (array)static::trigger($error_type,$e)
                     );
       $chk_general  = array_filter(
-                      (array)static::trigger('any',$e),
+                      (array)static::trigger('any',$e)
                     );
       if (! ($chk_specific || $chk_general) ) static::traceException($e);
       return true;

@@ -16,14 +16,15 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	private function mock_request($uri, $method) {
 		Request::filterRemove('method');
 		Request::filterRemove('URI');
-		Request::filter('URI', function ($x) use ($uri) {return $uri;});
-		Request::filter('method', function ($x) use ($method) {return $method;});
+		Request::filter('URI', function ($x) use ($uri) { return $uri; });
+		Request::filter('method', function ($x) use ($method) { return $method; });
 	}
 
 	public function testBasicRouting() {
     Route::reset();
     Options::set('core.response.autosend', false);
 		Response::clean();
+
 		Route::on('/', function () {
 			return "index";
 		});

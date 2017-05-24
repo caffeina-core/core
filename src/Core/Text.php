@@ -22,7 +22,7 @@ class Text {
    * @example
    *    echo Text::render('Your IP is : {{ server.REMOTE_HOST }}',array('server' => $_SERVER));
    *
-   * @author Stefano Azzolini <stefano.azzolini@caffeinalab.com>
+   * @author Stefano Azzolini <stefano.azzolini@caffeina.com>
    * @access public
    * @static
    * @param mixed $t  The text template

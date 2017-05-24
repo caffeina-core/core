@@ -13,7 +13,9 @@
 namespace Core;
 
 class Session {
-    use Module, Events;
+
+    use Module,
+        Events;
 
   /**
    * Start session handler
@@ -29,7 +31,7 @@ class Session {
     ini_set('session.hash_function', 'whirlpool');
     session_cache_limiter('must-revalidate');
     @session_start();
-    static::trigger("start", $name?:$ln);
+    static::trigger("start", $name ?: $ln);
   }
 
   /**

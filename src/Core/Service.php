@@ -3,18 +3,19 @@
 /**
  * Service Module
  *
- * This module permits the user to register and retrieve a service manager
+ * This module allows the user to register and retrieve a service manager
  * instance, one (singleton) or multiple times
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2017 - http://caffeina.com
  */
 
 namespace Core;
 
 class Service {
     use Module;
+
     private static $services = [];
 
     public static function register($serviceName, $serviceFactory){

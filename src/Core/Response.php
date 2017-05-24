@@ -6,8 +6,8 @@
  * Handles the HTTP Response for the current execution.
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2017 - http://caffeina.com
  */
 
 namespace Core;
@@ -41,6 +41,24 @@ class Response {
 
     public static function type($mime){
         static::header('Content-Type', $mime . (static::$charset ? '; charset='.static::$charset : ''));
+    }
+
+    /**
+     * Set expires header
+     */
+    public static function expire($when="now"){
+      switch($when){
+        case 'max'    : $when = "+1 year"; break;
+        case 'always' : $when = "-1 year"; break;
+      }
+      static::header('Expires', gmdate('D, d M Y H:i:s \G\M\T', strtotime($when ?: "now")));
+    }
+
+    /**
+     * Set entity tag (Etag) header
+     */
+    public static function etag($what=null){
+      $what && static::header('ETag', md5($what));
     }
 
     /**
@@ -209,7 +227,6 @@ class Response {
 
     public static function error($code=500,$message='Application Error'){
       static::trigger('error',$code,$message);
-      Event::trigger('core.response.error',$code,$message);
       static::status($code,$message);
     }
 
@@ -256,7 +273,6 @@ class Response {
       if (!static::$sent || $force) {
         static::$sent = true;
         static::trigger('send');
-        Event::trigger('core.response.send');
         if (false === headers_sent()) foreach (static::$headers as $name => $family)
           foreach ($family as $value_code) {
 
@@ -266,8 +282,7 @@ class Response {
                 $value = $value_code;
                 $code  = null;
             }
-
-            switch($value){
+            switch($name){
               case "Status":
                 if (function_exists('http_response_code')){
                   http_response_code($code);

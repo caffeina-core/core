@@ -7,8 +7,8 @@
  * http://openid.net/specs/draft-jones-json-web-token-07.html
  *
  * @package core
- * @author stefano.azzolini@caffeinalab.com
- * @copyright Caffeina srl - 2015 - http://caffeina.it
+ * @author stefano.azzolini@caffeina.com
+ * @copyright Caffeina srl - 2015 - http://caffeina.com
  */
 
 namespace Core;

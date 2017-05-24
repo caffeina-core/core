@@ -13,7 +13,9 @@
 namespace Core;
 
 class Cache {
- use Module, Events;
+
+ use Module,
+     Events;
 
  protected static $driver  = null,
                   $enabled = true;
@@ -24,7 +26,7 @@ class Cache {
       if(static::$driver->exists($hash) && $results = static::$driver->get($hash)){
         return $results;
       } else {
-        if($data = is_callable($default)?call_user_func($default):$default){
+        if($data = is_callable($default) ? call_user_func($default) : $default){
           static::$driver->set($hash,$data,$expire);
         }
         return $data;

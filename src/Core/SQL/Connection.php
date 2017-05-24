@@ -12,6 +12,13 @@
 
 namespace Core\SQL;
 
+use \PDO as PDO;
+
+use Core\{
+  SQL,
+  Options
+};
+
 class Connection {
 
   protected $connection        = [],
@@ -25,10 +32,10 @@ class Connection {
       'username'   => $username,
       'password'   => $password,
       'options'    => array_merge([
-        \PDO::ATTR_ERRMODE                => \PDO::ERRMODE_EXCEPTION,
-        \PDO::ATTR_DEFAULT_FETCH_MODE     => \PDO::FETCH_ASSOC,
-        \PDO::ATTR_EMULATE_PREPARES       => true,
-        \PDO::MYSQL_ATTR_MULTI_STATEMENTS => true,
+        PDO::ATTR_ERRMODE                => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE     => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES       => true,
+        PDO::MYSQL_ATTR_MULTI_STATEMENTS => true,
       ], $options),
     ];
     // "The auto-commit mode cannot be changed for this driver" SQLite workaround
@@ -44,14 +51,14 @@ class Connection {
   public function connection(){
     if (empty($this->connection['pdo'])) {
       try {
-        $this->connection['pdo'] = new \PDO(
+        $this->connection['pdo'] = new PDO(
             $this->connection['dsn'],
             $this->connection['username'],
             $this->connection['password'],
             $this->connection['options']
 
         );
-        \Core\SQL::trigger('connect',$this);
+        SQL::trigger('connect',$this);
       } catch(\Exception $e) {
         $this->connection['pdo'] = null;
       }
@@ -77,17 +84,17 @@ class Connection {
     if (! $this->connection()) return false;
 
     if (false==is_array($params)) $params = (array)$params;
-    $query = \Core\SQL::filterWith('query',$query);
+    $query = SQL::filterWith('query',$query);
 
     if ($statement = $this->prepare($query, $pdo_params)){
-      \Core\SQL::trigger('query',$query,$params,$statement);
+      SQL::trigger('query',$query,$params,$statement);
 
       foreach ($params as $key => $val) {
         switch(true){
-          case is_bool($val) : $type = \PDO::PARAM_BOOL; break;
-          case is_null($val) : $type = \PDO::PARAM_NULL; break;
-          case is_int($val)  : $type = \PDO::PARAM_INT; break;
-          default            : $type = \PDO::PARAM_STR; break;
+          case is_bool($val) : $type = PDO::PARAM_BOOL; break;
+          case is_null($val) : $type = PDO::PARAM_NULL; break;
+          case is_int($val)  : $type = PDO::PARAM_INT; break;
+          default            : $type = PDO::PARAM_STR; break;
         }
 
         // bindValue need a 1-based numeric parameter
@@ -95,7 +102,7 @@ class Connection {
       }
     } else {
       $error = $this->connection['pdo']->errorInfo();
-      \Core\SQL::trigger('error',$error[2], $query, $params, $error);
+      SQL::trigger('error',$error[2], $query, $params, $error);
       return false;
     }
 
@@ -117,7 +124,7 @@ class Connection {
     $res     = $this->exec($query,$params);
 
     if (is_string($column))
-      while ($x = $res->fetch(\PDO::FETCH_OBJ)) $results[] = $x->$column;
+      while ($x = $res->fetch(PDO::FETCH_OBJ)) $results[] = $x->$column;
     else
       while ($x = $res->fetchColumn($column)) $results[] = $x;
 
@@ -134,7 +141,7 @@ class Connection {
       $params  = [];
     }
 
-    if (( $res = $this->exec($query,$params, [\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ) && is_callable($looper) ){
+    if (( $res = $this->exec($query,$params, [PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ) && is_callable($looper) ){
       while ($row = $res->fetchObject()) { $initial = $looper($initial, $row); }
       return $initial;
     } else return false;
@@ -149,11 +156,11 @@ class Connection {
       $params = [];
     }
 
-    if ( $res = $this->exec($query,$params, [\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ){
+    if ( $res = $this->exec($query,$params, [PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ){
       if (is_callable($looper)) {
         while ($row = $res->fetchObject()) $looper($row);
         return true;
-      } else return $res->fetchAll(\PDO::FETCH_CLASS);
+      } else return $res->fetchAll(PDO::FETCH_CLASS);
     } else return false;
   }
 
@@ -162,7 +169,7 @@ class Connection {
 
     // ($query,$handler) shorthand
     if ($handler===null && is_callable($params)) {$handler = $params; $params = [];}
-    if ( $res = $this->exec($query,$params, [\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ){
+    if ( $res = $this->exec($query,$params, [PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]) ){
         if (is_callable($handler))
           return $handler($res->fetchObject());
         else
@@ -173,8 +180,8 @@ class Connection {
  public function run($script){
     if (! $this->connection()) return false;
 
-    $sql_path = \Core\Options::get('database.sql.path',APP_DIR.'/sql');
-    $sql_sep  = \Core\Options::get('database.sql.separator',';');
+    $sql_path = Options::get('database.sql.path',APP_DIR.'/sql');
+    $sql_sep  = Options::get('database.sql.separator',';');
     if (is_file($f = "$sql_path/$script.sql")){
         $result = true;
         foreach(explode($sql_sep, file_get_contents($f)) as $statement) {

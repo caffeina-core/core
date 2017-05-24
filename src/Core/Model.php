@@ -21,7 +21,7 @@ abstract class Model implements \JsonSerializable {
 
     public static function where($where_sql = false, $params = [], $flush = false){
       $key = static::persistenceOptions('key');
-
+      //TODO: resolve N+1 problem
       return SQL::reduce("SELECT {$key} FROM " . static::persistenceOptions('table') . ($where_sql ? " where {$where_sql}" : ''), $params, function($results, $row) use ($key) {
            $results[] = static::load($row->{$key});
            return $results;
@@ -32,8 +32,19 @@ abstract class Model implements \JsonSerializable {
       return (int) SQL::value('SELECT COUNT(1) FROM ' . static::persistenceOptions('table') . ($where_sql ? " where {$where_sql}" : ''), $params);
     }
 
-    public static function all($page=1, $limit=-1){
-      return static::where($limit < 1 ? "" : "1 limit {$limit} offset " . (max(1,$page)-1)*$limit);
+    public static function all($page=1, $limit=0, $where_sql=null, $order_sql=null, $params = []){
+      if ($limit) {
+        $table  = static::persistenceOptions('table');
+        $pk     = static::persistenceOptions('key');
+        $where  = $where_sql ? " WHERE {$where_sql}"    : '';
+        $order  = $order_sql ? " ORDER BY {$order_sql}" : '';
+        $offset = max(0, $page-1) * $limit;
+        $sql    = "SELECT * FROM `$table` INNER JOIN ( SELECT `$pk` FROM `$table` $where $order LIMIT $limit OFFSET $offset) AS `{$table}_paged_results` USING(`$pk`)";
+        return SQL::reduce($sql, $params, function($results, $row) use ($pk) {
+             $results[] = static::load($row->{$pk});
+             return $results;
+        }, []);
+      } else return static::where();
     }
 
     public function primaryKey(){
