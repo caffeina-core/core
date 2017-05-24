@@ -9,4 +9,4 @@ matrix:
     allow_failures:
         - php: nightly
 
-script: phpunit --color=always
+script: composer test

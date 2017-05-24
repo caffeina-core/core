@@ -1,8 +1,4 @@
 .phpintel
 .DS_Store
-composer.lock
+._.DS_Store
 vendor
-/docs/*
-!/docs/assets
-/dist/*
-!/dist/.gitkeep

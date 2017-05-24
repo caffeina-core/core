@@ -8,11 +8,9 @@
 [![Latest Stable Version](https://poser.pugx.org/caffeina-core/core/v/stable.svg)](https://packagist.org/packages/caffeina-core/core)
 [![Latest Unstable Version](https://poser.pugx.org/caffeina-core/core/v/unstable.svg)](https://packagist.org/packages/caffeina-core/core)
 [![License](https://poser.pugx.org/caffeina-core/core/license.svg)](https://packagist.org/packages/caffeina-core/core)
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/caffeina-core/core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/caffeina-core/core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 > Core is a platform, a collection of components for rapid application development. It doesn't make decisions for you; it gives you tools to build your own solutions.
-
 
 ## Installation
 
@@ -25,7 +23,6 @@ $ composer require caffeina-core/core
 ## Documentation
 
 See the [wiki](https://github.com/caffeina-core/core/wiki).
-
 
 ## Contributing
 
@@ -46,7 +43,6 @@ Solve a problem. Features are great, but even better is cleaning-up and fixing i
 ## Versioning
 
 Core is maintained by using the [Semantic Versioning Specification (SemVer)](http://semver.org).
-
 
 ## Copyright and license
 
