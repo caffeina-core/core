@@ -16,7 +16,7 @@ matrix:
     - php: nightly
 
 install:
-  - travis_retry composer install -o --no-interaction
+  - travis_retry composer install -o --no-interaction --ignore-platform-reqs
 
 script:
   - composer test
