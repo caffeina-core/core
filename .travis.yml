@@ -13,6 +13,8 @@ matrix:
         - php: nightly
         - php: hhvm
 
-script:
+before_script:
   - composer install -o
+
+script:
   - composer test
