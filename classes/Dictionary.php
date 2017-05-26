@@ -20,6 +20,7 @@
 
 abstract class Dictionary {
     use Events;
+    use Filters;
 
     protected static $fields = null;
 
