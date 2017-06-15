@@ -12,29 +12,29 @@
 
 namespace Core;
 
-class File {
+abstract class File {
   use Module,
       Events;
 
   protected static $mount_points = [];
 
-  public static function mount($alias, $driver, $options = null) {
+  final public static function mount($alias, $driver, $options = null) {
     $driver_class = '\\Core\\FileSystem\\'.ucfirst(strtolower($driver));
     if (!class_exists($driver_class)) throw new \Exception('Filesystem adapter '.$driver.' not found.');
     static::$mount_points[$alias] = new $driver_class($options);
     static::trigger("mount",$alias, $driver_class, static::$mount_points[$alias]);
   }
 
-  public static function unmount($alias) {
+  final public static function unmount($alias) {
     unset(static::$mount_points[$alias]);
     static::trigger("unmount",$alias);
   }
 
-  public static function mounts() {
+  final public static function mounts() {
     return array_keys(static::$mount_points);
   }
 
-  public static function __callStatic($name, $params) {
+  final public static function __callStatic($name, $params) {
     $uri = array_shift($params);
     if ($file_location = static::locate($uri)){
       list($mount, $path) = $file_location;
@@ -44,7 +44,7 @@ class File {
     } else return false;
   }
 
-  public static function locate($path) {
+  final public static function locate($path) {
     if (strpos($path,'://')!==false) {
       list($mount, $filepath) = explode('://',$path,2);
       $filepath = static::resolvePath($filepath);
@@ -58,7 +58,7 @@ class File {
     }
   }
 
-  public static function resolvePath($path) {
+  final public static function resolvePath($path) {
     $path = str_replace(['/', '\\'], '/', $path);
     $parts = array_filter(explode('/', $path), 'strlen');
     $absolutes = [];
@@ -73,7 +73,7 @@ class File {
     return trim(implode('/', $absolutes),'/');
   }
 
-  public static function search($pattern, $recursive=true){
+  final public static function search($pattern, $recursive=true){
     $results = [];
     foreach (static::$mount_points as $mount => $fs) {
       foreach($fs->search($pattern, $recursive) as $path) {
@@ -84,7 +84,7 @@ class File {
   }
 
 
-  public static function move($old,$new) {
+  final public static function move($old,$new) {
     $src  = static::locate($old);
     $dest = static::locate($new);
     if ($src && $dest) {

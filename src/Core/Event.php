@@ -12,11 +12,11 @@
 
 namespace Core;
 
-class Event {
+abstract class Event {
   use Module,
       Events;
 
-  public static function single($name,callable $listener){
+  final public static function single($name,callable $listener){
     return static::onSingle($name,$listener);
   }
 }

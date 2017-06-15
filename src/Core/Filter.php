@@ -12,7 +12,7 @@
 
 namespace Core;
 
-class Filter {
+abstract class Filter {
     use Module,
         Filters {
           filter       as add;

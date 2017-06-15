@@ -12,7 +12,7 @@
 
 namespace Core;
 
-class Check {
+abstract class Check {
   use Module,
       Events;
 
@@ -21,7 +21,7 @@ class Check {
 
   public static    $data    = [];
 
-  public static function valid($rules, $data){
+  final public static function valid($rules, $data){
     static::$errors = [];
     static::triggerOnce('init');
     self::$data = ($data = (array)$data);
@@ -76,7 +76,7 @@ class Check {
     return empty(static::$errors);
   }
 
-   public static function method($name, $definition = null){
+   final public static function method($name, $definition = null){
     if (is_array($name)) {
       foreach ($name as $method_name => $method_definition){
         if (is_callable($method_definition)) $method_definition = ['validate' => $method_definition];
@@ -92,7 +92,7 @@ class Check {
     }
   }
 
-  public static function errors() {
+  final public static function errors() {
     return static::$errors;
   }
 

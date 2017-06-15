@@ -12,7 +12,7 @@
 
 namespace Core;
 
-class Email {
+abstract class Email {
 
   use Module,
       Events,
@@ -22,7 +22,7 @@ class Email {
                    $options,
                    $driver_name;
 
-  public static function using($driver, $options = null){
+  final public static function using($driver, $options = null){
     if ($driver) {
       $class = __NAMESPACE__ . '\\Email\\' . ucfirst(strtolower($driver));
       if (!class_exists($class)) throw new \Exception("Email driver '$driver' not found.");
@@ -33,7 +33,7 @@ class Email {
     }
   }
 
-  public static function create($mail=[]){
+  final public static function create($mail=[]){
     return is_a($mail, 'Core\\Email\\Envelope')
            ? $mail
            : new Email\Envelope(array_merge([
@@ -48,7 +48,7 @@ class Email {
             ], $mail));
   }
 
-  public static function send($mail){
+  final public static function send($mail){
     $envelope = static::create($mail);
     $results  = (array) static::$driver->onSend($envelope);
     static::trigger('send', $envelope->to(), $envelope, static::$driver_name, $results);

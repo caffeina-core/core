@@ -12,7 +12,7 @@
 
 namespace Core;
 
-class CLI {
+abstract class CLI {
   use Module,
       Events,
       Filters;
@@ -21,7 +21,7 @@ class CLI {
                    $commands,
                    $cursor;
 
-  public static function args($_argv=null){
+  final public static function args($_argv=null){
     if (null === $_argv) $_argv = $GLOBALS['argv'];
 
     $addArg = function($arg_name, $value){
@@ -82,7 +82,7 @@ class CLI {
     return static::$args;
   }
 
-  public static function run($cmd=null){
+  final public static function run($cmd=null){
     $inputs       = static::args();
     $command_name = array_shift($inputs->args);
     $command      = static::$commands[$command_name] ?? null;
@@ -94,35 +94,35 @@ class CLI {
     }
   }
 
-  public static function get($key){
+  final public static function get($key){
     return isset(static::$args->args[$key]) ? static::$args->args[$key] : null;
   }
 
-  public static function define($command_name){
+  final public static function define($command_name){
     return static::$commands[$command_name] = new CLI\Command($command_name);
   }
 
-  public static function cursor(...$params){
+  final public static function cursor(...$params){
     return static::$cursor ?: static::$cursor = new CLI\Cursor();
   }
 
-  public static function progress(...$params){
+  final public static function progress(...$params){
     return new CLI\UI\ProgressBar(...$params);
   }
 
-  public static function logs(...$params){
+  final public static function logs(...$params){
     return new CLI\UI\Logs(...$params);
   }
 
-  public static function color(...$params){
+  final public static function color(...$params){
     return CLI\Colors::get(...$params);
   }
 
-  public static function write(...$texts){
+  final public static function write(...$texts){
     foreach($texts as $txt) echo CLI\Colors::colorize($txt);
   }
 
-  public static function line(){
+  final public static function line(){
     echo str_repeat('-',(int)`tput cols`-1)."\n";
   }
 

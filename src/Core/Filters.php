@@ -16,20 +16,20 @@ trait Filters {
 
     protected static $_modders = [];
 
-    public static function filter($names, callable $modder = null){
-      if( null === $modder ) foreach ( (array)$names as $name => $callback ) {
+    final public static function filter($names, callable $modder = null) : void {
+      if (null === $modder) foreach ( (array)$names as $name => $callback ) {
         static::$_modders[$name][] = $callback;
       } else foreach ( (array)$names as $name ) {
         static::$_modders[$name][] = $modder;
       }
     }
 
-    public static function filterSingle($name, callable $modder){
+    final public static function filterSingle($name, callable $modder){
       static::$_modders[$name] = [$modder];
     }
 
-    public static function filterRemove($name,callable $modder = null){
-      if($modder === null) {
+    final public static function filterRemove($name,callable $modder = null) : void {
+      if (null === $modder) {
         unset(static::$_modders[$name]);
       } else {
         if ($idx = array_search($modder,static::$_modders[$name],true))
@@ -37,7 +37,7 @@ trait Filters {
       }
     }
 
-    public static function filterWith($names, $default, ...$args){
+    final public static function filterWith($names, $default, ...$args){
       foreach ((array)$names as $name) {
         if (!empty(static::$_modders[$name])) {
           $value = $default;

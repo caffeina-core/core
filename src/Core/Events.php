@@ -16,15 +16,15 @@ trait Events {
 
     protected static $_listeners = [];
 
-    public static function on($name,callable $listener){
+    final public static function on($name,callable $listener){
         static::$_listeners[$name][] = $listener;
     }
 
-    public static function onSingle($name,callable $listener){
+    final public static function onSingle($name,callable $listener){
         static::$_listeners[$name] = [$listener];
     }
 
-    public static function off($name,callable $listener = null){
+    final public static function off($name,callable $listener = null){
         if($listener === null) {
             unset(static::$_listeners[$name]);
         } else {
@@ -33,11 +33,11 @@ trait Events {
         }
     }
 
-    public static function alias($source,$alias){
+    final public static function alias($source,$alias){
         static::$_listeners[$alias] =& static::$_listeners[$source];
     }
 
-    public static function trigger($name, ...$args){
+    final public static function trigger($name, ...$args){
         if (false === empty(static::$_listeners[$name])){
             $results = [];
             foreach (static::$_listeners[$name] as $listener) {
@@ -47,7 +47,7 @@ trait Events {
         };
     }
 
-    public static function triggerOnce($name){
+    final public static function triggerOnce($name){
         $res = static::trigger($name);
         unset(static::$_listeners[$name]);
         return $res;

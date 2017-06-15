@@ -12,7 +12,7 @@
 
 namespace Core;
 
-class Cache {
+abstract class Cache {
 
  use Module,
      Events;
@@ -20,7 +20,7 @@ class Cache {
  protected static $driver  = null,
                   $enabled = true;
 
-  public static function get($key, $default='', $expire=0){
+ final public static function get($key, $default='', $expire=0){
     if (static::$enabled){
       $hash = static::hash($key);
       if(static::$driver->exists($hash) && $results = static::$driver->get($hash)){
@@ -58,7 +58,7 @@ class Cache {
    *   ]);
    *
    */
-  public static function using($driver){
+  final public static function using($driver){
     foreach((array)$driver as $key => $value){
         if(is_numeric($key)){
           $drv = $value;
@@ -85,35 +85,35 @@ class Cache {
    *
    * @return boolean  Cache on/off status
    */
-  public static function enabled($enabled=null){
+  final public static function enabled($enabled=null){
       return $enabled ? static::$enabled : static::$enabled = $enabled;
   }
 
-  public static function set($key, $value, $expire=0){
+  final public static function set($key, $value, $expire=0){
       return static::$driver->set(static::hash($key),$value,$expire);
   }
 
-  public static function delete($key){
+  final public static function delete($key){
       return static::$driver->delete(static::hash($key));
   }
 
-  public static function exists($key){
+  final public static function exists($key){
       return static::$enabled && static::$driver->exists(static::hash($key));
   }
 
-  public static function flush(){
+  final public static function flush(){
       return static::$driver->flush();
   }
 
-  public static function inc($key, $value=1){
+  final public static function inc($key, $value=1){
       return static::$driver->inc(static::hash($key),$value);
   }
 
-  public static function dec($key, $value=1){
+  final public static function dec($key, $value=1){
       return static::$driver->dec(static::hash($key),$value);
   }
 
-  public static function hash($key, $group=null){
+  final public static function hash($key, $group=null){
       static $hashes = [];
       if (false === isset($hashes[$group][$key])){
           $k = $key;

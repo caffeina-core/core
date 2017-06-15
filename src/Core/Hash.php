@@ -12,7 +12,7 @@
 
 namespace Core;
 
-class Hash {
+abstract class Hash {
 	use Module;
 
 	/**
@@ -22,7 +22,7 @@ class Hash {
    * @param  bool $raw_output  When set to TRUE, outputs raw binary data. FALSE outputs lowercase hexits.
    * @return string            The hash string
    */
-	public static function make($payload, $method = 'md5', $raw_output = false) {
+	final public static function make($payload, $method = 'md5', $raw_output = false) {
 		return $method == 'murmur' ? static::murmur(serialize($payload)) : hash($method, serialize($payload), $raw_output);
 	}
 
@@ -33,7 +33,7 @@ class Hash {
 	 * @param  integer $method The hashing method
 	 * @return bool            Returns `true` if payload matches hash
 	 */
-	public static function verify($payload, $hash, $method = 'md5') {
+	final public static function verify($payload, $hash, $method = 'md5') {
 		return static::make($payload, $method) == $hash;
 	}
 
@@ -44,7 +44,7 @@ class Hash {
 	 *
 	 * @return array   Array containing the list of supported hashing algorithms.
 	 */
-	public static function methods() {
+	final public static function methods() {
     // Merge PHP provided algos with ours (murmur)
 		return array_merge(hash_algos(), ['murmur','murmurhash3']);
 	}
@@ -58,7 +58,7 @@ class Hash {
 	 *
 	 * @return bool
 	 */
-	public static function can($algo) {
+	final public static function can($algo) {
     // Faster than : in_array(explode(',',implode(',',static::methods())))
 		return strpos(implode(',',static::methods()).',', "$algo,") !== false;
 	}
@@ -68,11 +68,11 @@ class Hash {
 	 *
 	 * See [hash-algos](http://php.net/manual/it/function.hash-algos.php) for a list of algorithms
 	 */
-	public static function __callStatic($method, $params) {
+	final public static function __callStatic($method, $params) {
 		return self::make(current($params), $method);
 	}
 
-	public static function uuid($type = 4, $namespace = '', $name = '') {
+	final public static function uuid($type = 4, $namespace = '', $name = '') {
 		switch ($type) {
 		case 3:if (preg_match('/^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?' .
 				'[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/Si', $namespace) !== 1) {
@@ -113,7 +113,7 @@ class Hash {
 		}
 	}
 
-  public static function murmur($key, $seed = 0, $as_integer=false) {
+  final public static function murmur($key, $seed = 0, $as_integer=false) {
     $key  = array_values(unpack('C*',(string) $key));
     $klen = count($key);
     $h1   = (int)$seed;
@@ -152,11 +152,11 @@ class Hash {
 		return $as_integer ? $h1 : base_convert($h1 ,10, 32);
 	}
 
-  public static function random($bytes=9){
+  final public static function random($bytes=9){
     return strtr(base64_encode(static::random_bytes($bytes)),'+/=','-_');
   }
 
-  public static function random_bytes($bytes){
+  final public static function random_bytes($bytes){
     static $randf = null;
     if (function_exists('random_bytes')) {
       return \random_bytes($bytes);

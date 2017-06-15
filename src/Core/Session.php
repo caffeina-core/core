@@ -30,8 +30,8 @@ class Session {
     // Obfuscate IDs
     ini_set('session.hash_function', 'whirlpool');
     session_cache_limiter('must-revalidate');
-    @session_start();
     static::trigger("start", $name ?: $ln);
+    @session_start();
   }
 
   /**

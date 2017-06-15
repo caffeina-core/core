@@ -16,21 +16,21 @@ abstract class Enum {
 
   final private function __construct(){}
 
-  protected static function __constants(){
+  final protected static function __constants(){
     static $_consts = null;
     return $_consts ?? $_consts = array_change_key_case(
         (new \ReflectionClass(get_called_class()))->getConstants()
       , CASE_UPPER);
   }
 
-  public static function key($value){
+  final public static function key($value){
   	foreach (static::__constants() as $key => $const_val) {
   		if ($const_val === $value) return $key;
   	}
   	return false;
   }
 
-  public static function has($value){
+  final public static function has($value){
     return isset(static::__constants()[strtoupper($value)]);
   }
 
