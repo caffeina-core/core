@@ -36,7 +36,7 @@ class Options extends Dictionary {
 	 */
 	public static function loadINI($filepath,$prefix_path=null){
 		$results = parse_ini_file($filepath,true);
-		if($results) static::loadArray($results, $prefix_path);
+		if($results) static::loadArray($results, $prefix_path, 'ini');
 	}
 
 	/**
@@ -76,16 +76,21 @@ class Options extends Dictionary {
     $results = [];
     foreach(file("$dir/$envname", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line){
       $line = trim($line);
-      if ($line[0]=='#' || strpos($line,'=')===false) continue;
-      list($key,$value) = explode('=',$line,2);
-      $key   = trim(str_replace(['export ', "'", '"'], '', $key));
-+     $value = stripslashes(trim($value,'"\''));
+      if ($line[0] =='#' || strpos($line,'=')===false) continue;
+
+      $parts = explode('=', $line, 2);
+
+      $key   = trim(str_replace(['export ', "'", '"'], '', $parts[0]??''));
+      $value = stripslashes(trim($parts[1]??'','"\''));
+
       $results[$key] = preg_replace_callback('/\${([a-zA-Z0-9_]+)}/',function($m) use (&$results){
         return isset($results[$m[1]]) ? $results[$m[1]] : '';
       }, $value);
+
       putenv("$key={$results[$key]}");
       $_ENV[$key] = $results[$key];
     }
+
     if ($results) static::loadArray($results, $prefix_path, 'env');
   }
 

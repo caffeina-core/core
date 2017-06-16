@@ -39,11 +39,14 @@ export      TMP_DIR="${BASE_DIR}/tmp"
 EOENV
 		);
 
+
 		$test_loaded_event = false;
 		Options::on('loaded', function () use (&$test_loaded_event) {
 			$test_loaded_event = true;
 		});
+
 		Options::loadENV(dirname($tempfile), basename($tempfile), 'ENV');
+
 		$this->assertTrue($test_loaded_event, "Loaded Event");
 		Options::off('loaded');
 
@@ -51,7 +54,7 @@ EOENV
 
 		$this->assertEquals("/var/webroot/project-root/tmp", Options::get('ENV.TMP_DIR'), "ENV.TMP_DIR");
 		$this->assertEquals("/var/webroot/project-root/cache", Options::get('ENV.CACHE_DIR'), "ENV.CACHE_DIR");
-		$this->assertEquals("/var/webroot/project-root", Options::get('ENV.BASE_DIR'), "ENV.BASE_DIR");
+	  $this->assertEquals("/var/webroot/project-root", Options::get('ENV.BASE_DIR'), "ENV.BASE_DIR");
 	}
 
 	public function testGet() {
