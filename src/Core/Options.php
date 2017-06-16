@@ -13,6 +13,8 @@
 namespace Core;
 
 class Options extends Dictionary {
+    use Filters;
+
     protected static $fields = null;
 
 	/**
@@ -24,7 +26,7 @@ class Options extends Dictionary {
 		ob_start();
 		$results = include($filepath);
 		ob_end_clean();
-		if($results) static::loadArray($results,$prefix_path);
+		if($results) static::loadArray($results, $prefix_path, 'php');
 	}
 
 	/**
@@ -34,7 +36,7 @@ class Options extends Dictionary {
 	 */
 	public static function loadINI($filepath,$prefix_path=null){
 		$results = parse_ini_file($filepath,true);
-		if($results) static::loadArray($results,$prefix_path);
+		if($results) static::loadArray($results, $prefix_path);
 	}
 
 	/**
@@ -45,7 +47,7 @@ class Options extends Dictionary {
 	public static function loadJSON($filepath,$prefix_path=null){
 		$data = file_get_contents($filepath);
 		$results = $data?json_decode($data,true):[];
-		if($results) static::loadArray($results,$prefix_path);
+		if($results) static::loadArray($results, $prefix_path, 'json');
 	}
 
 	/**
@@ -53,15 +55,14 @@ class Options extends Dictionary {
 	 * @param  array $array The array to load
 	 * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
 	 */
-	public static function loadArray(array $array,$prefix_path=null){
-		if (is_array($array)) {
-			if ($prefix_path){
-				static::set($prefix_path,$array);
-			} else {
-				static::merge($array);
-			}
-      self::trigger('loaded');
+	public static function loadArray(array $array, $prefix_path=null, $type='array'){
+    $array = static::filterWith(["load.$type", "load"], $array);
+		if ($prefix_path){
+			static::set($prefix_path, $array);
+		} else {
+			static::merge($array);
 		}
+    self::trigger('loaded');
 	}
 
   /**
@@ -78,14 +79,14 @@ class Options extends Dictionary {
       if ($line[0]=='#' || strpos($line,'=')===false) continue;
       list($key,$value) = explode('=',$line,2);
       $key   = trim(str_replace(['export ', "'", '"'], '', $key));
-      $value = stripslashes(trim($value,'"'));
++     $value = stripslashes(trim($value,'"\''));
       $results[$key] = preg_replace_callback('/\${([a-zA-Z0-9_]+)}/',function($m) use (&$results){
         return isset($results[$m[1]]) ? $results[$m[1]] : '';
-      },$value);
+      }, $value);
       putenv("$key={$results[$key]}");
       $_ENV[$key] = $results[$key];
     }
-    if($results) static::loadArray($results,$prefix_path);
+    if ($results) static::loadArray($results, $prefix_path, 'env');
   }
 
 }
