@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# GIT CHANGELOG Generator
+# Stefano Azzolini <stefano.azzolini@caffeina.com>
+#
+# Use parameter --skip-head to skip HEAD section
+
+LOG_FORMAT="\`%h\` **%s** _by %an_  "
+
+function changelog_for_tag() {
+  echo "## $2\n"
+  git --no-pager log $1...$2 --pretty=format:"$LOG_FORMAT" --no-merges --no-color
+  echo "\n"
+}
+
+LAST_TAG="HEAD"
+for TAG in `git tag -l | tail -r | grep '^\d'`; do
+  if [[ "$LAST_TAG" == "HEAD" ]] && [[ $1 == '--skip-head' ]]; then
+    LAST_TAG=$TAG
+    continue
+  fi
+  changelog_for_tag $TAG $LAST_TAG
+  LAST_TAG=$TAG
+done
+

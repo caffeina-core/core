@@ -34,7 +34,8 @@
         "test" : [
           "vendor/bin/phpstan analyse --ansi -n -c tests/phpstan.neon -l 5 src",
           "vendor/bin/phpunit --colors=always -c tests/phpunit.xml tests/cases"
-        ]
+        ],
+        "changelog" : "docs/changelog --skip-head > CHANGELOG.md"
     },
     "config": {
         "optimize-autoloader": true
