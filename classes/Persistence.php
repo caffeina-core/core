@@ -165,9 +165,12 @@ trait Persistence {
    */
   private function persistenceSaveDefault($table,$options){
     if (is_callable(($c=get_called_class())."::trigger")) $c::trigger("save", $this, $table, $options['key']);
-    return SQL::insertOrUpdate($table,array_filter((array)$this, function($var) {
+    $id = SQL::insertOrUpdate($table,array_filter((array)$this, function($var) {
       return !is_null($var);
     }),$options['key']);
+    // Populate retrieved primary key in Models.
+    if (null !== $id && is_a($this, 'Model')) $this->{$options['key']} = $id;
+    return $id;
   }
 
 

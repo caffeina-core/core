@@ -137,6 +137,20 @@ class ModelTest extends PHPUnit_Framework_TestCase {
     ));
   }
 
+  public function testNewKeyPopulateOnSave() {
+
+    $book = new Book;
+    $book->title = 'NEWBORN';
+    $book->save();
+    $this->assertTrue($book->id > 0);
+
+    // Try load
+    $copied_book = Book::load($book->id);
+    $this->assertNotNull($copied_book);
+    $this->assertEquals($book->id, $copied_book->id);
+
+  }
+
   public function testRelations() {
     $book = Book::load(1);
     $this->assertNotEmpty($book);
