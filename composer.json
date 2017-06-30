@@ -24,7 +24,8 @@
     },
     "scripts": {
         "test-lint" : "find classes -type f -name '*.php' -exec php -l {} \\;",
-    	  "test" : "vendor/bin/phpunit --colors=always --configuration=phpunit.xml"
+    	  "test" : "vendor/bin/phpunit --colors=always --configuration=phpunit.xml",
+        "changelog" : "docs/build-changelog.sh --skip-head > CHANGELOG.md && git add -A && git commit -am \"Updated CHANGELOG\""
     },
     "config": {
         "optimize-autoloader": true

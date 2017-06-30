@@ -1,22 +1,3 @@
-## HEAD
-
-`3543bb3` **[Fix] Now pristine Models correctly populates the primary key on first save.** _by Stefano Azzolini_  
-`caf3493` **Added filters in Options methods** _by Gabriele Diener_  
-`59d2b04` **Fixed gitter badge in README** _by Stefano Azzolini_  
-`d166d62` **Use local PHPUnit** _by Davide Pastore_  
-`be01ef8` **Cleaned CI and tests** _by Stefano Azzolini_  
-`bbd8a92` **Delete composer.lock** _by Stefano Azzolini_  
-`189eee3` **[TEST] forced configuration** _by Stefano Azzolini_  
-`7f30d2f` **Update .travis.yml** _by Stefano Azzolini_  
-`6aded76` **Fixed request header and added tests** _by Gabriele Diener_  
-`61aa14c` **[Fix] Improved HTTP:trasformRawHeaders 2** _by Gabriele Diener_  
-`635c28a` **[Fix] Improved HTTP:trasformRawHeaders** _by Gabriele Diener_  
-`8a8768c` **Added last response's header and body methods** _by Gabriele Diener_  
-`008bf65` **added get/set session's cookie params method** _by Gabriele Diener_  
-`370c42d` **Added raw string/data support for Response::download** _by Gabriele Diener_  
-`0b6ca36` **[New] View can now have multiple fallbacks for template location** _by Stefano Azzolini_  
-`d6c30f3` **Cleanings** _by Stefano Azzolini_  
-
 ## 1.7.7
 
 `65ce6bd` **[New] Redirect::to HTTP status support** _by Stefano Azzolini_  
