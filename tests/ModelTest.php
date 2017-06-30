@@ -142,6 +142,7 @@ class ModelTest extends PHPUnit_Framework_TestCase {
     $book = new Book;
     $book->title = 'NEWBORN';
     $book->save();
+    $this->assertTrue(is_numeric($book->id));
     $this->assertTrue($book->id > 0);
 
     // Try load

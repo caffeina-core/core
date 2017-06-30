@@ -110,7 +110,7 @@ class SQLTest extends PHPUnit_Framework_TestCase {
 			'id' => 2,
 			'password' => 'test',
 		]);
-		$this->assertTrue($results);
+		$this->assertEquals(2, $results);
 	}
 
 	public function testGetValue() {
