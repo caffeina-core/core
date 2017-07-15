@@ -15,6 +15,10 @@ namespace Core;
 class Negotiation {
   protected $list;
 
+  /**
+   * @return       array
+   * @psalm-return array<int, mixed>
+   */
   public static function parse($query){
     $list = new \SplPriorityQueue();
     array_map(function($e) use ($list) {
@@ -29,6 +33,9 @@ class Negotiation {
     return array_values(iterator_to_array($list));
   }
 
+  /**
+   * @return false|string
+   */
   public static function bestMatch($acceptables, $choices) {
     return (new self($acceptables))->best($choices);
   }
@@ -37,10 +44,16 @@ class Negotiation {
     $this->list = self::parse(trim($query));
   }
 
+  /**
+   * @return string
+   */
   public function preferred(){
     return self::encodeParsedValue(current($this->list));
   }
 
+  /**
+   * @return string
+   */
   protected static function encodeParsedValue($parsed){
     unset($parsed['q']);     // Hide quality key from output
     $type = $parsed['type']; // Extract type
@@ -50,6 +63,9 @@ class Negotiation {
     }, array_keys($parsed), $parsed)));
   }
 
+  /**
+   * @return false|string
+   */
   public function best($choices){
     $_choices  = self::parse(trim($choices));
     foreach ($this->list as $accept){

@@ -19,8 +19,10 @@ class Options extends Dictionary {
 
 	/**
 	 * Load a PHP configuration file (script must return array)
+	 *
 	 * @param  string $filepath The path of the PHP config file
 	 * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
+	 * @return void
 	 */
 	public static function loadPHP($filepath,$prefix_path=null){
 		ob_start();
@@ -31,8 +33,10 @@ class Options extends Dictionary {
 
 	/**
 	 * Load an INI configuration file
+	 *
 	 * @param  string $filepath The path of the INI config file
 	 * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
+	 * @return void
 	 */
 	public static function loadINI($filepath,$prefix_path=null){
 		$results = parse_ini_file($filepath,true);
@@ -41,8 +45,10 @@ class Options extends Dictionary {
 
 	/**
 	 * Load a JSON configuration file
+	 *
 	 * @param  string $filepath The path of the JSON config file
 	 * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
+	 * @return void
 	 */
 	public static function loadJSON($filepath,$prefix_path=null){
 		$data = file_get_contents($filepath);
@@ -52,8 +58,11 @@ class Options extends Dictionary {
 
 	/**
 	 * Load an array to the configuration
+	 *
 	 * @param  array $array The array to load
 	 * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
+   * @param string $type Override for the event trigger
+	 * @return void
 	 */
 	public static function loadArray(array $array, $prefix_path=null, $type='array'){
     $array = static::filterWith(["load.$type", "load"], $array);
@@ -67,9 +76,11 @@ class Options extends Dictionary {
 
   /**
    * Load an ENV file
+   *
    * @param  string $dir The directory of the ENV file
    * @param  string $envname The filename for the ENV file (Default to `.env`)
    * @param  string $prefix_path You can insert/update the loaded array to a specific key path, if omitted it will be merged with the whole dictionary
+   * @return void
    */
   public static function loadENV($dir,$envname='.env',$prefix_path=null){
     $dir = rtrim($dir,'/');

@@ -97,6 +97,9 @@ abstract class Cache {
       return static::$driver->delete(static::hash($key));
   }
 
+  /**
+   * @return bool
+   */
   final public static function exists($key){
       return static::$enabled && static::$driver->exists(static::hash($key));
   }

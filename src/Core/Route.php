@@ -43,7 +43,7 @@ class Route {
      * Create a new route definition. This method permits a fluid interface.
      *
      * @param string $URLPattern The URL pattern, can be used named parameters for variables extraction
-     * @param $callback The callback to invoke on route match.
+     * @param callable $callback The callback to invoke on route match.
      * @param string $method The HTTP method for which the route must respond.
      * @return Route
      */
@@ -74,7 +74,7 @@ class Route {
 
     /**
      * Check if route match on a specified URL and HTTP Method.
-     * @param  [type] $URL The URL to check against.
+     * @param  URL|string $URL The URL to check against.
      * @param  string $method The HTTP Method to check against.
      * @return boolean
      */
@@ -402,6 +402,9 @@ class Route {
     }
 
 
+    /**
+     * @return array
+     */
     public function extractArgs($URL){
       $args = [];
       if ( $this->dynamic ) {
@@ -424,8 +427,9 @@ class Route {
 
     /**
      * Add a route to the internal route repository.
-     * @param Route|RouteGroup $route
-     * @return Route
+     *
+     * @param  Route|RouteGroup $route
+     * @return Route|\Core\RouteGroup
      */
     public static function add($route){
       if (is_a($route, 'Core\\Route')){
@@ -453,8 +457,10 @@ class Route {
 
     /**
      * Define a route group, if not immediately matched internal code will not be invoked.
+     *
      * @param  string $prefix The url prefix for the internal route definitions.
      * @param  string $callback This callback is invoked on $prefix match of the current request URI.
+     * @return \Core\RouteGroup|bool
      */
     public static function group($prefix, $callback){
 
@@ -496,6 +502,9 @@ class Route {
       return $group ?: new RouteGroup();
     }
 
+    /**
+     * @return void
+     */
     public static function exitWithError($code, $message="Application Error"){
       Response::error($code,$message);
       Response::send();
@@ -560,6 +569,9 @@ class Route {
         return false;
     }
 
+    /**
+     * @return Route
+     */
     public function push($links, $type = 'text'){
       Response::push($links, $type);
       return $this;
@@ -579,16 +591,25 @@ class RouteGroup {
     return $this->routes->contains($r);
   }
 
+  /**
+   * @return RouteGroup
+   */
   public function add($r){
     $this->routes->attach($r);
     return $this;
   }
 
+  /**
+   * @return RouteGroup
+   */
   public function remove($r){
     if ($this->routes->contains($r)) $this->routes->detach($r);
     return $this;
   }
 
+  /**
+   * @return RouteGroup
+   */
   public function before($callbacks){
     foreach ($this->routes as $route){
       $route->before($callbacks);
@@ -596,6 +617,9 @@ class RouteGroup {
     return $this;
   }
 
+  /**
+   * @return RouteGroup
+   */
   public function after($callbacks){
     foreach ($this->routes as $route){
       $route->after($callbacks);
@@ -603,6 +627,9 @@ class RouteGroup {
     return $this;
   }
 
+  /**
+   * @return RouteGroup
+   */
   public function push($links, $type = 'text'){
     Response::push($links, $type);
     return $this;

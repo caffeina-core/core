@@ -19,7 +19,6 @@ trait Relation {
    * This function can be used to get all options passing null, setting options passing an associative
    * array or retrieve a single value passing a string
    *
-   * @param  mixed $options The options passed to the relation layer.
    * @return mixed          All options array or a single value
    */
   protected static function & relationOptions(){
@@ -33,7 +32,6 @@ trait Relation {
    * The save callback interface is
    *   function($table, array $options)
    *
-   * @param  callable $callback The callback to use on model save
    * @return callable           Current save callback
    */
   private static function relationAddRelationshipTo($link, $plurality, $extra=[]){

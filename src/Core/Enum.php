@@ -30,6 +30,9 @@ abstract class Enum {
   	return false;
   }
 
+  /**
+   * @return bool
+   */
   final public static function has($value){
     return isset(static::__constants()[strtoupper($value)]);
   }

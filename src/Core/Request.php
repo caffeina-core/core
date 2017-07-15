@@ -47,6 +47,7 @@ class Request {
    * Returns all elements if you pass `null` as $key
    *
    * @param  string $key The name of the input value
+   * @param  mixed $default The value or the value returning function
    *
    * @return Object The returned value or $default.
    */
@@ -63,6 +64,7 @@ class Request {
    * Returns all elements if you pass `null` as $key
    *
    * @param  string $key The name of the input value
+   * @param  mixed $default The value or the value returning function
    *
    * @return Object The returned value or $default.
    */
@@ -78,6 +80,7 @@ class Request {
    * Returns all elements if you pass `null` as $key
    *
    * @param  string $key The name of the input value
+   * @param  mixed $default The value or the value returning function
    *
    * @return Object The returned value or $default.
    */
@@ -92,6 +95,7 @@ class Request {
    * Returns all elements if you pass `null` as $key
    *
    * @param  string $key The name of the input value
+   * @param  mixed $default The value or the value returning function
    *
    * @return Object The returned value or $default.
    */
@@ -107,6 +111,7 @@ class Request {
    * Returns all elements if you pass `null` as $key
    *
    * @param  string $key The name of the input value
+   * @param  mixed $default The value or the value returning function
    *
    * @return Object The returned value or $default.
    */
@@ -122,6 +127,7 @@ class Request {
    * Returns all uploaded files if you pass `null` as $key
    *
    * @param  string $key The name of the input value
+   * @param  mixed $default The value or the value returning function
    *
    * @return Object The returned value or $default.
    */
@@ -136,6 +142,7 @@ class Request {
    * Returns all cookies if you pass `null` as $key
    *
    * @param  string $key The name of the input value
+   * @param  mixed $default The value or the value returning function
    *
    * @return Object The returned value or $default.
    */
@@ -196,6 +203,7 @@ class Request {
    * Returns all headers if you pass `null` as $key
    *
    * @param  string $key The name of the input value
+   * @param  mixed $default The value or the value returning function
    *
    * @return Object The returned value or null.
    */
@@ -274,6 +282,7 @@ class Request {
    * Gives you all request data if you pass `null` as $key
    *
    * @param  string $key The name of the key requested
+   * @param  mixed $default The value or the value returning function
    *
    * @return mixed The request body data
    */

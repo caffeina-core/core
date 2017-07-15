@@ -28,6 +28,9 @@ abstract class Model implements \JsonSerializable {
       }, []);
     }
 
+    /**
+     * @return int
+     */
     public static function count($where_sql = false, $params = []) {
       return (int) SQL::value('SELECT COUNT(1) FROM ' . static::persistenceOptions('table') . ($where_sql ? " where {$where_sql}" : ''), $params);
     }
@@ -52,6 +55,9 @@ abstract class Model implements \JsonSerializable {
       return $this->{$key};
     }
 
+    /**
+     * @return Model
+     */
     public static function create($data){
       $tmp = new static;
       $data = (object)$data;
@@ -63,6 +69,9 @@ abstract class Model implements \JsonSerializable {
       return $tmp;
     }
 
+    /**
+     * @return array
+     */
     public function export($transformer=null, $disabled_relations=[]){
       $data = [];
       if (!is_callable($transformer)) $transformer = function($k,$v){ return [$k=>$v]; };

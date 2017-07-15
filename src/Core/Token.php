@@ -15,6 +15,9 @@ namespace Core;
 
 class Token {
 
+  /**
+   * @return string
+   */
   public static function encode($payload, $secret, $algo = 'HS256') {
     $encoded_payload = implode('.', [rtrim(strtr(base64_encode(json_encode([
         'typ' => 'JWT',
@@ -48,6 +51,9 @@ class Token {
     return $payload;
   }
 
+  /**
+   * @return string
+   */
   protected static function sign($payload, $secret, $algo = 'HS256') {
     $algos = [
       'HS512' => 'sha512',

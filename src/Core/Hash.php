@@ -72,6 +72,9 @@ abstract class Hash {
 		return self::make(current($params), $method);
 	}
 
+	/**
+	 * @return string|false|null
+	 */
 	final public static function uuid($type = 4, $namespace = '', $name = '') {
 		switch ($type) {
 		case 3:if (preg_match('/^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?' .
@@ -152,6 +155,9 @@ abstract class Hash {
 		return $as_integer ? $h1 : base_convert($h1 ,10, 32);
 	}
 
+  /**
+   * @return string
+   */
   final public static function random($bytes=9){
     return strtr(base64_encode(static::random_bytes($bytes)),'+/=','-_');
   }

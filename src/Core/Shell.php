@@ -72,6 +72,9 @@ class Shell {
         $this->command = $params ? static::_compileCommand($command, $params) : $command;
     }
 
+    /**
+     * @return string
+     */
     public function __toString(){
         $output = [];
         exec($this->command, $output, $error_code);
@@ -102,14 +105,23 @@ class Shell {
         return new static(implode(' && ',$cmd));
     }
 
+    /**
+     * @return Shell
+     */
     public static function execCommand($command, $params = null){
         return new static($command, $params);
     }
 
+    /**
+     * @return void
+     */
     public static function alias($command, callable $callback){
         static::$aliases[$command] = $callback;
     }
 
+    /**
+     * @return string
+     */
     public static function escape($arg){
         return escapeshellarg($arg);
     }

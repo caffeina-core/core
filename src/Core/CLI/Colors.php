@@ -88,6 +88,9 @@ class Colors {
     return $code;
   }
 
+  /**
+   * @return string
+   */
   public static function colorize($text) {
     $last_color = ['/'];
     return preg_replace_callback("/<([^>]+)>/", function ($m) use (&$last_color) {

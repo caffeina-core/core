@@ -22,6 +22,9 @@ class HTTP {
                    $last_info   = null,
                    $proxy       = null; // host:port
 
+  /**
+   * @return \Core\HTTP\Response
+   */
   protected static function request (
     $method,
     $url,
@@ -114,10 +117,16 @@ class HTTP {
     return null === $value ? static::$json_data : static::$json_data = $value;
   }
 
+  /**
+   * @return void
+   */
   public static function addHeader($name, $value){
     static::$headers[$name] = $value;
   }
 
+  /**
+   * @return void
+   */
   public static function removeHeader($name){
     unset(static::$headers[$name]);
   }

@@ -21,6 +21,9 @@ class Work {
                    $lastID = 0,
                    $inited_shutdown = false;
 
+  /**
+   * @return \Core\TaskCoroutine
+   */
   public static function add($id, $job=null){
     self::$pool or ( self::$pool = new \SplQueue() );
     if(is_callable($id) && $job===null){
@@ -33,10 +36,16 @@ class Work {
     return $task;
   }
 
+  /**
+   * @return void
+   */
   public static function send($id,$passValue) {
      isset(self::$workers[$id]) && self::$workers[$id]->pass($passValue);
   }
 
+  /**
+   * @return void
+   */
   public static function run(){
     self::$pool or ( self::$pool = new \SplQueue() );
     while (!self::$pool->isEmpty()) {
@@ -52,7 +61,9 @@ class Work {
 
   /**
    * Defer callback execution after script execution
-   * @param callable $callback The deferred callback
+   *
+   * @param  callable $callback The deferred callback
+   * @return void
    */
   public static function after(callable $callback){
     static::$inited_shutdown || static::install_shutdown();
@@ -61,6 +72,8 @@ class Work {
 
   /**
    * Single shot defer handeler install
+   *
+   * @return void
    */
   protected static function install_shutdown(){
     if (static::$inited_shutdown) return;
@@ -94,6 +107,9 @@ class TaskCoroutine {
         return $this->id;
     }
 
+    /**
+     * @return void
+     */
     public function pass($passValue) {
         $this->passValue = $passValue;
     }
@@ -109,6 +125,9 @@ class TaskCoroutine {
         }
     }
 
+    /**
+     * @return bool
+     */
     public function complete() {
         return ! $this->coroutine->valid();
     }

@@ -25,14 +25,23 @@ class PHP implements Adapter {
       self::$templatePath = ($path ? rtrim($path,'/') : __DIR__) . '/';
   }
 
+  /**
+   * @return bool
+   */
   public static function exists($path){
       return is_file(self::$templatePath . $path . static::EXTENSION);
   }
 
+  /**
+   * @return void
+   */
   public static function addGlobal($key,$val){
     self::$globals[$key] = $val;
   }
 
+  /**
+   * @return void
+   */
   public static function addGlobals(array $defs){
     foreach ($defs as $key=>$val) {
         self::$globals[$key] = $val;

@@ -30,6 +30,9 @@ class URL {
     $this->_origin = $url;
   }
 
+  /**
+   * @return void
+   */
   private function parse(){
     $url          = $this->_origin;
     $tmp_url      = (strpos($url, '://') === false) ? "..N..://$url" : $url;

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm
-    name="Example Psalm config with recommended defaults"
-    stopOnFirstError="false"
+    name="Core PSALM checks"
+    stopOnFirstError="true"
     useDocblockTypes="true"
     totallyTyped="false"
 >
@@ -10,18 +10,19 @@
     </projectFiles>
 
     <issueHandlers>
-        <LessSpecificReturnType errorLevel="info" />
+        <LessSpecificReturnType errorLevel="error" />
 
         <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
-        <DeprecatedMethod errorLevel="info" />
+        <DeprecatedMethod errorLevel="error" />
 
         <MissingClosureReturnType errorLevel="info" />
-        <MissingReturnType errorLevel="info" />
-        <MissingPropertyType errorLevel="info" />
-        <InvalidDocblock errorLevel="info" />
-        <MisplacedRequiredParam errorLevel="info" />
+        <MissingReturnType errorLevel="error" />
+        <MissingPropertyType errorLevel="error" />
+        <InvalidDocblock errorLevel="error" />
+        <MisplacedRequiredParam errorLevel="error" />
 
-        <PropertyNotSetInConstructor errorLevel="info" />
-        <MissingConstructor errorLevel="info" />
+        <PropertyNotSetInConstructor errorLevel="error" />
+        <MissingConstructor errorLevel="error" />
+
     </issueHandlers>
 </psalm>

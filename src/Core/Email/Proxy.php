@@ -16,6 +16,9 @@ class Proxy implements Driver {
 
   protected $listener = 'email.proxy.send';
 
+  /**
+   * @return void
+   */
   public function onInit($options){
     if (!empty($options['hook'])) $this->listener = $options['hook'];
   }

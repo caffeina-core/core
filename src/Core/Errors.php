@@ -22,6 +22,9 @@ abstract class Errors {
 
     static $mode = self::SILENT;
 
+    /**
+     * @return void
+     */
     final public static function capture($tracing_level=null){
       if($tracing_level!==null) error_reporting($tracing_level);
       set_error_handler(__CLASS__.'::traceError');
@@ -32,6 +35,9 @@ abstract class Errors {
       return $mode ? self::$mode=$mode : self::$mode;
     }
 
+    /**
+     * @return bool|null
+     */
     final public static function traceError($errno, $errstr, $errfile=null, $errline=null){
       // This error code is not included in error_reporting
       if (!(error_reporting() & $errno)) return;
@@ -64,6 +70,9 @@ abstract class Errors {
       return true;
     }
 
+    /**
+     * @return bool
+     */
     final public static function traceException($e){
       switch(self::$mode){
           case self::HTML :

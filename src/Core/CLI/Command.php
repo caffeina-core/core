@@ -26,6 +26,9 @@ class Command {
     $this->name = $name;
   }
 
+  /**
+   * @return Command
+   */
   public function option($name, $description = '', $options = []) {
     $name                 = trim($name);
     $required             = '*' == $name[-1];
@@ -39,6 +42,9 @@ class Command {
     return $this;
   }
 
+  /**
+   * @return Command
+   */
   public function argument($name, $description = '', $options = []) {
     $name                   = trim($name);
     $required               = '?' != $name[-1];
@@ -52,26 +58,41 @@ class Command {
     return $this;
   }
 
+  /**
+   * @return Command
+   */
   public function title($value) {
     $this->title = $value;
     return $this;
   }
 
+  /**
+   * @return Command
+   */
   public function description($value) {
     $this->description = $value;
     return $this;
   }
 
+  /**
+   * @return Command
+   */
   public function help($value) {
     $this->help = $value;
     return $this;
   }
 
+  /**
+   * @return Command
+   */
   public function run($callback) {
     $this->callback = $callback;
     return $this;
   }
 
+  /**
+   * @return Command
+   */
   function switch ($arg, $map) {
       $this->callback = function () use ($arg, $map) {
         $key = \Core\CLI::get($arg) ?? '*';
@@ -83,6 +104,9 @@ class Command {
       return $this;
   }
 
+  /**
+   * @return bool
+   */
   public function exec($inputs) {
     $data = [];
     $idx  = 0;

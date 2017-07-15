@@ -44,6 +44,9 @@ class Connection {
     }
   }
 
+  /**
+   * @return void
+   */
   public function close(){
     $this->connection['pdo'] = null;
   }
@@ -80,6 +83,9 @@ class Connection {
     return isset($this->queries[$query]) ? $this->queries[$query] : ($this->queries[$query] = $this->connection()->prepare($query, $pdo_params));
   }
 
+  /**
+   * @return bool
+   */
   public function exec($query, $params=[], $pdo_params=[]){
     if (! $this->connection()) return false;
 
@@ -117,6 +123,10 @@ class Connection {
     return $res ? $res->fetchColumn($column) : null;
   }
 
+  /**
+   * @return       array|false
+   * @psalm-return array<int, mixed>|false
+   */
   public function column($query, $params=[], $column=0){
     if (! $this->connection()) return false;
 
@@ -177,6 +187,9 @@ class Connection {
     }
   }
 
+ /**
+  * @return bool
+  */
  public function run($script){
     if (! $this->connection()) return false;
 
@@ -196,6 +209,9 @@ class Connection {
    return $this->each($query, $params, $looper);
   }
 
+  /**
+   * @return bool
+   */
   public function delete($table, $pks=null, $pk='id', $inclusive=true){
     if (! $this->connection()) return false;
 

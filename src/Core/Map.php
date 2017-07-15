@@ -60,8 +60,10 @@ class Map implements \JsonSerializable {
 
     /**
      * Delete a value and the key path from map.
+     *
      * @param  string $key The key path in dot notation
      * @param  boolean $compact (optional) Compact map removing empty paths.
+     * @return void
      */
     public function delete($key, $compact=true){
         $this->set($key, null);
@@ -79,6 +81,8 @@ class Map implements \JsonSerializable {
 
     /**
      * Clear all key path in map.
+     *
+     * @return void
      */
     public function clear(){
         $this->fields = [];
@@ -90,7 +94,9 @@ class Map implements \JsonSerializable {
 
     /**
      * Load an associative array/object as the map source.
+     *
      * @param  string $fields The array to merge
+     * @return void
      */
     public function load($fields){
         if ($fields) $this->fields = (array)$fields;
@@ -98,8 +104,10 @@ class Map implements \JsonSerializable {
 
     /**
      * Merge an associative array to the map.
+     *
      * @param  mixed   $array The array to merge
      * @param  boolean $merge_back If `true` merge the map over the $array, if `false` (default) the reverse.
+     * @return void
      */
     public function merge($array, $merge_back=false){
         $this->fields = $merge_back
@@ -108,9 +116,11 @@ class Map implements \JsonSerializable {
     }
 
     /**
+    /**
      * Compact map removing empty paths
+     *
+     * @return void
      */
-
     public function compact(){
 
         $array_filter_rec = function($input, $callback = null) use (&$array_filter_rec) {
@@ -129,7 +139,7 @@ class Map implements \JsonSerializable {
      * Navigate map and find the element from the path in dot notation.
      * @param  string  $path Key path in dot notation.
      * @param  boolean $create If true will create empty paths.
-     * @param  callable  If passed this callback will be applied to the founded value.
+     * @param  callable $operation If passed this callback will be applied to the founded value.
      * @return mixed The founded value.
      */
     public function & find($path, $create=false, callable $operation=null) {

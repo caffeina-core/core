@@ -26,6 +26,9 @@ class ZIP implements Adapter {
       }
   }
 
+  /**
+   * @return bool
+   */
   public function exists($path){
       return false !== $this->zipfile->locateName($path);
   }
@@ -49,6 +52,9 @@ class ZIP implements Adapter {
       return $this->exists($path) ? $this->zipfile->deleteName($path) : false;
   }
 
+  /**
+   * @return bool
+   */
   public function move($old, $new){
       // Atomic rename
       // This is needed because we cant write and read from the same archive.
@@ -56,6 +62,10 @@ class ZIP implements Adapter {
       // return $this->zipfile->renameName($old, $new);
   }
 
+  /**
+   * @return       array
+   * @psalm-return array<int, mixed>
+   */
   public function search($pattern, $recursive=true){
       $results = [];
       $rx_pattern = '('.strtr($pattern,['.'=>'\.','*'=>'.*','?'=>'.']).')Ai';

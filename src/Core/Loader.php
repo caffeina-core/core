@@ -17,8 +17,10 @@ class Loader {
 
     /**
      * Adds a path to class autoloader
-     * @param string $path The path root to add to class autoloader
-     * @param string $name An optional name for path section
+     *
+     * @param  string $path The path root to add to class autoloader
+     * @param  string $namespace An optional name for path section
+     * @return void
      */
     public static function addPath($path, $namespace=''){
         static::$paths[$path] = $namespace;

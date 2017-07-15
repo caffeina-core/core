@@ -14,6 +14,9 @@ namespace Core\Email;
 
 class Ses extends Smtp {
 
+  /**
+   * @return void
+   */
   public function onInit($options) {
     $options  = (object)$options;
     $region   = isset($options->region) ? $options->region : 'eu-west-1';

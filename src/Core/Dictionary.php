@@ -47,6 +47,9 @@ abstract class Dictionary {
         return static::$fields->set($key, $value);
     }
 
+    /**
+     * @return void
+     */
     public static function delete($key, $compact=true){
         if (!static::$fields) static::$fields = new Map();
         static::$fields->delete($key, $compact);
@@ -57,21 +60,33 @@ abstract class Dictionary {
         return static::$fields->exists($key);
     }
 
+    /**
+     * @return void
+     */
     public static function clear(){
         if (!static::$fields) static::$fields = new Map();
         static::$fields->clear();
     }
 
+    /**
+     * @return void
+     */
     public static function load($fields){
         if (!static::$fields) static::$fields = new Map();
         static::$fields->load($fields);
     }
 
+    /**
+     * @return void
+     */
     public static function merge(array $array, $merge_back=false){
         if (!static::$fields) static::$fields = new Map();
         static::$fields->merge($array, $merge_back);
     }
 
+    /**
+     * @return void
+     */
     protected static function compact(){
         if (!static::$fields) static::$fields = new Map();
         static::$fields->compact();

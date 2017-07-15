@@ -22,6 +22,9 @@ abstract class Email {
                    $options,
                    $driver_name;
 
+  /**
+   * @return void
+   */
   final public static function using($driver, $options = null){
     if ($driver) {
       $class = __NAMESPACE__ . '\\Email\\' . ucfirst(strtolower($driver));
@@ -33,6 +36,9 @@ abstract class Email {
     }
   }
 
+  /**
+   * @return \Core\Email\Envelope
+   */
   final public static function create($mail=[]){
     return is_a($mail, 'Core\\Email\\Envelope')
            ? $mail
@@ -48,6 +54,9 @@ abstract class Email {
             ], $mail));
   }
 
+  /**
+   * @return bool
+   */
   final public static function send($mail){
     $envelope = static::create($mail);
     $results  = (array) static::$driver->onSend($envelope);

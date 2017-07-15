@@ -25,6 +25,9 @@ class Request {
 
   }
 
+  /**
+   * @return string
+   */
   public function __toString(){
     return "$this->method {$this->url->path}{$this->url->query} HTTP/1.1\r\n"
           ."Host: {$this->url->host}\r\n"

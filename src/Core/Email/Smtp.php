@@ -24,6 +24,9 @@ class Smtp implements Driver {
     $username,
     $password;
 
+  /**
+   * @return void
+   */
   public function onInit($options) {
     $options        = (object)$options;
     $this->host     = isset($options->host)     ? $options->host     : 'localhost';
@@ -33,6 +36,9 @@ class Smtp implements Driver {
     $this->password = isset($options->password) ? $options->password : false;
   }
 
+  /**
+   * @return void
+   */
   protected function connect(){
     if ($this->socket) $this->close();
     $url = ($this->secure ? 'tls' : 'tcp') ."://{$this->host}";
@@ -42,16 +48,25 @@ class Smtp implements Driver {
     $this->lastCode = 0;
   }
 
+  /**
+   * @return void
+   */
   public function close(){
     $this->socket && @fclose($this->socket);
   }
 
+  /**
+   * @return void
+   */
   protected function write($data, $nl = 1){
     $payload = $data . str_repeat("\r\n",$nl);
     fwrite($this->socket, $payload);
     \Core\Email::trigger("smtp.console",$payload);
   }
 
+  /**
+   * @return bool
+   */
   protected function expectCode($code){
 
     $this->lastMessage = '';
@@ -66,10 +81,16 @@ class Smtp implements Driver {
     return true;
   }
 
+  /**
+   * @return string
+   */
   protected function cleanAddr($email){
     return preg_replace('((.*?)<([\w.@-]+)>(.*?))','$2',$email);
   }
 
+  /**
+   * @return bool
+   */
   protected function SMTPmail($from,$to,$body){
     try {
     $this->connect();
@@ -115,6 +136,9 @@ class Smtp implements Driver {
     return true;
   }
 
+  /**
+   * @return array
+   */
   public function onSend(Envelope $envelope){
     $results = [];
     foreach ($envelope->to() as $to) {

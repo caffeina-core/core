@@ -53,6 +53,9 @@ class Job extends Model {
          $payload,
          $error;
 
+  /**
+   * @return void
+   */
   public static function queue($type, $payload=null, $when=null){
     $now = gmdate("Y-m-d H:i:s");
     $job = new static;
@@ -63,6 +66,9 @@ class Job extends Model {
     $job->save();
   }
 
+  /**
+   * @return void
+   */
   public static function register($type, $callback){
     self::on("worker[{$type}]", $callback);
   }
@@ -82,6 +88,9 @@ class Job extends Model {
     } else return false;
   }
 
+  /**
+   * @return void
+   */
   public function run(){
     $this->status = 'ACTIVE';
     $this->activated_at = gmdate("Y-m-d H:i:s");
@@ -92,11 +101,17 @@ class Job extends Model {
     $this->save();
   }
 
+  /**
+   * @return void
+   */
   public function error($message=null){
     $this->status = 'ERROR';
     $this->error  = $message;
   }
 
+  /**
+   * @return void
+   */
   public function retry($message=null){
     $this->status = 'PENDING';
     $this->error  = $message;

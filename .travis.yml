@@ -1,6 +1,7 @@
 language: php
 
 dist: trusty
+group: edge
 sudo: required
 
 git:
@@ -9,17 +10,19 @@ git:
 php:
   - '7.1'
   - '7.0'
-  - hhvm-nightly
+  - '5.6'
   - nightly
+  - hhvm
+
+#services:
+#    - redis-server
 
 matrix:
   fast_finish: true
   allow_failures:
-    - php: hhvm-nightly
-    - php: nightly
-
-#services:
-#    - redis-server
+      - php: hhvm
+      - php: nightly
+      - php: '5.6'
 
 before_install:
    - |
@@ -33,6 +36,7 @@ before_install:
 
 install:
   - travis_retry composer install -o --no-interaction --ignore-platform-reqs
+  - composer dumpautoload -o
 
 script:
   - composer test
@@ -44,6 +48,6 @@ notifications:
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/2c412be46f958d54dc6e
-    on_success: change  # options: [always|never|change] default: always
-    on_failure: always  # options: [always|never|change] default: always
-    on_start: never     # options: [always|never|change] default: always
+    on_success: always
+    on_failure: always
+    on_start: always

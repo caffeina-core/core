@@ -33,7 +33,11 @@ class Logs implements Drawable {
       });
     }
 
-    public function log($type="normal",$text){
+    /**
+     * @return void
+     */
+    public function log($type,$text){
+      $type = $type ?? "normal";
       $reset = \Core\CLI::color(false);
       $c = isset($this->styles[$type]) ? $this->styles[$type] : $this->styles["normal"];
       $pre = $c[0] . "[".date("Y-m-d H:i:s",time())."]" . $reset . $c[1] . " ";
@@ -41,6 +45,9 @@ class Logs implements Drawable {
       if (count($this->logs) > $this->max_lines) array_shift($this->logs);
     }
 
+    /**
+     * @return void
+     */
     public function draw(){
       $cols = (int)`tput cols`;
       for ($i = 0 ; $i < $this->max_lines ; $i++) {

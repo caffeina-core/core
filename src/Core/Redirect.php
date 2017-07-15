@@ -15,6 +15,9 @@ namespace Core;
 class Redirect {
     use Module;
 
+    /**
+     * @return void
+     */
     public static function to($url, $status=302){
         if ($link = Filter::with('core.redirect',$url)) {
           Response::clean();
@@ -25,6 +28,9 @@ class Redirect {
         }
     }
 
+    /**
+     * @return void
+     */
     public static function back(){
         if ($link = Filter::with('core.redirect', (empty($_SERVER['HTTP_REFERER']) ? Request::get('redirect_uri',false) : $_SERVER['HTTP_REFERER']) )){
           Response::clean();
@@ -34,6 +40,9 @@ class Redirect {
         }
     }
 
+    /**
+     * @return void
+     */
     public static function viaJavaScript($url, $parent=false){
       if ($link = Filter::with('core.redirect', $url)){
         Response::type('text/html');

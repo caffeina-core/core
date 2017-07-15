@@ -17,6 +17,9 @@ class Message extends Dictionary {
   protected static $loaded = false;
   protected static $fields = [];
 
+  /**
+   * @return void
+   */
   protected static function init(){
     if(false===static::$loaded){
       static::load(Session::get('core.messages',[]));
@@ -32,12 +35,18 @@ class Message extends Dictionary {
     return $value;
   }
 
+  /**
+   * @return void
+   */
   public static function set($key,$data=null){
     static::init();
     parent::set($key,$data);
     Session::set('core.messages',parent::all());
   }
 
+  /**
+   * @return void
+   */
   public static function add($key,$data=null){
     static::init();
     $d = parent::get($key,[]);
@@ -59,6 +68,9 @@ class Message extends Dictionary {
     return $all;
   }
 
+  /**
+   * @return void
+   */
   public static function clear(){
     static::init();
     parent::clear();

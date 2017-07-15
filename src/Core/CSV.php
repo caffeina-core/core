@@ -93,7 +93,10 @@ class CSV {
     return $results[0];
   }
 
-  final public function write($row){
+  /**
+   * @return void
+   */
+  final public function write($row) : void {
     if ($this->mode != self::WRITE) return;
     $row = (array)$row;
     if (false === $this->savedheaders) {
@@ -106,7 +109,11 @@ class CSV {
     $this->file->fputcsv($row_t);
   }
 
-  final public function read(){
+  /**
+   * @return       Generator
+   * @psalm-return Generator<int, array<mixed, string>>
+   */
+  final public function read() {
     if ($this->mode != self::READ) return;
     foreach($this->file as $row){
       if ($row){
@@ -120,6 +127,10 @@ class CSV {
     return;
   }
 
+  /**
+   * @return       CSV|array
+   * @psalm-return CSV|array<int, mixed>
+   */
   final public function each(callable $looper = null){
     if ($looper) {
       foreach($this->read() as $k => $row) $looper($row, (int)$k);
@@ -161,6 +172,9 @@ class CSV {
     }
   }
 
+  /**
+   * @return string
+   */
   final public function asString() : string {
     $this->flush();
     return file_get_contents($this->file->getPathname());

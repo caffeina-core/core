@@ -61,6 +61,9 @@ class ProgressBar implements Drawable {
     return $text === null ? $this->label : $this->label = $text;
   }
 
+  /**
+   * @return void
+   */
   public function draw(){
     $L = strlen($this->label);
     $X = $this->value / $this->max;

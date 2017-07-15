@@ -76,6 +76,9 @@ abstract class Check {
     return empty(static::$errors);
   }
 
+   /**
+    * @return void
+    */
    final public static function method($name, $definition = null){
     if (is_array($name)) {
       foreach ($name as $method_name => $method_definition){

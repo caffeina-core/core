@@ -41,16 +41,25 @@ class Files implements Adapter {
         }
     }
 
+    /**
+     * @return void
+     */
     public function set($key,$value,$expire=0){
         $cache_file_name = $this->options->cache_dir.$key.'.cache.php';
         file_put_contents($cache_file_name,serialize([$expire?time()+$expire:0,$value]));
     }
 
+    /**
+     * @return void
+     */
     public function delete($key){
         $cache_file_name = $this->options->cache_dir.$key.'.cache.php';
       if(is_file($cache_file_name)) unlink($cache_file_name);
     }
 
+    /**
+     * @return bool
+     */
     public function exists($key){
         $cache_file_name = $this->options->cache_dir.$key.'.cache.php';
         if(false === is_file($cache_file_name)) return false;
@@ -64,15 +73,24 @@ class Files implements Adapter {
         } else return true;
     }
 
+    /**
+     * @return void
+     */
     public function flush(){
         exec('rm -f ' . $this->options->cache_dir . '*.cache.php');
     }
 
+    /**
+     * @return void
+     */
     public function inc($key,$value=1){
         if(null === ($current = $this->get($key))) $current = $value; else $current += $value;
         $this->set($key,$current);
     }
 
+    /**
+     * @return void
+     */
     public function dec($key,$value=1){
         $this->inc($key,-abs($value));
     }

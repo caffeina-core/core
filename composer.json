@@ -22,7 +22,6 @@
             "email": "gabriele.diener@caffeina.com"
         }
     ],
-    "minimum-stability": "stable",
     "require": {
         "php": "^7.0"
     },
@@ -35,10 +34,11 @@
           "vendor/bin/phpstan analyse --ansi -n -c tests/phpstan.neon -l 5 src",
           "vendor/bin/phpunit --colors=always -c tests/phpunit.xml tests/cases"
         ],
-        "changelog" : "docs/changelog --skip-head > CHANGELOG.md"
+        "changelog" : "docs/bin/changelog --skip-head > CHANGELOG.md"
     },
     "config": {
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "classmap-authoritative": true
     },
     "autoload": {
          "psr-4": {

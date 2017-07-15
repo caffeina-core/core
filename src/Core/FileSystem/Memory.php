@@ -16,6 +16,9 @@ class Memory implements Adapter {
 
   protected $storage = [];
 
+  /**
+   * @return bool
+   */
   public function exists($path){
     return isset($this->storage[$path]);
   }
@@ -24,14 +27,23 @@ class Memory implements Adapter {
     return $this->exists($path) ? $this->storage[$path] : false;
   }
 
+  /**
+   * @return void
+   */
   public function write($path, $data){
     $this->storage[$path] = $data;
   }
 
+  /**
+   * @return void
+   */
   public function append($path, $data){
     @$this->storage[$path] .= $data;
   }
 
+  /**
+   * @return bool
+   */
   public function move($old, $new){
     if($this->exists($old)){
       $this->storage[$new] = $this->storage[$old];
@@ -40,11 +52,18 @@ class Memory implements Adapter {
     } else return false;
   }
 
+  /**
+   * @return bool
+   */
   public function delete($path){
     unset($this->storage[$path]);
     return true;
   }
 
+  /**
+   * @return       array
+   * @psalm-return array<int, mixed>
+   */
   public function search($pattern, $recursive=true){
     $results = [];
     $rx_pattern = '('.strtr($pattern,['.'=>'\.','*'=>'.*','?'=>'.']).')Ai';

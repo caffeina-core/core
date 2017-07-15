@@ -43,6 +43,8 @@ class Object extends \ArrayObject {
 
     /**
      * ArrayObject::offsetSet
+     *
+     * @return void
      */
     public function offsetSet($key, $value){
         if ( is_array($value) )
@@ -105,6 +107,9 @@ class Object extends \ArrayObject {
         return is_array($args) ? (new \ReflectionClass($class))->newInstanceArgs($args) : new $class;
     }
 
+    /**
+     * @return bool
+     */
     public static function canBeString($var) {
       return $var === null || is_scalar($var) || is_callable([$var, '__toString']);
     }

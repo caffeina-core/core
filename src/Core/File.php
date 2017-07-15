@@ -18,6 +18,9 @@ abstract class File {
 
   protected static $mount_points = [];
 
+  /**
+   * @return void
+   */
   final public static function mount($alias, $driver, $options = null) {
     $driver_class = '\\Core\\FileSystem\\'.ucfirst(strtolower($driver));
     if (!class_exists($driver_class)) throw new \Exception('Filesystem adapter '.$driver.' not found.');
@@ -25,11 +28,18 @@ abstract class File {
     static::trigger("mount",$alias, $driver_class, static::$mount_points[$alias]);
   }
 
+  /**
+   * @return void
+   */
   final public static function unmount($alias) {
     unset(static::$mount_points[$alias]);
     static::trigger("unmount",$alias);
   }
 
+  /**
+   * @return       array
+   * @psalm-return array<int, mixed>
+   */
   final public static function mounts() {
     return array_keys(static::$mount_points);
   }
@@ -44,6 +54,10 @@ abstract class File {
     } else return false;
   }
 
+  /**
+   * @return       array|false
+   * @psalm-return array<int, mixed>|false
+   */
   final public static function locate($path) {
     if (strpos($path,'://')!==false) {
       list($mount, $filepath) = explode('://',$path,2);
@@ -58,6 +72,9 @@ abstract class File {
     }
   }
 
+  /**
+   * @return string
+   */
   final public static function resolvePath($path) {
     $path = str_replace(['/', '\\'], '/', $path);
     $parts = array_filter(explode('/', $path), 'strlen');
@@ -73,6 +90,10 @@ abstract class File {
     return trim(implode('/', $absolutes),'/');
   }
 
+  /**
+   * @return       string[]
+   * @psalm-return array<int, string>
+   */
   final public static function search($pattern, $recursive=true){
     $results = [];
     foreach (static::$mount_points as $mount => $fs) {

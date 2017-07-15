@@ -82,6 +82,9 @@ abstract class CLI {
     return static::$args;
   }
 
+  /**
+   * @return void
+   */
   final public static function run($cmd=null){
     $inputs       = static::args();
     $command_name = array_shift($inputs->args);
@@ -98,6 +101,9 @@ abstract class CLI {
     return isset(static::$args->args[$key]) ? static::$args->args[$key] : null;
   }
 
+  /**
+   * @return \Core\CLI\Command
+   */
   final public static function define($command_name){
     return static::$commands[$command_name] = new CLI\Command($command_name);
   }
@@ -106,10 +112,16 @@ abstract class CLI {
     return static::$cursor ?: static::$cursor = new CLI\Cursor();
   }
 
+  /**
+   * @return \Core\CLI\UI\ProgressBar
+   */
   final public static function progress(...$params){
     return new CLI\UI\ProgressBar(...$params);
   }
 
+  /**
+   * @return \Core\CLI\UI\Logs
+   */
   final public static function logs(...$params){
     return new CLI\UI\Logs(...$params);
   }
@@ -118,10 +130,16 @@ abstract class CLI {
     return CLI\Colors::get(...$params);
   }
 
+  /**
+   * @return void
+   */
   final public static function write(...$texts){
     foreach($texts as $txt) echo CLI\Colors::colorize($txt);
   }
 
+  /**
+   * @return void
+   */
   final public static function line(){
     echo str_repeat('-',(int)`tput cols`-1)."\n";
   }

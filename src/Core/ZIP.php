@@ -19,7 +19,10 @@ class ZIP {
          $name,
          $zip;
 
-  public static function create($name=''){
+  /**
+   * @return ZIP
+   */
+  public static function create($name='') : ZIP {
     return new ZIP($name);
   }
 
@@ -43,17 +46,26 @@ class ZIP {
     return $this->file;
   }
 
-  public function write($filename, $data){
+  /**
+   * @return ZIP
+   */
+  public function write($filename, $data) : ZIP {
     $this->zip->addFromString($filename, $data);
     return $this;
   }
 
-  public function close(){
+  /**
+   * @return ZIP
+   */
+  public function close() : ZIP {
     if($this->zip) @$this->zip->close();
     return $this;
   }
 
-  public function addDirectory($folder, $root=null) {
+  /**
+   * @return ZIP
+   */
+  public function addDirectory($folder, $root=null) : ZIP {
     $folder = rtrim($folder,'/');
     if (null === $root) {
       $root   = dirname($folder);
@@ -71,7 +83,10 @@ class ZIP {
     return $this;
   }
 
-  public function download(){
+  /**
+   * @return void
+   */
+  public function download() : void {
     @$this->zip->close();
     header('Content-Type: application/zip');
     header('Content-Disposition: attachment;filename="'.$this->name.'"',true);

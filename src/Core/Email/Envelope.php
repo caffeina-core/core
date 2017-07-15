@@ -43,6 +43,9 @@ class Envelope {
 
   }
 
+  /**
+   * @return void
+   */
   protected function add_emails(&$pool, $emails, $append=true){
     $this->compiled_head = null;
     foreach ((array)$emails as $values) {
@@ -121,6 +124,9 @@ class Envelope {
     return $this->message;
   }
 
+  /**
+   * @return void
+   */
   public function attach($file){
     $this->compiled_body = null;
     if (isset($file->content) || isset($file['content'])) {

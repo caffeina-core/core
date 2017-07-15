@@ -35,16 +35,24 @@ class Response {
                      $links       = [];
 
 
+    /**
+     * @return void
+     */
     public static function charset($charset){
         static::$charset = $charset;
     }
 
+    /**
+     * @return void
+     */
     public static function type($mime){
         static::header('Content-Type', $mime . (static::$charset ? '; charset='.static::$charset : ''));
     }
 
     /**
      * Set expires header
+     *
+     * @return void
      */
     public static function expire($when="now"){
       switch($when){
@@ -56,6 +64,8 @@ class Response {
 
     /**
      * Set entity tag (Etag) header
+     *
+     * @return void
      */
     public static function etag($what=null){
       $what && static::header('ETag', md5($what));
@@ -63,8 +73,9 @@ class Response {
 
     /**
      * Force download of Response body
+     *
      * @param  string/bool $filename Pass a falsy value to disable download or pass a filename for exporting content
-     * @return [type]        [description]
+     * @return void
      */
     public static function download($filename){
         static::$force_dl = $filename;
@@ -72,6 +83,8 @@ class Response {
 
     /**
      * Start capturing output
+     *
+     * @return void
      */
     public static function start(){
         static::$buffer = ob_start();
@@ -79,6 +92,8 @@ class Response {
 
     /**
      * Enable CORS HTTP headers.
+     *
+     * @return void
      */
     public static function enableCORS($origin='*'){
 
@@ -137,6 +152,8 @@ class Response {
 
     /**
      * Clear the response body
+     *
+     * @return void
      */
     public static function clean(){
         static::$payload = [];
@@ -145,7 +162,9 @@ class Response {
 
     /**
      * Append a JSON object to the buffer.
+     *
      * @param  mixed $payload Data to append to the response buffer
+     * @return void
      */
     public static function json($payload){
         static::type(static::TYPE_JSON);
@@ -154,7 +173,9 @@ class Response {
 
     /**
      * Append a text to the buffer.
-     * @param  mixed $payload Text to append to the response buffer
+     *
+     * @param  array<int, mixed> $args Text/s to append to the response buffer
+     * @return void
      */
     public static function text(...$args){
         static::type(static::TYPE_TEXT);
@@ -163,7 +184,9 @@ class Response {
 
     /**
      * Append an XML string to the buffer.
-     * @param  mixed $payload Data to append to the response buffer
+     *
+     * @param  array<int, mixed> $args Text/s to append to the response buffer
+     * @return void
      */
     public static function xml(...$args){
         static::type(static::TYPE_XML);
@@ -172,7 +195,9 @@ class Response {
 
     /**
      * Append a SVG string to the buffer.
-     * @param  mixed $payload Data to append to the response buffer
+     *
+     * @param  array<int, mixed> $args Text/s to append to the response buffer
+     * @return void
      */
     public static function svg(...$args){
         static::type(static::TYPE_SVG);
@@ -181,7 +206,9 @@ class Response {
 
     /**
      * Append an HTML string to the buffer.
-     * @param  mixed $payload Data to append to the response buffer
+     *
+     * @param  array<int, mixed> $args Text/s to append to the response buffer
+     * @return void
      */
     public static function html(...$args){
         static::type(static::TYPE_HTML);
@@ -196,10 +223,10 @@ class Response {
      *  - Objects, arrays and bools will be JSON encoded
      *  - Strings and numbers will be appendend to the response
      *
-     * @param  mixed $payload Data to append to the response buffer
+     * @param  array<int, mixed> $args Text/s to append to the response buffer
      */
-    public static function add(){
-      foreach(func_get_args() as $data){
+    public static function add(...$args){
+      foreach(...$args as $data){
         switch (true) {
           case is_callable($data) :
             return static::add($data());
@@ -213,10 +240,16 @@ class Response {
       }
     }
 
+    /**
+     * @return void
+     */
     public static function status($code,$message=''){
       static::header('Status',$message?:$code,$code);
     }
 
+    /**
+     * @return void
+     */
     public static function header($name,$value,$code=null){
       if (empty(static::$headers[$name])){
         static::$headers[$name] = [[$value,$code]];
@@ -225,6 +258,9 @@ class Response {
       }
     }
 
+    /**
+     * @return void
+     */
     public static function error($code=500,$message='Application Error'){
       static::trigger('error',$code,$message);
       static::status($code,$message);
@@ -260,8 +296,8 @@ class Response {
      * Load response from a saved state
      *
      * @method load
-     *
      * @param  array $data head/body saved state
+     * @return void
      */
     public static function load($data){
       $data = (object)$data;
@@ -269,6 +305,9 @@ class Response {
       if (isset($data->body)) static::body($data->body);
     }
 
+    /**
+     * @return void
+     */
     public static function send($force = false){
       if (!static::$sent || $force) {
         static::$sent = true;
@@ -312,9 +351,8 @@ class Response {
     /**
      * Push resources to client (HTTP/2 spec)
      * @param  string/array $links The link(s) to the resources to push.
-     * @return Response     The Route object
      */
-    public static function push($links, $type='text'){
+    public static function push($links, $type='text') : void {
       if (is_array($links)){
         foreach($links as $_type => $link) {
             // Extract URL basename extension (query-safe version)
