@@ -306,7 +306,8 @@ class SQLConnection {
 
     $q = "UPDATE `$table` SET ".implode(', ',array_filter($k))." WHERE $where";
     $this->exec($q, $data);
-    return $this->last_exec_success ? ((object)$data)->$pk : false;
+    $data = (object)$data;
+    return $this->last_exec_success ? $data->$pk : false;
   }
 
   public function update($table, $data, $pk='id', $extra_where=''){
