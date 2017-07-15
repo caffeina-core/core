@@ -5,3 +5,4 @@ parameters:
         - '#Cannot call method bindValue\(\) on bool#'
         - '#Cannot call method execute\(\) on bool#'
         - '#Function fastcgi_finish_request not found#'
+        - '#Function mcrypt_create_iv not found#'
