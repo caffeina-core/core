@@ -32,11 +32,11 @@ class Text {
   public static function render($t,$v=null){
     if (Options::get('core.text.replace_empties', true)) {
       $replacer = function($c) use ($v){
-        return Object::fetch(trim($c[1]), $v);
+        return Structure::fetch(trim($c[1]), $v);
       };
     } else {
       $replacer = function($c) use ($v){
-        return Object::fetch(trim($c[1]), $v) ?: $c[0];
+        return Structure::fetch(trim($c[1]), $v) ?: $c[0];
       };
     }
 

@@ -25,7 +25,7 @@ class Request {
    * @param  string $key The name of the negotiation subject
    * @param  string $choices A query string for the negotiation choices (See RFC 7231)
    *
-   * @return Object The preferred content if $choices is empty else return best match
+   * @return Structure The preferred content if $choices is empty else return best match
    */
   public static function accept($key='type', $choices='') {
     if (null === static::$accepts) static::$accepts = [
@@ -49,14 +49,14 @@ class Request {
    * @param  string $key The name of the input value
    * @param  mixed $default The value or the value returning function
    *
-   * @return Object The returned value or $default.
+   * @return Structure The returned value or $default.
    */
   public static function input($key=null, $default=null){
     return $key ? (
              isset($_REQUEST[$key])
-             ? new Object($_REQUEST[$key])
+             ? new Structure($_REQUEST[$key])
              : (is_callable($default) ? call_user_func($default) : $default)
-           ) : new Object($_REQUEST[$key]);
+           ) : new Structure($_REQUEST[$key]);
   }
 
   /**
@@ -66,7 +66,7 @@ class Request {
    * @param  string $key The name of the input value
    * @param  mixed $default The value or the value returning function
    *
-   * @return Object The returned value or $default.
+   * @return Structure The returned value or $default.
    */
   public static function env($key=null, $default=null){
     return $key ? (
@@ -82,7 +82,7 @@ class Request {
    * @param  string $key The name of the input value
    * @param  mixed $default The value or the value returning function
    *
-   * @return Object The returned value or $default.
+   * @return Structure The returned value or $default.
    */
   public static function server($key=null, $default=null){
     return $key ? (
@@ -97,7 +97,7 @@ class Request {
    * @param  string $key The name of the input value
    * @param  mixed $default The value or the value returning function
    *
-   * @return Object The returned value or $default.
+   * @return Structure The returned value or $default.
    */
   public static function post($key=null, $default=null){
     return $key ? (
@@ -113,7 +113,7 @@ class Request {
    * @param  string $key The name of the input value
    * @param  mixed $default The value or the value returning function
    *
-   * @return Object The returned value or $default.
+   * @return Structure The returned value or $default.
    */
   public static function get($key=null, $default=null){
     return $key ? (
@@ -129,7 +129,7 @@ class Request {
    * @param  string $key The name of the input value
    * @param  mixed $default The value or the value returning function
    *
-   * @return Object The returned value or $default.
+   * @return Structure The returned value or $default.
    */
   public static function files($key=null, $default=null){
     return $key ? (
@@ -144,7 +144,7 @@ class Request {
    * @param  string $key The name of the input value
    * @param  mixed $default The value or the value returning function
    *
-   * @return Object The returned value or $default.
+   * @return Structure The returned value or $default.
    */
   public static function cookie($key=null,$default=null){
     return $key ? (
@@ -205,7 +205,7 @@ class Request {
    * @param  string $key The name of the input value
    * @param  mixed $default The value or the value returning function
    *
-   * @return Object The returned value or null.
+   * @return Structure The returned value or null.
    */
   public static function header($key=null,$default=null){
     $key = 'HTTP_'.strtr(strtoupper($key), '-', '_');

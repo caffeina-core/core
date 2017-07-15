@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Object
+ * Structure
  *
  * Access properties with associative array or object notation seamlessly.
  *
@@ -12,16 +12,16 @@
 
 namespace Core;
 
-class Object extends \ArrayObject {
+class Structure extends \ArrayObject {
 
     /**
-     * An Object can wrap a StdClass, an array or an object from a JSON encoded string.
+     * An Structure can wrap a StdClass, an array or an object from a JSON encoded string.
      *
      * This class is useful for wrapping API responses and access their properties in
      * an easy way.
      *
      * @param mixed  $input The object/array/json_encoded object to wrap
-     * @param boolean $deep  Wrap also deep branches as Objects
+     * @param boolean $deep  Wrap also deep branches as Structures
      */
     public function __construct($input=[], $deep=true){
         $data = is_string($input) ? json_decode($input,true) : (array)$input;
@@ -103,14 +103,14 @@ class Object extends \ArrayObject {
       }
     }
 
-    public static function create($class, $args = null){
+    public static function create($class, $args = null) : self {
         return is_array($args) ? (new \ReflectionClass($class))->newInstanceArgs($args) : new $class;
     }
 
     /**
      * @return bool
      */
-    public static function canBeString($var) {
+    public static function canBeString($var) : bool {
       return $var === null || is_scalar($var) || is_callable([$var, '__toString']);
     }
 
