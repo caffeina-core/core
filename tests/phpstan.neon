@@ -1,5 +1,5 @@
-
 parameters:
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - '#Call to an undefined static method Core\\SQL::#'
         - '#Cannot call method bindValue\(\) on bool#'
