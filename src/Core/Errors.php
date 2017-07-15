@@ -36,11 +36,11 @@ abstract class Errors {
     }
 
     /**
-     * @return bool|null
+     * @return bool
      */
-    final public static function traceError($errno, $errstr, $errfile=null, $errline=null) : ?bool {
+    final public static function traceError($errno, $errstr, $errfile=null, $errline=null) : bool {
       // This error code is not included in error_reporting
-      if (!(error_reporting() & $errno)) return null;
+      if (!(error_reporting() & $errno)) return false;
       switch ( $errno ) {
         case E_USER_ERROR:
             $type = 'Fatal';
