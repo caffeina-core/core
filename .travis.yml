@@ -22,10 +22,13 @@ matrix:
       - php: hhvm
       - php: nightly
 
+cache:
+  directories:
+    - vendor
+
 before_install:
    - |
-      # HHVM INI configuration
-      if [[ $PHP = hhvm* ]]; then
+      if [ `phpenv version-name` = 'hhvm' ] ; then
           INI=/etc/hhvm/php.ini
           echo "hhvm.jit = false" >> $INI
           echo "hhvm.php7.all = true" >> $INI
