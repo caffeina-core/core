@@ -84,7 +84,7 @@ class Connection {
   }
 
   /**
-   * @return bool
+   * @return bool|\PDOStatement
    */
   public function exec($query, $params=[], $pdo_params=[]){
     if (! $this->connection()) return false;
@@ -210,18 +210,21 @@ class Connection {
   }
 
   /**
-   * @return bool
+   * @return bool|\PDOStatement
    */
   public function delete($table, $pks=null, $pk='id', $inclusive=true){
     if (! $this->connection()) return false;
 
-    if (null===$pks) {
+    if (null === $pks) {
       return $this->exec("DELETE FROM `$table`");
     } else {
       return $this->exec("DELETE FROM `$table` WHERE `$pk` ".($inclusive ? "" : "NOT " )."IN (" . implode( ',', array_fill_keys( (array)$pks, '?' ) ) . ")",(array)$pks);
     }
   }
 
+  /**
+   * @return bool|int
+   */
   public function insert($table, $data, $pk='id'){
     if (! $this->connection()) return false;
 
@@ -235,6 +238,9 @@ class Connection {
     return $this->last_exec_success ? $this->connection()->lastInsertId($pk) : false;
   }
 
+  /**
+   * @return bool
+   */
   public function updateWhere($table, $data, $where, $pk='id'){
     if (! $this->connection()) return false;
 
@@ -253,10 +259,16 @@ class Connection {
     return $this->last_exec_success;
   }
 
+  /**
+   * @return bool
+   */
   public function update($table, $data, $pk='id', $extra_where=''){
     return $this->updateWhere($table, $data, "`$pk`=:$pk $extra_where", $pk);
   }
 
+  /**
+   * @return bool|int
+   */
   public function insertOrUpdate($table, $data=[], $pk='id', $extra_where=''){
 
     if (! $this->connection()) return false;

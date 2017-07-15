@@ -110,12 +110,10 @@ class CSV {
   }
 
   /**
-   * @return       Generator
-   * @psalm-return Generator<int, array<mixed, string>>
+   * @return \Generator
    */
   final public function read() {
-    if ($this->mode != self::READ) return;
-    foreach($this->file as $row){
+    if ($this->mode === self::READ) foreach($this->file as $row){
       if ($row){
         if(!$this->headers) {
           $this->headers = $row;
@@ -124,12 +122,10 @@ class CSV {
         yield array_combine($this->headers, array_map('trim', $row));
       }
     }
-    return;
   }
 
   /**
    * @return       CSV|array
-   * @psalm-return CSV|array<int, mixed>
    */
   final public function each(callable $looper = null){
     if ($looper) {

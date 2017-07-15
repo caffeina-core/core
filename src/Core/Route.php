@@ -45,7 +45,7 @@ class Route {
      * @param string $URLPattern The URL pattern, can be used named parameters for variables extraction
      * @param callable $callback The callback to invoke on route match.
      * @param string $method The HTTP method for which the route must respond.
-     * @return Route
+     * @return Route|RouteGroup
      */
     public function __construct($URLPattern, $callback = null, $method='get'){
       $prefix  = static::$prefix ? rtrim(implode('',static::$prefix),'/') : '';

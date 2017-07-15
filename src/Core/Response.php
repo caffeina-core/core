@@ -164,55 +164,55 @@ class Response {
      * Append a JSON object to the buffer.
      *
      * @param  mixed $payload Data to append to the response buffer
-     * @return void
+     * @return string
      */
-    public static function json($payload){
+    public static function json($payload) : string {
         static::type(static::TYPE_JSON);
-        static::$payload[] = json_encode($payload, Options::get('core.response.json_flags',JSON_NUMERIC_CHECK|JSON_BIGINT_AS_STRING));
+        return static::$payload[] = json_encode($payload, Options::get('core.response.json_flags',JSON_NUMERIC_CHECK|JSON_BIGINT_AS_STRING));
     }
 
     /**
      * Append a text to the buffer.
      *
      * @param  array<int, mixed> $args Text/s to append to the response buffer
-     * @return void
+     * @return string
      */
-    public static function text(...$args){
+    public static function text(...$args) : string {
         static::type(static::TYPE_TEXT);
-        static::$payload[] = implode('',$args);
+        return static::$payload[] = implode('',$args);
     }
 
     /**
      * Append an XML string to the buffer.
      *
      * @param  array<int, mixed> $args Text/s to append to the response buffer
-     * @return void
+     * @return string
      */
-    public static function xml(...$args){
+    public static function xml(...$args) : string {
         static::type(static::TYPE_XML);
-        static::$payload[] = implode('', $args);
+        return static::$payload[] = implode('', $args);
     }
 
     /**
      * Append a SVG string to the buffer.
      *
      * @param  array<int, mixed> $args Text/s to append to the response buffer
-     * @return void
+     * @return string
      */
-    public static function svg(...$args){
+    public static function svg(...$args) : string {
         static::type(static::TYPE_SVG);
-        static::$payload[] = implode('', $args);
+        return static::$payload[] = implode('', $args);
     }
 
     /**
      * Append an HTML string to the buffer.
      *
      * @param  array<int, mixed> $args Text/s to append to the response buffer
-     * @return void
+     * @return string
      */
-    public static function html(...$args){
+    public static function html(...$args) : string {
         static::type(static::TYPE_HTML);
-        static::$payload[] = implode('', $args);
+        return static::$payload[] = implode('', $args);
     }
 
     /**
@@ -224,9 +224,10 @@ class Response {
      *  - Strings and numbers will be appendend to the response
      *
      * @param  array<int, mixed> $args Text/s to append to the response buffer
+     * @return mixed
      */
     public static function add(...$args){
-      foreach(...$args as $data){
+      foreach($args as $data){
         switch (true) {
           case is_callable($data) :
             return static::add($data());
@@ -243,14 +244,14 @@ class Response {
     /**
      * @return void
      */
-    public static function status($code,$message=''){
+    public static function status($code,$message='') : void {
       static::header('Status',$message?:$code,$code);
     }
 
     /**
      * @return void
      */
-    public static function header($name,$value,$code=null){
+    public static function header($name,$value,$code=null) : void {
       if (empty(static::$headers[$name])){
         static::$headers[$name] = [[$value,$code]];
       } else {
@@ -261,19 +262,19 @@ class Response {
     /**
      * @return void
      */
-    public static function error($code=500,$message='Application Error'){
+    public static function error($code=500,$message='Application Error') : void {
       static::trigger('error',$code,$message);
       static::status($code,$message);
     }
 
-    public static function body($setBody=null){
+    public static function body($setBody=null) : string {
       if ($setBody) static::$payload = [$setBody];
       return Filter::with('core.response.body',
         is_array(static::$payload) ? implode('',static::$payload) : static::$payload
       );
     }
 
-    public static function headers($setHeaders=null){
+    public static function headers($setHeaders=null) : array {
        if ($setHeaders) static::$headers = $setHeaders;
        return static::$headers;
     }
@@ -285,7 +286,7 @@ class Response {
      *
      * @return array Headers and body of the response
      */
-    public static function save(){
+    public static function save() : array {
         return [
           'head'  => static::$headers,
           'body'  => static::body(),
@@ -299,7 +300,7 @@ class Response {
      * @param  array $data head/body saved state
      * @return void
      */
-    public static function load($data){
+    public static function load($data) : void {
       $data = (object)$data;
       if (isset($data->head)) static::headers($data->head);
       if (isset($data->body)) static::body($data->body);
@@ -308,7 +309,7 @@ class Response {
     /**
      * @return void
      */
-    public static function send($force = false){
+    public static function send($force = false) : void {
       if (!static::$sent || $force) {
         static::$sent = true;
         static::trigger('send');

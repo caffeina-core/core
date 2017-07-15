@@ -107,15 +107,14 @@ class Map implements \JsonSerializable {
      *
      * @param  mixed   $array The array to merge
      * @param  boolean $merge_back If `true` merge the map over the $array, if `false` (default) the reverse.
-     * @return void
+     * @return array
      */
-    public function merge($array, $merge_back=false){
-        $this->fields = $merge_back
+    public function merge($array, $merge_back=false) : array {
+        return $this->fields = $merge_back
             ? array_replace_recursive((array)$array, $this->fields)
             : array_replace_recursive($this->fields, (array)$array);
     }
 
-    /**
     /**
      * Compact map removing empty paths
      *
