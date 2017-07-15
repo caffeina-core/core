@@ -244,14 +244,14 @@ class Response {
     /**
      * @return void
      */
-    public static function status($code,$message='') : void {
+    public static function status($code,$message='')  {
       static::header('Status',$message?:$code,$code);
     }
 
     /**
      * @return void
      */
-    public static function header($name,$value,$code=null) : void {
+    public static function header($name,$value,$code=null)  {
       if (empty(static::$headers[$name])){
         static::$headers[$name] = [[$value,$code]];
       } else {
@@ -262,7 +262,7 @@ class Response {
     /**
      * @return void
      */
-    public static function error($code=500,$message='Application Error') : void {
+    public static function error($code=500,$message='Application Error')  {
       static::trigger('error',$code,$message);
       static::status($code,$message);
     }
@@ -300,7 +300,7 @@ class Response {
      * @param  array $data head/body saved state
      * @return void
      */
-    public static function load($data) : void {
+    public static function load($data)  {
       $data = (object)$data;
       if (isset($data->head)) static::headers($data->head);
       if (isset($data->body)) static::body($data->body);
@@ -309,7 +309,7 @@ class Response {
     /**
      * @return void
      */
-    public static function send($force = false) : void {
+    public static function send($force = false)  {
       if (!static::$sent || $force) {
         static::$sent = true;
         static::trigger('send');
@@ -353,7 +353,7 @@ class Response {
      * Push resources to client (HTTP/2 spec)
      * @param  string/array $links The link(s) to the resources to push.
      */
-    public static function push($links, $type='text') : void {
+    public static function push($links, $type='text')  {
       if (is_array($links)){
         foreach($links as $_type => $link) {
             // Extract URL basename extension (query-safe version)

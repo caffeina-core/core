@@ -21,11 +21,11 @@ class Deferred {
 		$this->callback = $callback;
 	}
 
-  final public function disarm() : void {
+  final public function disarm()  {
     $this->enabled = false;
   }
 
-  final public function prime() : void {
+  final public function prime()  {
     $this->enabled = true;
   }
 

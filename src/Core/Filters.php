@@ -16,7 +16,7 @@ trait Filters {
 
     protected static $_modders = [];
 
-    final public static function filter($names, callable $modder = null) : void {
+    final public static function filter($names, callable $modder = null)  {
       if (null === $modder) foreach ( (array)$names as $name => $callback ) {
         static::$_modders[$name][] = $callback;
       } else foreach ( (array)$names as $name ) {
@@ -28,7 +28,7 @@ trait Filters {
       static::$_modders[$name] = [$modder];
     }
 
-    final public static function filterRemove($name,callable $modder = null) : void {
+    final public static function filterRemove($name,callable $modder = null)  {
       if (null === $modder) {
         unset(static::$_modders[$name]);
       } else {

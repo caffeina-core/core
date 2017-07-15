@@ -86,7 +86,7 @@ class ZIP {
   /**
    * @return void
    */
-  public function download() : void {
+  public function download()  {
     @$this->zip->close();
     header('Content-Type: application/zip');
     header('Content-Disposition: attachment;filename="'.$this->name.'"',true);

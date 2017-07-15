@@ -96,7 +96,7 @@ class CSV {
   /**
    * @return void
    */
-  final public function write($row) : void {
+  final public function write($row)  {
     if ($this->mode != self::WRITE) return;
     $row = (array)$row;
     if (false === $this->savedheaders) {
@@ -148,7 +148,7 @@ class CSV {
     return $csv;
   }
 
-  final public function flush() : void {
+  final public function flush()  {
     if ($this->mode == self::WRITE) {
       $this->file->fflush();
     }
