@@ -10,7 +10,7 @@
  * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
-class Object extends ArrayObject {
+class CoreObject extends ArrayObject {
 
     /**
      * An Object can wrap a StdClass, an array or an object from a JSON encoded string.
