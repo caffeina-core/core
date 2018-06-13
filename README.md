@@ -17,7 +17,7 @@
 Install via [composer](https://getcomposer.org/download/):
 
 ```bash
-$ composer require caffeina-core/core
+$ composer require caffeina-core/core:dev-2.0-refactor
 ```
 
 ## Documentation
