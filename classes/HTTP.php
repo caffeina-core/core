@@ -22,6 +22,8 @@ class HTTP {
                    $proxy                 = null; // host:port
 
   protected static function request($method, $url, $data=[], array $headers=[], $data_as_json=false, $username=null, $password = null){
+    preg_match('/.+(?::([0-9]+))\/?/i', $url, $match);
+    $port = count($match) > 1 ? $match[1] : 80;
     $http_method = strtoupper($method);
     $ch  = curl_init($url);
     $opt = [
@@ -36,6 +38,7 @@ class HTTP {
       CURLOPT_FOLLOWLOCATION  => true,
       CURLOPT_ENCODING        => '',
       CURLOPT_PROXY           => static::$proxy,
+      CURLOPT_PORT            => $port
     ];
 
     if($username && $password) {
