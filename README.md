@@ -9,6 +9,7 @@
 [![Latest Unstable Version](https://poser.pugx.org/caffeina-core/core/v/unstable.svg)](https://packagist.org/packages/caffeina-core/core)
 [![License](https://poser.pugx.org/caffeina-core/core/license.svg)](https://packagist.org/packages/caffeina-core/core)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/caffeina-core/core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcaffeina-core%2Fcore.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcaffeina-core%2Fcore?ref=badge_shield)
 
 
 > Core is a platform, a collection of components for rapid application development. It doesn't make decisions for you; it gives you tools to build your own solutions.
@@ -51,3 +52,6 @@ Core is maintained by using the [Semantic Versioning Specification (SemVer)](htt
 ## Copyright and license
 
 Copyright 2014-2016 [Caffeina](http://caffeina.com) srl under the [MIT license](LICENSE.md).
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcaffeina-core%2Fcore.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcaffeina-core%2Fcore?ref=badge_large)
