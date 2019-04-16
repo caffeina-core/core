@@ -27,24 +27,24 @@ class ObjectTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testAccess() {
-		$test = new Object($this->array, false);
+		$test = new Structure($this->array, false);
 		$this->assertEquals($test['a'], 123); // Access as Array from Array
-		$this->assertEquals($test->b, 'hello'); // Access as Object from Array
+		$this->assertEquals($test->b, 'hello'); // Access as Structure from Array
 	}
 
 	public function testDeepArray() {
-		$test = new Object($this->array);
+		$test = new Structure($this->array);
 
-		$this->assertEquals($test->c['r'], '#f00'); // Deep access as Object from Array
+		$this->assertEquals($test->c['r'], '#f00'); // Deep access as Structure from Array
 		$this->assertEquals($test['c']->g, '#0f0'); // Deep access as Array from Array
 		$this->assertEquals($test['c']['b'], '#00f'); // Deep access as DoubleArray from Array
 		$this->assertEquals($test->c->b, '#00f'); // Deep access as DoubleObject from Array
 	}
 
-	public function testDeepObject() {
-		$test = new Object($this->object);
+	public function testDeepStructure() {
+		$test = new Structure($this->object);
 
-		$this->assertEquals($test->c['r'], '#f00'); // Deep access as Object from Object
+		$this->assertEquals($test->c['r'], '#f00'); // Deep access as Structure from Object
 		$this->assertEquals($test['c']->g, '#0f0'); // Deep access as Array from Object
 		$this->assertEquals($test['c']['b'], '#00f'); // Deep access as DoubleArray from Object
 		$this->assertEquals($test->c->b, '#00f'); // Deep access as DoubleObject from Object
@@ -61,10 +61,10 @@ class ObjectTest extends PHPUnit_Framework_TestCase {
 				'x' => 2,
 			],
 		];
-		$this->assertEquals(1, Object::fetch('a.x.y', $data), "Deep fetch");
+		$this->assertEquals(1, Structure::fetch('a.x.y', $data), "Deep fetch");
 
-		$this->assertEquals('{"y":1}', json_encode(Object::fetch('a.x', $data), JSON_NUMERIC_CHECK));
-		$this->assertEquals('{"y":1}', json_encode(Object::fetch('a.x', $data), JSON_NUMERIC_CHECK), "Protect \$data reference");
+		$this->assertEquals('{"y":1}', json_encode(Structure::fetch('a.x', $data), JSON_NUMERIC_CHECK));
+		$this->assertEquals('{"y":1}', json_encode(Structure::fetch('a.x', $data), JSON_NUMERIC_CHECK), "Protect \$data reference");
 	}
 
 }

@@ -152,7 +152,8 @@ class CLI {
               return static::triggerError("Command [".$command."] is incomplete.");
           }
         }
-        call_user_func_array($cmd[1],$pars_vector);
+        $returns = call_user_func_array($cmd[1], $pars_vector);
+        echo is_scalar($returns) ? "$returns" : json_encode($returns, JSON_PRETTY_PRINT);
         return true;
       } else {
         static::help();

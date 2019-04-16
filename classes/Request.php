@@ -45,10 +45,10 @@ class Request {
    *
    * @param  string $key The name of the input value
    *
-   * @return Object The returned value or $default.
+   * @return Structure The returned value or $default.
    */
   public static function input($key=null,$default=null){
-    return $key ? (isset($_REQUEST[$key]) ? new Object($_REQUEST[$key]) : (is_callable($default)?call_user_func($default):$default))  : new Object($_REQUEST[$key]);
+    return $key ? (isset($_REQUEST[$key]) ? new Structure($_REQUEST[$key]) : (is_callable($default)?call_user_func($default):$default))  : new Structure($_REQUEST[$key]);
   }
 
   /**

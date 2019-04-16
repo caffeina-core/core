@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Object
+ * Structure
  *
  * Access properties with associative array or object notation seamlessly.
  *
@@ -10,10 +10,10 @@
  * @copyright Caffeina srl - 2015 - http://caffeina.it
  */
 
-class Object extends ArrayObject {
+class Structure extends ArrayObject {
 
     /**
-     * An Object can wrap a StdClass, an array or an object from a JSON encoded string.
+     * An Structure can wrap a StdClass, an array or an object from a JSON encoded string.
      *
      * This class is useful for wrapping API responses and access their properties in
      * an easy way.
